@@ -101,13 +101,19 @@ export function convertMessagesToGroqFormat(messages: Message[], selectedModelId
     .map(msg => {
       // Only include image content if the model supports multimodal input
       if (msg.type === 'image' && msg.imageUrl && isMultiModal) {
-        const textContent = msg.content.trim() || 'User sent an image.';
+        const textContent = msg.content.trim();
+        const content: Array<{ type: 'text' | 'image_url'; text?: string; image_url?: { url: string } }> = [];
+        
+        // Only include text content if there's actual text from the user
+        if (textContent) {
+          content.push({ type: 'text', text: textContent });
+        }
+        
+        content.push({ type: 'image_url', image_url: { url: msg.imageUrl } });
+        
         return {
           role: msg.role,
-          content: [
-            { type: 'text', text: textContent },
-            { type: 'image_url', image_url: { url: msg.imageUrl } }
-          ]
+          content
         };
       }
       // For non-multimodal models or text messages, send only text content
