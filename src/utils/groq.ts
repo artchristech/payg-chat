@@ -1,5 +1,15 @@
+import { Message } from '../types/chat';
+
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+export interface GroqModel {
+  id: string;
+  name: string;
+  description: string;
+  contextLength: number;
+  multiModal: boolean;
+}
 
 export const groqModels: GroqModel[] = [
   {
@@ -81,11 +91,16 @@ export async function sendMessageToGroq(
   }
 }
 
-export function convertMessagesToGroqFormat(messages: Message[]): GroqMessage[] {
+export function convertMessagesToGroqFormat(messages: Message[], selectedModelId: string): GroqMessage[] {
+  // Find the selected model to check if it supports multimodal input
+  const selectedModel = groqModels.find(model => model.id === selectedModelId);
+  const isMultiModal = selectedModel?.multiModal || false;
+
   return messages
     .filter(msg => msg.role !== 'assistant' || !msg.isLoading)
     .map(msg => {
-      if (msg.type === 'image' && msg.imageUrl) {
+      // Only include image content if the model supports multimodal input
+      if (msg.type === 'image' && msg.imageUrl && isMultiModal) {
         return {
           role: msg.role,
           content: [
@@ -94,6 +109,7 @@ export function convertMessagesToGroqFormat(messages: Message[]): GroqMessage[] 
           ]
         };
       }
+      // For non-multimodal models or text messages, send only text content
       return {
         role: msg.role,
         content: msg.content

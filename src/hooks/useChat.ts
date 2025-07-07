@@ -66,7 +66,7 @@ export function useChat() {
     try {
       // Prepare messages for API (including the new user message)
       const messagesForAPI = [...chatState.messages, userMessage];
-      const groqMessages = convertMessagesToGroqFormat(messagesForAPI);
+      const groqMessages = convertMessagesToGroqFormat(messagesForAPI, chatState.selectedModel);
       const response = await sendMessageToGroq(groqMessages, chatState.selectedModel);
 
       // Update assistant message with response
