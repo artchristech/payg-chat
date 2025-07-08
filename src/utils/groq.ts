@@ -38,7 +38,11 @@ export async function sendMessageToGroq(
   model: string = 'llama-3.1-8b-instant'
 ): Promise<string> {
   if (!GROQ_API_KEY) {
-    throw new Error('Groq API key not configured. Please add VITE_GROQ_API_KEY to your environment variables.');
+    throw new Error('Groq API key not configured. Please add VITE_GROQ_API_KEY to your .env file and restart the development server.');
+  }
+
+  if (!GROQ_API_KEY.startsWith('gsk_')) {
+    throw new Error('Invalid Groq API key format. Groq API keys should start with "gsk_".');
   }
 
   try {
@@ -59,14 +63,30 @@ export async function sendMessageToGroq(
     });
 
     if (!response.ok) {
-      throw new Error(`Groq API error: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      let errorMessage = `Groq API error: ${response.status} ${response.statusText}`;
+      
+      if (response.status === 401) {
+        errorMessage = 'Invalid Groq API key. Please check your VITE_GROQ_API_KEY in the .env file.';
+      } else if (response.status === 429) {
+        errorMessage = 'Rate limit exceeded. Please try again in a moment.';
+      } else if (response.status >= 500) {
+        errorMessage = 'Groq API server error. Please try again later.';
+      }
+      
+      console.error('Groq API Response:', errorText);
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
     return data.choices[0]?.message?.content || 'No response received';
   } catch (error) {
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      throw new Error('Network error: Unable to connect to Groq API. Please check your internet connection and ensure no firewall or ad-blocker is blocking the request.');
+    }
+    
     console.error('Error calling Groq API:', error);
-    throw error;
+    throw error instanceof Error ? error : new Error('Unknown error occurred while calling Groq API');
   }
 }
 

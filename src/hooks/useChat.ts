@@ -81,11 +81,17 @@ export function useChat() {
       }));
     } catch (error) {
       console.error('Error sending message:', error);
+      
+      let errorMessage = 'Failed to send message';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
       setChatState(prev => ({
         ...prev,
         messages: prev.messages.filter(msg => msg.id !== assistantMessage.id),
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to send message',
+        error: errorMessage,
       }));
     }
   }, [chatState.messages, chatState.selectedModel]);
