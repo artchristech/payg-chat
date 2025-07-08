@@ -13,16 +13,16 @@ export interface GroqModel {
 
 export const groqModels: GroqModel[] = [
   {
-    id: 'meta-llama/llama-guard-4-12b',
-    name: 'llama4',
-    description: 'Bigger',
+    id: 'llama-3.3-70b-versatile',
+    name: 'Llama 3.3 70B',
+    description: 'Most capable model',
     contextLength: 8192,
     multiModal: true,
   },
   {
     id: 'llama-3.1-8b-instant',
-    name: 'Llama 3.1 8B Instant',
-    description: 'Faster',
+    name: 'Instant',
+    description: 'Fastest responses',
     contextLength: 8192,
     multiModal: false,
   },

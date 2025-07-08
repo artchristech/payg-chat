@@ -7,7 +7,7 @@ export function useChat() {
     messages: [],
     isLoading: false,
     error: null,
-    selectedModel: 'llama-3.1-8b-instant',
+    selectedModel: 'llama-3.3-70b-versatile',
   });
 
   const addMessage = useCallback((message: Omit<Message, 'id' | 'timestamp'>) => {
