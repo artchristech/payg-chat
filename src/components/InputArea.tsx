@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, X, Paperclip, Search, Lightbulb, ImagePlus, Edit, Newspaper, Users, ChevronDown } from 'lucide-react';
+import { Send, Loader2, X } from 'lucide-react';
 import { AudioRecorder } from './AudioRecorder';
 import { ImageUploader } from './ImageUploader';
 import { ModelSelector } from './ModelSelector';
@@ -95,106 +95,37 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
             </div>
 
             {/* Message Input Bar */}
-            <div className="flex-1 relative bg-gray-800 rounded-3xl border border-gray-700 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-900 transition-all duration-200 shadow-lg min-h-[80px]">
+            <div className="flex-1 relative bg-gray-800 rounded-3xl border border-gray-700 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-900 transition-all duration-200 shadow-lg">
               <textarea
                 ref={textareaRef}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="What do you want to know?"
-                className="w-full resize-none bg-transparent pl-6 pr-16 py-4 pb-16 focus:outline-none min-h-[56px] max-h-32 placeholder-gray-400 text-gray-100"
+                placeholder={placeholder}
+                className="w-full resize-none bg-transparent pl-6 pr-16 py-4 focus:outline-none min-h-[56px] max-h-32 placeholder-gray-400 text-gray-100"
                 rows={1}
                 disabled={isLoading}
               />
 
-              {/* Bottom Controls */}
-              <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
-                {/* Left-aligned buttons */}
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    className="flex items-center gap-2 px-3 py-2 bg-gray-700 text-gray-100 rounded-full hover:bg-gray-600 transition-colors text-sm"
-                    title="Attach file"
-                  >
-                    <Paperclip className="w-4 h-4" />
-                  </button>
-                  
-                  <button
-                    type="button"
-                    className="flex items-center gap-2 px-3 py-2 bg-gray-700 text-gray-100 rounded-full hover:bg-gray-600 transition-colors text-sm"
-                  >
-                    <Search className="w-4 h-4" />
-                    <span>DeepSearch</span>
-                    <ChevronDown className="w-3 h-3" />
-                  </button>
-                  
-                  <button
-                    type="button"
-                    className="flex items-center gap-2 px-3 py-2 bg-gray-700 text-gray-100 rounded-full hover:bg-gray-600 transition-colors text-sm"
-                  >
-                    <Lightbulb className="w-4 h-4" />
-                    <span>Think</span>
-                  </button>
-                </div>
-
-                {/* Right-aligned buttons */}
-                <div className="flex items-center gap-2">
-                  <ModelSelector
-                    selectedModel={selectedModel}
-                    onModelChange={onModelChange}
-                    compact={true}
-                  />
-                  
-                  <button
-                    type="submit"
-                    disabled={isLoading || (!message.trim() && !selectedImage)}
-                    className="w-10 h-10 bg-blue-500 text-white rounded-full hover:bg-blue-600 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center ml-2"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <Send className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
+              {/* Send Button */}
+              <button
+                type="submit"
+                disabled={isLoading || (!message.trim() && !selectedImage)}
+                className="absolute right-4 bottom-1/2 translate-y-1/2 w-8 h-8 bg-blue-500 text-white rounded-full hover:bg-blue-600 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+              </button>
             </div>
           </div>
 
-          {/* Second row of buttons */}
-          <div className="flex items-center justify-center gap-3">
-            <button
-              type="button"
-              className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 rounded-full hover:bg-gray-700 hover:border-gray-600 transition-all duration-200 text-sm font-medium text-gray-100 shadow-sm hover:shadow-md"
-            >
-              <ImagePlus className="w-4 h-4" />
-              Create Images
-            </button>
-            
-            <button
-              type="button"
-              className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 rounded-full hover:bg-gray-700 hover:border-gray-600 transition-all duration-200 text-sm font-medium text-gray-100 shadow-sm hover:shadow-md"
-            >
-              <Edit className="w-4 h-4" />
-              Edit Image
-            </button>
-            
-            <button
-              type="button"
-              className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 rounded-full hover:bg-gray-700 hover:border-gray-600 transition-all duration-200 text-sm font-medium text-gray-100 shadow-sm hover:shadow-md"
-            >
-              <Newspaper className="w-4 h-4" />
-              Latest News
-            </button>
-            
-            <button
-              type="button"
-              className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 rounded-full hover:bg-gray-700 hover:border-gray-600 transition-all duration-200 text-sm font-medium text-gray-100 shadow-sm hover:shadow-md"
-            >
-              <Users className="w-4 h-4" />
-              Personas
-              <ChevronDown className="w-3 h-3" />
-            </button>
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3 px-2">
+            <ImageUploader onImageSelect={handleImageSelect} />
+            <AudioRecorder onRecordingComplete={handleAudioRecording} />
           </div>
         </div>
       </form>
