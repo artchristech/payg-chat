@@ -20,31 +20,10 @@ export const groqModels: GroqModel[] = [
     multiModal: true,
   },
   {
-    id: 'llama-3.2-11b-vision-preview',
-    name: 'Llama 3.2 11B Vision',
-    description: 'Smaller multimodal model',
-    contextLength: 8192,
-    multiModal: true,
-  },
-  {
-    id: 'llama-3.1-70b-versatile',
-    name: 'Llama 3.1 70B',
-    description: 'Large language model for complex tasks',
-    contextLength: 32768,
-    multiModal: false,
-  },
-  {
     id: 'llama-3.1-8b-instant',
     name: 'Llama 3.1 8B Instant',
     description: 'Faster',
     contextLength: 8192,
-    multiModal: false,
-  },
-  {
-    id: 'mixtral-8x7b-32768',
-    name: 'Mixtral 8x7B',
-    description: 'Mixture of experts model',
-    contextLength: 32768,
     multiModal: false,
   },
 ];
