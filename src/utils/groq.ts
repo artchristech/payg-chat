@@ -13,9 +13,9 @@ export interface GroqModel {
 
 export const groqModels: GroqModel[] = [
   {
-    id: 'llama-3.3-70b-versatile',
-    name: 'Llama 3.2 90B Vision',
-    description: 'Multimodal model with vision capabilities',
+    id: 'meta-llama/llama-guard-4-12b',
+    name: 'llama4',
+    description: 'Bigger',
     contextLength: 8192,
     multiModal: true,
   },
@@ -36,7 +36,7 @@ export const groqModels: GroqModel[] = [
   {
     id: 'llama-3.1-8b-instant',
     name: 'Llama 3.1 8B Instant',
-    description: 'Fast, efficient model for quick responses',
+    description: 'Faster',
     contextLength: 8192,
     multiModal: false,
   },
