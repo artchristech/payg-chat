@@ -5,9 +5,10 @@ import { groqModels } from '../utils/groq';
 interface ModelSelectorProps {
   selectedModel: string;
   onModelChange: (model: string) => void;
+  compact?: boolean;
 }
 
-export function ModelSelector({ selectedModel, onModelChange }: ModelSelectorProps) {
+export function ModelSelector({ selectedModel, onModelChange, compact = false }: ModelSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -29,12 +30,16 @@ export function ModelSelector({ selectedModel, onModelChange }: ModelSelectorPro
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-4 bg-gray-800 border border-gray-700 rounded-3xl hover:bg-gray-700 hover:border-gray-600 transition-all duration-200 text-gray-100 min-h-[56px]"
+        className={`flex items-center gap-2 bg-gray-700 hover:bg-gray-600 transition-all duration-200 text-gray-100 ${
+          compact 
+            ? 'px-3 py-2 rounded-full text-sm' 
+            : 'px-4 py-4 rounded-3xl min-h-[56px] border border-gray-700 hover:border-gray-600'
+        }`}
       >
         <span className="text-sm font-medium">
           {selectedModelInfo?.name.split(' ')[0] || 'Model'}
         </span>
-        <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`${compact ? 'w-3 h-3' : 'w-4 h-4'} transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
