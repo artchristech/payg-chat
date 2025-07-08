@@ -13,7 +13,7 @@ export interface GroqModel {
 
 export const groqModels: GroqModel[] = [
   {
-    id: 'llama-3.3-70b-versatile',
+    id: 'meta-llama/llama-4-scout-17b-16e-instruct',
     name: 'Llama 3.3 70B',
     description: 'Most capable model',
     contextLength: 8192,
