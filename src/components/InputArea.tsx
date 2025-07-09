@@ -69,12 +69,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
 
   // Auto-focus on mount
   useEffect(() => {
-    // Focus when component mounts or when messages are cleared
-    const timer = setTimeout(() => {
-      textareaRef.current.focus();
-    }, 100);
-    
-    return () => clearTimeout(timer);
+    textareaRef.current?.focus();
   }, []);
 
   // Re-focus when transitioning back to welcome screen
@@ -86,12 +81,8 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
     return () => clearTimeout(timer);
   }, [placeholder]); // Trigger when placeholder changes (indicates welcome screen state change)
 
-  const handleInputAreaClick = () => {
-    textareaRef.current?.focus();
-  };
-
   return (
-    <div className="bg-gray-900 p-4" onClick={handleInputAreaClick}>
+    <div className="bg-gray-900 p-4">
       <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
         <div className="space-y-3">
           {/* Image Preview */}
@@ -114,7 +105,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
           )}
 
           {/* Main Input Container */}
-          <div className="bg-gray-700 rounded-3xl transition-all duration-200 p-4" onClick={handleInputAreaClick}>
+          <div className="bg-gray-700 rounded-3xl transition-all duration-200 p-4">
             {/* Text Input Area */}
             <div className="relative">
             <textarea
@@ -143,7 +134,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
             </div>
 
             {/* Attachment and Model Section */}
-            <div className="flex items-center gap-3 mt-3" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mt-3">
               <AttachmentMenu
                 onImageSelect={handleImageSelect}
                 onAudioRecordingComplete={handleAudioRecording}
