@@ -17,6 +17,13 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const focusMessageInput = () => {
+    // Small delay to ensure the dropdown has closed
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 100);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim() || selectedImage) {
@@ -121,6 +128,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               <ModelSelector
                 selectedModel={selectedModel}
                 onModelChange={onModelChange}
+                onSelectionComplete={focusMessageInput}
                 compact={true}
               />
             </div>

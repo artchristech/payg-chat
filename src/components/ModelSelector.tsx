@@ -5,10 +5,11 @@ import { groqModels } from '../utils/groq';
 interface ModelSelectorProps {
   selectedModel: string;
   onModelChange: (model: string) => void;
+  onSelectionComplete?: () => void;
   compact?: boolean;
 }
 
-export function ModelSelector({ selectedModel, onModelChange, compact = false }: ModelSelectorProps) {
+export function ModelSelector({ selectedModel, onModelChange, onSelectionComplete, compact = false }: ModelSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -52,6 +53,7 @@ export function ModelSelector({ selectedModel, onModelChange, compact = false }:
                 onClick={() => {
                   onModelChange(model.id);
                   setIsOpen(false);
+                  onSelectionComplete?.();
                 }}
                 className={`
                   w-full text-left p-3 rounded-lg hover:bg-gray-700 transition-colors
