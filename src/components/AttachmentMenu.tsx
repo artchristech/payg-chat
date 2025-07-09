@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Paperclip, Image, Mic, Square, X } from 'lucide-react';
+import { ModelSelector } from './ModelSelector';
 
 interface AttachmentMenuProps {
   onImageSelect: (file: File, preview: string) => void;
   onAudioRecordingComplete: (audioBlob: Blob, audioUrl: string) => void;
+  selectedModel: string;
+  onModelChange: (model: string) => void;
 }
 
-export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete }: AttachmentMenuProps) {
+export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete, selectedModel, onModelChange }: AttachmentMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -109,7 +112,15 @@ export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete }: Atta
   // If recording, show recording UI
   if (isRecording) {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <ModelSelector
+            selectedModel={selectedModel}
+            onModelChange={onModelChange}
+            compact={true}
+          />
+        </div>
+        <div className="flex items-center gap-2">
         <button
           onClick={stopRecording}
           className="flex items-center gap-2 px-3 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all duration-200"
@@ -120,12 +131,22 @@ export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete }: Atta
           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
           {formatTime(recordingTime)}
         </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="relative" ref={menuRef}>
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <ModelSelector
+          selectedModel={selectedModel}
+          onModelChange={onModelChange}
+          compact={true}
+        />
+      </div>
+      
+      <div className="relative" ref={menuRef}>
       <button
         type="button"
         onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -163,6 +184,7 @@ export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete }: Atta
         onChange={handleFileSelect}
         className="hidden"
       />
+    </div>
     </div>
   );
 }
