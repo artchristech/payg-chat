@@ -74,8 +74,12 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
     }
   }, []);
 
+  const handleInputAreaClick = () => {
+    textareaRef.current?.focus();
+  };
+
   return (
-    <div className="bg-gray-900 p-4">
+    <div className="bg-gray-900 p-4" onClick={handleInputAreaClick}>
       <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
         <div className="space-y-3">
           {/* Image Preview */}
@@ -98,7 +102,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
           )}
 
           {/* Main Input Container */}
-          <div className="bg-gray-700 rounded-3xl transition-all duration-200 p-4">
+          <div className="bg-gray-700 rounded-3xl transition-all duration-200 p-4" onClick={handleInputAreaClick}>
             {/* Text Input Area */}
             <div className="relative">
             <textarea
@@ -127,7 +131,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
             </div>
 
             {/* Attachment and Model Section */}
-            <div className="flex items-center gap-3 mt-3">
+            <div className="flex items-center gap-3 mt-3" onClick={(e) => e.stopPropagation()}>
               <AttachmentMenu
                 onImageSelect={handleImageSelect}
                 onAudioRecordingComplete={handleAudioRecording}
