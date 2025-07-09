@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, X } from 'lucide-react';
+import { ArrowUp, Loader2, X } from 'lucide-react';
 import { AttachmentMenu } from './AttachmentMenu';
 import { ModelSelector } from './ModelSelector';
 
@@ -121,7 +121,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
-                <Send className="w-5 h-5" />
+                <ArrowUp className="w-5 h-5" />
               )}
             </button>
             </div>
