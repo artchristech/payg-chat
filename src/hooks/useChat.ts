@@ -67,18 +67,34 @@ export function useChat() {
       // Prepare messages for API (including the new user message)
       const messagesForAPI = [...chatState.messages, userMessage];
       const groqMessages = convertMessagesToGroqFormat(messagesForAPI, chatState.selectedModel);
-      const response = await sendMessageToGroq(groqMessages, chatState.selectedModel);
-
-      // Update assistant message with response
-      setChatState(prev => ({
-        ...prev,
-        messages: prev.messages.map(msg =>
-          msg.id === assistantMessage.id
-            ? { ...msg, content: response, isLoading: false }
-            : msg
-        ),
-        isLoading: false,
-      }));
+      
+      await sendMessageToGroq(
+        groqMessages, 
+        chatState.selectedModel,
+        // onUpdate callback - append content as it streams
+        (content: string) => {
+          setChatState(prev => ({
+            ...prev,
+            messages: prev.messages.map(msg =>
+              msg.id === assistantMessage.id
+                ? { ...msg, content: msg.content + content }
+                : msg
+            ),
+          }));
+        },
+        // onComplete callback - mark as finished
+        () => {
+          setChatState(prev => ({
+            ...prev,
+            messages: prev.messages.map(msg =>
+              msg.id === assistantMessage.id
+                ? { ...msg, isLoading: false }
+                : msg
+            ),
+            isLoading: false,
+          }));
+        }
+      );
     } catch (error) {
       console.error('Error sending message:', error);
       

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Message } from '../types/chat';
-import { User, Bot, Loader2, Volume2 } from 'lucide-react';
+import { User, Bot, Volume2 } from 'lucide-react';
 
 interface MessageBubbleProps {
   message: Message;
@@ -8,7 +8,55 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
-  const isLoading = message.isLoading;
+  const [displayedContent, setDisplayedContent] = useState('');
+  const [showCursor, setShowCursor] = useState(false);
+
+  // Typing animation effect
+  useEffect(() => {
+    if (isUser) {
+      setDisplayedContent(message.content);
+      return;
+    }
+
+    const targetContent = message.content;
+    let currentIndex = 0;
+    
+    // Reset displayed content when message content changes significantly
+    if (targetContent.length < displayedContent.length) {
+      setDisplayedContent('');
+      currentIndex = 0;
+    } else {
+      currentIndex = displayedContent.length;
+    }
+
+    if (currentIndex < targetContent.length) {
+      const timer = setInterval(() => {
+        setDisplayedContent(targetContent.slice(0, currentIndex + 1));
+        currentIndex++;
+        
+        if (currentIndex >= targetContent.length) {
+          clearInterval(timer);
+        }
+      }, 20); // Adjust speed here (lower = faster)
+
+      return () => clearInterval(timer);
+    }
+  }, [message.content, isUser, displayedContent.length]);
+
+  // Cursor blinking effect
+  useEffect(() => {
+    if (isUser || !message.isLoading) {
+      setShowCursor(false);
+      return;
+    }
+
+    setShowCursor(true);
+    const cursorTimer = setInterval(() => {
+      setShowCursor(prev => !prev);
+    }, 500);
+
+    return () => clearInterval(cursorTimer);
+  }, [message.isLoading, isUser]);
 
   return (
     <div className={`flex items-start gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -50,16 +98,12 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           </div>
         )}
         
-        {isLoading ? (
-          <div className="flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            <span className="text-sm opacity-70">Thinking...</span>
-          </div>
-        ) : (
-          <p className="whitespace-pre-wrap text-sm leading-relaxed">
-            {message.content}
-          </p>
-        )}
+        <p className="whitespace-pre-wrap text-sm leading-relaxed">
+          {displayedContent}
+          {message.isLoading && showCursor && (
+            <span className="inline-block w-0.5 h-4 bg-current ml-0.5 animate-pulse" />
+          )}
+        </p>
         
         <div className={`
           text-xs mt-1 opacity-60

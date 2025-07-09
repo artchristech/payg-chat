@@ -35,8 +35,10 @@ export interface GroqMessage {
 
 export async function sendMessageToGroq(
   messages: GroqMessage[],
-  model: string = 'llama-3.1-8b-instant'
-): Promise<string> {
+  model: string = 'llama-3.1-8b-instant',
+  onUpdate?: (content: string) => void,
+  onComplete?: () => void
+): Promise<void> {
   if (!GROQ_API_KEY) {
     throw new Error('Groq API key not configured. Please add VITE_GROQ_API_KEY to your .env file and restart the development server.');
   }
@@ -58,7 +60,7 @@ export async function sendMessageToGroq(
         temperature: 0.7,
         max_tokens: 1024,
         top_p: 1,
-        stream: false,
+        stream: true,
       }),
     });
 
@@ -78,8 +80,53 @@ export async function sendMessageToGroq(
       throw new Error(errorMessage);
     }
 
-    const data = await response.json();
-    return data.choices[0]?.message?.content || 'No response received';
+    if (!response.body) {
+      throw new Error('No response body received');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+        
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            
+            if (data === '[DONE]') {
+              onComplete?.();
+              return;
+            }
+            
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
+              
+              if (content) {
+                onUpdate?.(content);
+              }
+            } catch (e) {
+              // Skip invalid JSON lines
+              continue;
+            }
+          }
+        }
+      }
+      
+      onComplete?.();
+    } catch (error) {
+      console.error('Error reading stream:', error);
+      throw error;
+    }
   } catch (error) {
     if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
       throw new Error('Network error: Unable to connect to Groq API. Please check your internet connection and ensure no firewall or ad-blocker is blocking the request.');
