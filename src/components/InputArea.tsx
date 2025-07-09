@@ -93,10 +93,19 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              className="w-full resize-none bg-transparent pr-16 focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 text-gray-100"
+              className="w-full resize-none bg-transparent pr-32 focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 text-gray-100"
               rows={1}
               disabled={isLoading}
             />
+
+            {/* Model Selector */}
+            <div className="absolute right-16 top-1/2 -translate-y-1/2">
+              <ModelSelector
+                selectedModel={selectedModel}
+                onModelChange={onModelChange}
+                compact={true}
+              />
+            </div>
 
             {/* Send Button */}
             <button
@@ -117,8 +126,6 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               <AttachmentMenu
                 onImageSelect={handleImageSelect}
                 onAudioRecordingComplete={handleAudioRecording}
-                selectedModel={selectedModel}
-                onModelChange={onModelChange}
               />
             </div>
           </div>
