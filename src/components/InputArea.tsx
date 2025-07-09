@@ -122,7 +122,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
             </div>
 
             {/* Attachment Section */}
-            <div className="mt-3 pt-3 border-t border-gray-700">
+            <div className="mt-3">
               <AttachmentMenu
                 onImageSelect={handleImageSelect}
                 onAudioRecordingComplete={handleAudioRecording}
