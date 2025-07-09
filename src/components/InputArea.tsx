@@ -98,7 +98,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
           )}
 
           {/* Main Input Container */}
-          <div className="bg-gray-800 rounded-3xl border border-gray-700 focus-within:border-blue-400 transition-all duration-200 shadow-lg p-4">
+          <div className="bg-gray-800 rounded-3xl border border-gray-700 transition-all duration-200 shadow-lg p-4">
             {/* Text Input Area */}
             <div className="relative">
             <textarea
