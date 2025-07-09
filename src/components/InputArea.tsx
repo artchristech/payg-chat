@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Loader2, X } from 'lucide-react';
-import { AudioRecorder } from './AudioRecorder';
-import { ImageUploader } from './ImageUploader';
+import { AttachmentMenu } from './AttachmentMenu';
 import { ModelSelector } from './ModelSelector';
 
 interface InputAreaProps {
@@ -88,13 +87,21 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
           <div className="flex items-end">
             {/* Message Input Bar with Model Selector and Send Button */}
             <div className="flex-1 relative bg-gray-800 rounded-3xl border border-gray-700 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-900 transition-all duration-200 shadow-lg">
+              {/* Attachment Menu */}
+              <div className="absolute left-3 bottom-3">
+                <AttachmentMenu
+                  onImageSelect={handleImageSelect}
+                  onAudioRecordingComplete={handleAudioRecording}
+                />
+              </div>
+
               <textarea
                 ref={textareaRef}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
-                className="w-full resize-none bg-transparent pl-6 pr-32 py-4 focus:outline-none min-h-[56px] max-h-32 placeholder-gray-400 text-gray-100"
+                className="w-full resize-none bg-transparent pl-16 pr-32 py-4 focus:outline-none min-h-[56px] max-h-32 placeholder-gray-400 text-gray-100"
                 rows={1}
                 disabled={isLoading}
               />
@@ -121,12 +128,6 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                 )}
               </button>
             </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-3 px-2">
-            <ImageUploader onImageSelect={handleImageSelect} />
-            <AudioRecorder onRecordingComplete={handleAudioRecording} />
           </div>
         </div>
       </form>
