@@ -67,6 +67,13 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
     }
   }, [message]);
 
+  // Auto-focus on mount
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, []);
+
   return (
     <div className="border-t border-gray-800 bg-gray-900 p-4">
       <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
