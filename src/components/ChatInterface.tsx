@@ -29,6 +29,11 @@ export function ChatInterface() {
     sendMessage(prompt);
   };
 
+  const handleClearChat = () => {
+    clearChat();
+    // Small delay to ensure state updates, then focus will be handled by InputArea
+  };
+
   const isEmpty = messages.length === 0;
 
   return (
@@ -45,7 +50,7 @@ export function ChatInterface() {
           
           {!isEmpty && (
             <button
-              onClick={clearChat}
+              onClick={handleClearChat}
               className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:bg-gray-700 hover:text-gray-200 rounded-lg transition-colors"
             >
               <Trash2 className="w-4 h-4" />

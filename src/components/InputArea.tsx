@@ -69,10 +69,22 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
 
   // Auto-focus on mount
   useEffect(() => {
-    if (textareaRef.current) {
+    // Focus when component mounts or when messages are cleared
+    const timer = setTimeout(() => {
       textareaRef.current.focus();
-    }
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, []);
+
+  // Re-focus when transitioning back to welcome screen
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 600); // Wait for animation to complete
+    
+    return () => clearTimeout(timer);
+  }, [placeholder]); // Trigger when placeholder changes (indicates welcome screen state change)
 
   const handleInputAreaClick = () => {
     textareaRef.current?.focus();
