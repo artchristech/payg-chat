@@ -83,21 +83,23 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
             </div>
           )}
 
-          {/* Main Input Bar */}
-          <div className="relative bg-gray-800 rounded-3xl border border-gray-700 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-900 transition-all duration-200 shadow-lg">
+          {/* Main Input Container */}
+          <div className="bg-gray-800 rounded-3xl border border-gray-700 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-900 transition-all duration-200 shadow-lg p-4">
+            {/* Text Input Area */}
+            <div className="relative">
             <textarea
               ref={textareaRef}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              className="w-full resize-none bg-transparent pl-6 pr-32 py-4 focus:outline-none min-h-[56px] max-h-32 placeholder-gray-400 text-gray-100"
+              className="w-full resize-none bg-transparent pr-32 focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 text-gray-100"
               rows={1}
               disabled={isLoading}
             />
 
             {/* Model Selector */}
-            <div className="absolute right-16 bottom-3">
+            <div className="absolute right-16 top-1/2 -translate-y-1/2">
               <ModelSelector
                 selectedModel={selectedModel}
                 onModelChange={onModelChange}
@@ -109,7 +111,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
             <button
               type="submit"
               disabled={isLoading || (!message.trim() && !selectedImage)}
-              className="absolute right-3 bottom-3 w-10 h-10 bg-blue-500 text-white rounded-full hover:bg-blue-600 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center"
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-blue-500 text-white rounded-full hover:bg-blue-600 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -117,14 +119,15 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                 <Send className="w-5 h-5" />
               )}
             </button>
-          </div>
+            </div>
 
-          {/* Utility Buttons Row */}
-          <div className="flex items-center gap-3 px-2">
-            <AttachmentMenu
-              onImageSelect={handleImageSelect}
-              onAudioRecordingComplete={handleAudioRecording}
-            />
+            {/* Attachment Section */}
+            <div className="mt-3 pt-3 border-t border-gray-700">
+              <AttachmentMenu
+                onImageSelect={handleImageSelect}
+                onAudioRecordingComplete={handleAudioRecording}
+              />
+            </div>
           </div>
         </div>
       </form>
