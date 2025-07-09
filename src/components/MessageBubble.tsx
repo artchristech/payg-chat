@@ -27,7 +27,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         max-w-[70%] rounded-2xl px-4 py-2 relative
         ${isUser 
           ? 'bg-blue-500 text-white' 
-          : 'bg-gray-800 text-gray-100 border border-gray-700'
+          : 'bg-gray-700 text-gray-100'
         }
       `}>
         {message.type === 'image' && message.imageUrl && (

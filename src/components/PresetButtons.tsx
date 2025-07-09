@@ -82,6 +82,7 @@ export function PresetButtons({ onPresetClick }: PresetButtonsProps) {
           key={preset.id}
           onClick={() => onPresetClick(preset.prompt)}
           className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 rounded-full hover:bg-gray-700 hover:border-gray-600 transition-all duration-200 text-sm font-medium text-gray-100 shadow-sm hover:shadow-md"
+          className="flex items-center gap-2 px-4 py-2 bg-gray-700 rounded-full hover:bg-gray-600 transition-all duration-200 text-sm font-medium text-gray-100"
         >
           <IconComponent name={preset.icon} />
           {preset.label}

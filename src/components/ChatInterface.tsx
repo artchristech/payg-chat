@@ -24,9 +24,9 @@ export function ChatInterface() {
   const isEmpty = messages.length === 0;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-950">
+    <div className="flex flex-col h-screen bg-gray-900">
       {/* Header */}
-      <div className="bg-gray-900 border-b border-gray-800 px-4 py-3">
+      <div className="bg-gray-900 px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -38,7 +38,7 @@ export function ChatInterface() {
           {!isEmpty && (
             <button
               onClick={clearChat}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:bg-gray-800 hover:text-gray-200 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:bg-gray-700 hover:text-gray-200 rounded-lg transition-colors"
             >
               <Trash2 className="w-4 h-4" />
               Clear Chat
@@ -49,7 +49,7 @@ export function ChatInterface() {
 
       {/* Error Banner */}
       {error && (
-        <div className="bg-red-900/50 border-b border-red-800 px-4 py-3">
+        <div className="bg-red-900/30 px-4 py-3">
           <div className="max-w-4xl mx-auto flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-red-400" />
             <span className="text-red-200 text-sm">{error}</span>
@@ -69,7 +69,7 @@ export function ChatInterface() {
           {isEmpty ? (
             <div className="text-center py-12">
               <div className="mb-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Zap className="w-8 h-8 text-white" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-100 mb-2">

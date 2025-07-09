@@ -34,7 +34,7 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
         className={`flex items-center gap-2 bg-gray-700 hover:bg-gray-600 transition-all duration-200 text-gray-100 ${
           compact 
             ? 'px-3 py-2 rounded-full text-sm' 
-            : 'px-4 py-4 border border-gray-700 rounded-3xl hover:border-gray-600 min-h-[56px]'
+            : 'px-4 py-4 rounded-3xl min-h-[56px]'
         }`}
       >
         <span className="text-sm font-medium">
@@ -44,7 +44,7 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
       </button>
 
       {isOpen && (
-        <div className={`absolute ${compact ? 'bottom-full right-0' : 'bottom-full left-0'} mb-2 w-80 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-50`}>
+        <div className={`absolute ${compact ? 'bottom-full right-0' : 'bottom-full left-0'} mb-2 w-80 bg-gray-700 rounded-lg shadow-lg z-50`}>
           <div className="p-2 max-h-80 overflow-y-auto">
             {groqModels.map((model) => (
               <button
@@ -56,7 +56,7 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
                   onSelectionComplete?.();
                 }}
                 className={`
-                  w-full text-left p-3 rounded-lg hover:bg-gray-700 transition-colors
+                  w-full text-left p-3 rounded-lg hover:bg-gray-600 transition-colors
                   ${selectedModel === model.id ? 'bg-blue-900' : ''}
                 `}
               >

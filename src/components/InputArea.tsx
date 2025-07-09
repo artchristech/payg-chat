@@ -75,7 +75,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   }, []);
 
   return (
-    <div className="border-t border-gray-800 bg-gray-900 p-4">
+    <div className="bg-gray-900 p-4">
       <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
         <div className="space-y-3">
           {/* Image Preview */}
@@ -85,7 +85,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                 <img
                   src={selectedImage}
                   alt="Selected"
-                  className="max-w-32 max-h-32 rounded-xl object-cover border border-gray-700"
+                  className="max-w-32 max-h-32 rounded-xl object-cover"
                 />
                 <button
                   onClick={handleImageRemove}
@@ -98,7 +98,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
           )}
 
           {/* Main Input Container */}
-          <div className="bg-gray-800 rounded-3xl border border-gray-700 transition-all duration-200 shadow-lg p-4">
+          <div className="bg-gray-700 rounded-3xl transition-all duration-200 p-4">
             {/* Text Input Area */}
             <div className="relative">
             <textarea
