@@ -85,16 +85,8 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
           )}
 
           {/* Input Row with Model Selector and Message Bar */}
-          <div className="flex items-end gap-3">
-            {/* Model Selector */}
-            <div className="flex-shrink-0">
-              <ModelSelector
-                selectedModel={selectedModel}
-                onModelChange={onModelChange}
-              />
-            </div>
-
-            {/* Message Input Bar */}
+          <div className="flex items-end">
+            {/* Message Input Bar with Model Selector and Send Button */}
             <div className="flex-1 relative bg-gray-800 rounded-3xl border border-gray-700 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-900 transition-all duration-200 shadow-lg">
               <textarea
                 ref={textareaRef}
@@ -102,21 +94,30 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
-                className="w-full resize-none bg-transparent pl-6 pr-16 py-4 focus:outline-none min-h-[56px] max-h-32 placeholder-gray-400 text-gray-100"
+                className="w-full resize-none bg-transparent pl-6 pr-32 py-4 focus:outline-none min-h-[56px] max-h-32 placeholder-gray-400 text-gray-100"
                 rows={1}
                 disabled={isLoading}
               />
+
+              {/* Model Selector */}
+              <div className="absolute right-16 bottom-3">
+                <ModelSelector
+                  selectedModel={selectedModel}
+                  onModelChange={onModelChange}
+                  compact={true}
+                />
+              </div>
 
               {/* Send Button */}
               <button
                 type="submit"
                 disabled={isLoading || (!message.trim() && !selectedImage)}
-                className="absolute right-4 bottom-1/2 translate-y-1/2 w-8 h-8 bg-blue-500 text-white rounded-full hover:bg-blue-600 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center"
+                className="absolute right-3 bottom-3 w-10 h-10 bg-blue-500 text-white rounded-full hover:bg-blue-600 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center"
               >
                 {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  <Send className="w-4 h-4" />
+                  <Send className="w-5 h-5" />
                 )}
               </button>
             </div>
