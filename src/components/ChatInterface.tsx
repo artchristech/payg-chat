@@ -8,6 +8,7 @@ import { AlertCircle, Trash2, Zap } from 'lucide-react';
 export function ChatInterface() {
   const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showWelcomeScreen, setShowWelcomeScreen] = React.useState(true);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -15,7 +16,14 @@ export function ChatInterface() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+    
+    // Control welcome screen visibility based on messages
+    if (messages.length > 0) {
+      setShowWelcomeScreen(false);
+    } else {
+      setShowWelcomeScreen(true);
+    }
+  }, [messages, showWelcomeScreen]);
 
   const handlePresetClick = (prompt: string) => {
     sendMessage(prompt);
@@ -24,7 +32,7 @@ export function ChatInterface() {
   const isEmpty = messages.length === 0;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900">
+    <div className="flex flex-col h-screen bg-gray-900 relative">
       {/* Header */}
       <div className="bg-gray-900 px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -63,33 +71,40 @@ export function ChatInterface() {
         </div>
       )}
 
+      {/* Welcome Screen Overlay */}
+      <div className={`
+        absolute inset-x-0 bottom-0 top-0 flex flex-col justify-center items-center
+        transition-opacity duration-500 z-10
+        ${showWelcomeScreen ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+      `}>
+        <div className="text-center py-12">
+          <div className="mb-8">
+            <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Zap className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-100 mb-2">
+              What's on your mind?
+            </h2>
+            <p className="text-gray-400">
+              Start a conversation with AI powered by Groq
+            </p>
+          </div>
+          
+          <PresetButtons onPresetClick={handlePresetClick} />
+        </div>
+      </div>
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto">
+      <div className={`
+        flex-1 overflow-y-auto transition-opacity duration-500
+        ${showWelcomeScreen ? 'opacity-0' : 'opacity-100'}
+      `}>
         <div className="max-w-4xl mx-auto px-4 py-6">
-          {isEmpty ? (
-            <div className="text-center py-12">
-              <div className="mb-8">
-                <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Zap className="w-8 h-8 text-white" />
-                </div>
-                <h2 className="text-3xl font-bold text-gray-100 mb-2">
-                  What's on your mind?
-                </h2>
-                <p className="text-gray-400">
-                  Start a conversation with AI powered by Groq
-                </p>
-              </div>
-              
-              <PresetButtons onPresetClick={handlePresetClick} />
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {messages.map((message) => (
-                <MessageBubble key={message.id} message={message} />
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-          )}
+          <div className="space-y-6">
+            {messages.map((message) => (
+              <MessageBubble key={message.id} message={message} />
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
       </div>
 
@@ -97,7 +112,7 @@ export function ChatInterface() {
       <InputArea
         onSendMessage={sendMessage}
         isLoading={isLoading}
-        placeholder={isEmpty ? "Ask me anything..." : "Continue the conversation..."}
+        placeholder={showWelcomeScreen ? "Ask me anything..." : "Continue the conversation..."}
         selectedModel={selectedModel}
         onModelChange={setSelectedModel}
       />
