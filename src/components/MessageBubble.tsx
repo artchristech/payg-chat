@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Message } from '../types/chat';
 import { User, Bot, Volume2 } from 'lucide-react';
 
@@ -8,55 +8,6 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
-  const [displayedContent, setDisplayedContent] = useState('');
-  const [showCursor, setShowCursor] = useState(false);
-
-  // Typing animation effect
-  useEffect(() => {
-    if (isUser) {
-      setDisplayedContent(message.content);
-      return;
-    }
-
-    const targetContent = message.content;
-    let currentIndex = 0;
-    
-    // Reset displayed content when message content changes significantly
-    if (targetContent.length < displayedContent.length) {
-      setDisplayedContent('');
-      currentIndex = 0;
-    } else {
-      currentIndex = displayedContent.length;
-    }
-
-    if (currentIndex < targetContent.length) {
-      const timer = setInterval(() => {
-        setDisplayedContent(targetContent.slice(0, currentIndex + 1));
-        currentIndex++;
-        
-        if (currentIndex >= targetContent.length) {
-          clearInterval(timer);
-        }
-      }, 20); // Adjust speed here (lower = faster)
-
-      return () => clearInterval(timer);
-    }
-  }, [message.content, isUser, displayedContent.length]);
-
-  // Cursor blinking effect
-  useEffect(() => {
-    if (isUser || !message.isLoading) {
-      setShowCursor(false);
-      return;
-    }
-
-    setShowCursor(true);
-    const cursorTimer = setInterval(() => {
-      setShowCursor(prev => !prev);
-    }, 500);
-
-    return () => clearInterval(cursorTimer);
-  }, [message.isLoading, isUser]);
 
   return (
     <div className={`flex items-start gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -98,9 +49,12 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           </div>
         )}
         
-        <p className="whitespace-pre-wrap text-sm leading-relaxed">
-          {displayedContent}
-          {message.isLoading && showCursor && (
+        <p className={`
+          whitespace-pre-wrap text-sm leading-relaxed transition-opacity duration-500 ease-out
+          ${message.isLoading ? 'opacity-0' : 'opacity-100'}
+        `}>
+          {message.content}
+          {message.isLoading && (
             <span className="inline-block w-0.5 h-4 bg-current ml-0.5 animate-pulse" />
           )}
         </p>
