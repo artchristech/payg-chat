@@ -33,12 +33,7 @@ export function ChatInterface() {
       {/* Header */}
       <div className="bg-gray-900 px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <ConvergenceIcon className="w-4 h-4 text-white" />
-            </div>
-            <h1 className="text-xl font-semibold text-gray-100">PayG</h1>
-          </div>
+          <h1 className="text-xl font-semibold text-gray-100">payg.chat</h1>
           
           {!isEmpty && (
             <button
