@@ -37,7 +37,6 @@ export function ChatInterface() {
               <Zap className="w-4 h-4 text-white" />
             </div>
             <h1 className="text-xl font-semibold text-gray-100">payg-chat</h1>
-            <h1 className="text-xl font-semibold text-gray-100">PayG</h1>
           </div>
           
           {!isEmpty && (
