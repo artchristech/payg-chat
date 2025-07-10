@@ -7,6 +7,10 @@ export interface Message {
   imageUrl?: string;
   audioUrl?: string;
   isLoading?: boolean;
+  isChunked?: boolean;
+  chunkIndex?: number;
+  totalChunks?: number;
+  canContinue?: boolean;
 }
 
 export interface ChatState {

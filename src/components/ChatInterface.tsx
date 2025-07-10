@@ -6,7 +6,7 @@ import { useChat } from '../hooks/useChat';
 import { AlertCircle, Trash2 } from 'lucide-react';
 
 export function ChatInterface() {
-  const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError } = useChat();
+  const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError, continueMessage } = useChat();
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null);
 
@@ -121,7 +121,7 @@ export function ChatInterface() {
                   key={message.id} 
                   ref={index === messages.length - 1 ? lastMessageRef : null}
                 >
-                  <MessageBubble message={message} />
+                  <MessageBubble message={message} onContinue={continueMessage} />
                 </div>
               ))}
               {/* Add some bottom padding for better UX */}
