@@ -12,10 +12,10 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div className={`
-        max-w-[70%] rounded-2xl px-4 py-3 relative
+        max-w-[70%] relative
         ${isUser 
-          ? 'bg-blue-500 text-white' 
-          : 'bg-gray-700 text-gray-100'
+          ? 'bg-gray-600 text-white rounded-2xl px-4 py-3' 
+          : 'text-gray-100'
         }
       `}>
         {message.type === 'image' && message.imageUrl && (
