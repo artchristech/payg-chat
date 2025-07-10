@@ -3,7 +3,7 @@ import { ChatInterface } from './components/ChatInterface';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-900 animate-fade-in">
+    <div className="min-h-screen bg-gray-900">
       <ChatInterface />
     </div>
   );
