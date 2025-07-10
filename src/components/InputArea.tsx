@@ -123,7 +123,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
             <button
               type="submit"
               disabled={isLoading || (!message.trim() && !selectedImage)}
-              className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-gray-500 text-white rounded-full hover:bg-gray-600 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center"
+              className="absolute right-0 bottom-0 w-10 h-10 bg-gray-500 text-white rounded-full hover:bg-gray-600 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
