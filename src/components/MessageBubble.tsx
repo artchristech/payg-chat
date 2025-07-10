@@ -8,7 +8,7 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
-  
+
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div className={`
@@ -38,15 +38,15 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           </div>
         )}
         
-        <div className={`
+        <p className={`
           whitespace-pre-wrap text-base leading-relaxed transition-opacity duration-500 ease-out
-          ${message.isLoading ? 'opacity-0 animate-pulse' : 'opacity-100'}
+          ${message.isLoading ? 'opacity-0' : 'opacity-100'}
         `}>
           {message.content}
           {message.isLoading && (
-            <span className="inline-block w-0.5 h-5 bg-gray-400 ml-1 animate-pulse" />
+            <span className="inline-block w-0.5 h-4 bg-current ml-0.5 animate-pulse" />
           )}
-        </div>
+        </p>
       </div>
     </div>
   );

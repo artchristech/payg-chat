@@ -1,9 +1,8 @@
 import { useState, useCallback } from 'react';
 import { Message, ChatState } from '../types/chat';
 import { sendMessageToGroq, convertMessagesToGroqFormat } from '../utils/groq';
-import { shouldChunkResponse, findChunkBreakpoint, estimateTokens } from '../utils/tokenCounter';
 
-export function useChat() {
+export function useChat(onScrollToBottom?: () => void) {
   const [chatState, setChatState] = useState<ChatState>({
     messages: [],
     isLoading: false,
@@ -30,9 +29,7 @@ export function useChat() {
     content: string,
     type: 'text' | 'image' | 'audio' = 'text',
     imageUrl?: string,
-    audioUrl?: string,
-    isContinuation: boolean = false,
-    continuationMessageId?: string
+    audioUrl?: string
   ) => {
     if (!content.trim()) return;
 
@@ -66,20 +63,18 @@ export function useChat() {
       isLoading: true,
     }));
 
+    // Scroll to bottom after adding user message and starting AI response
+    setTimeout(() => onScrollToBottom?.(), 100);
     try {
       // Prepare messages for API (including the new user message)
       const messagesForAPI = [...chatState.messages, userMessage];
       const groqMessages = convertMessagesToGroqFormat(messagesForAPI, chatState.selectedModel);
-
-      let accumulatedContent = '';
-      const shouldChunk = false; // Disable chunking for now to simplify
-
+      
       await sendMessageToGroq(
         groqMessages, 
         chatState.selectedModel,
         // onUpdate callback - append content as it streams
         (content: string) => {
-          accumulatedContent += content;
           setChatState(prev => ({
             ...prev,
             messages: prev.messages.map(msg =>
@@ -91,33 +86,17 @@ export function useChat() {
         },
         // onComplete callback - mark as finished
         () => {
-          let finalContent = accumulatedContent;
-          let canContinue = false;
-          
-          if (shouldChunk && !isContinuation) {
-            // Find a good breakpoint for the first chunk
-            const breakpoint = findChunkBreakpoint(accumulatedContent);
-            finalContent = accumulatedContent.substring(0, breakpoint);
-            canContinue = breakpoint < accumulatedContent.length;
-          }
-          
           setChatState(prev => ({
             ...prev,
             messages: prev.messages.map(msg =>
               msg.id === assistantMessage.id
-                ? { 
-                    ...msg, 
-                    content: finalContent,
-                    isLoading: false,
-                    canContinue: canContinue,
-                    isChunked: shouldChunk,
-                    chunkIndex: 1,
-                    totalChunks: shouldChunk ? Math.ceil(estimateTokens(accumulatedContent) / 400) : 1
-                  }
+                ? { ...msg, isLoading: false }
                 : msg
             ),
             isLoading: false,
           }));
+          // Scroll to bottom when AI response is complete
+          setTimeout(() => onScrollToBottom?.(), 100);
         }
       );
     } catch (error) {
@@ -130,33 +109,12 @@ export function useChat() {
       
       setChatState(prev => ({
         ...prev,
-        messages: isContinuation 
-          ? prev.messages.map(msg =>
-              msg.id === assistantMessage.id
-                ? { ...msg, isLoading: false, canContinue: false }
-                : msg
-            )
-          : prev.messages.filter(msg => msg.id !== assistantMessage.id),
+        messages: prev.messages.filter(msg => msg.id !== assistantMessage.id),
         isLoading: false,
         error: errorMessage,
       }));
     }
-  }, [chatState.messages, chatState.selectedModel]);
-
-  const continueMessage = useCallback(async (messageId: string) => {
-    const messageToUpdate = chatState.messages.find(msg => msg.id === messageId);
-    if (!messageToUpdate) return;
-    
-    // Create a continuation prompt
-    await sendMessage(
-      'Continue the previous response',
-      'text',
-      undefined,
-      undefined,
-      true,
-      messageId
-    );
-  }, [chatState.messages, chatState.selectedModel, sendMessage]);
+  }, [chatState.messages, chatState.selectedModel, onScrollToBottom]);
 
   const clearChat = useCallback(() => {
     setChatState(prev => ({
@@ -177,7 +135,6 @@ export function useChat() {
   return {
     ...chatState,
     sendMessage,
-    continueMessage,
     clearChat,
     setSelectedModel,
     clearError,

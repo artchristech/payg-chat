@@ -115,7 +115,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              className="w-full resize-none bg-transparent focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 text-gray-100 hide-scrollbar"
+              className="w-full resize-none bg-transparent focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 text-gray-100"
               rows={1}
               disabled={isLoading}
             />
@@ -141,7 +141,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               <button
                 type="submit"
                 disabled={isLoading || (!message.trim() && !selectedImage)}
-                className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-full hover:from-blue-600 hover:to-blue-700 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center shadow-md"
+                className="w-10 h-10 bg-gray-500/85 text-white rounded-full hover:bg-gray-600/85 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center shadow-md"
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
