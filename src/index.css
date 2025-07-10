@@ -18,3 +18,16 @@
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
+
+@layer utilities {
+  /* Hide scrollbar for webkit browsers (Chrome, Safari, Edge) */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for Firefox */
+  .hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+}

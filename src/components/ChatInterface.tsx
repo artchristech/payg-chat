@@ -61,7 +61,7 @@ export function ChatInterface() {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto hide-scrollbar">
         <div className="max-w-4xl mx-auto px-4 py-6">
           {isEmpty ? (
             <div className="flex flex-col justify-center items-center h-full min-h-[50vh]">

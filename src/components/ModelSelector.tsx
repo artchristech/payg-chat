@@ -45,7 +45,7 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
 
       {isOpen && (
         <div className={`absolute ${compact ? 'bottom-full right-0' : 'bottom-full left-0'} mb-2 w-80 bg-gray-800 border border-gray-600/50 rounded-xl shadow-2xl backdrop-blur-sm z-50`}>
-          <div className="p-2 max-h-80 overflow-y-auto">
+          <div className="p-2 max-h-80 overflow-y-auto hide-scrollbar">
             {groqModels.map((model) => (
               <button
                 key={model.id}

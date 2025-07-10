@@ -115,7 +115,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              className="w-full resize-none bg-transparent focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 text-gray-100"
+              className="w-full resize-none bg-transparent focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 text-gray-100 hide-scrollbar"
               rows={1}
               disabled={isLoading}
             />
