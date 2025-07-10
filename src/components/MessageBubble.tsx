@@ -4,10 +4,9 @@ import { Volume2 } from 'lucide-react';
 
 interface MessageBubbleProps {
   message: Message;
+}
 
 export function MessageBubble({ message }: MessageBubbleProps) {
-export function MessageBubble({ message }: MessageBubbleProps) {
-
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div className={`
@@ -46,3 +45,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             <span className="inline-block w-0.5 h-5 bg-gray-400 ml-1 animate-pulse" />
           )}
         </div>
+      </div>
+    </div>
+  );
+}
