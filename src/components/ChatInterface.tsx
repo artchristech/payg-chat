@@ -73,9 +73,6 @@ export function ChatInterface() {
                   <h2 className="text-3xl font-bold text-gray-100 mb-2">
                     all the models, no subscription
                   </h2>
-                  <p className="text-gray-400">
-                    Start a conversation with AI powered by Groq
-                  </p>
                 </div>
                 
                 <PresetButtons onPresetClick={handlePresetClick} />
