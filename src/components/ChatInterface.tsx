@@ -7,16 +7,36 @@ import { AlertCircle, Trash2 } from 'lucide-react';
 
 export function ChatInterface() {
   const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError } = useChat();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const prevMessagesLengthRef = useRef(0);
-  const prevLastMessageLoadingRef = useRef(false);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const lastMessageRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+  const scrollToNewMessage = () => {
+    if (lastMessageRef.current && messagesContainerRef.current) {
+      const container = messagesContainerRef.current;
+      const lastMessage = lastMessageRef.current;
+      
+      // Get the position of the last message relative to the container
+      const messageRect = lastMessage.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      
+      // Calculate how much to scroll to show the beginning of the message
+      const messageTop = lastMessage.offsetTop;
+      const containerHeight = container.clientHeight;
+      const headerHeight = 80; // Approximate header height
+      
+      // Scroll to show the beginning of the new message with some padding
+      container.scrollTo({
+        top: messageTop - headerHeight - 20,
+        behavior: 'instant'
+      });
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
+    // Only scroll when a new message is added
+    if (messages.length > 0) {
+      scrollToNewMessage();
+    }
   }, [messages]);
 
   const handlePresetClick = (prompt: string) => {
@@ -65,7 +85,10 @@ export function ChatInterface() {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto hide-scrollbar scroll-snap-type-y-mandatory">
+      <div 
+        ref={messagesContainerRef}
+        className="flex-1 overflow-y-auto hide-scrollbar"
+      >
         <div className="max-w-4xl mx-auto px-4 py-6">
           {isEmpty ? (
             <div className="flex flex-col justify-center items-center h-full min-h-[50vh]">
@@ -93,12 +116,16 @@ export function ChatInterface() {
             </div>
           ) : (
             <div className="space-y-6">
-              {messages.map((message) => (
-                <div key={message.id} className="scroll-snap-align-start">
+              {messages.map((message, index) => (
+                <div 
+                  key={message.id} 
+                  ref={index === messages.length - 1 ? lastMessageRef : null}
+                >
                   <MessageBubble message={message} />
                 </div>
               ))}
-              <div ref={messagesEndRef} />
+              {/* Add some bottom padding for better UX */}
+              <div className="h-20" />
             </div>
           )}
         </div>
