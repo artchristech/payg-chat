@@ -15,19 +15,19 @@ export function ConvergenceIcon({ className = "w-4 h-4" }: ConvergenceIconProps)
       strokeLinejoin="round"
       className={className}
     >
-      {/* Multiple input streams from top converging to one output at bottom */}
-      <path d="M6 2 L12 12" />
-      <path d="M9 2 L12 12" />
-      <path d="M12 2 L12 12" />
-      <path d="M15 2 L12 12" />
-      <path d="M18 2 L12 12" />
+      {/* Multiple input streams from bottom converging to one output at top */}
+      <path d="M6 22 L12 12" />
+      <path d="M9 22 L12 12" />
+      <path d="M12 22 L12 12" />
+      <path d="M15 22 L12 12" />
+      <path d="M18 22 L12 12" />
       
       {/* Convergence point */}
       <circle cx="12" cy="12" r="1" fill="currentColor" />
       
-      {/* Single output stream with arrow pointing down */}
-      <path d="M12 12 L12 22" />
-      <path d="M9 19 L12 22 L15 19" />
+      {/* Single output stream with arrow pointing up */}
+      <path d="M12 12 L12 2" />
+      <path d="M9 5 L12 2 L15 5" />
     </svg>
   );
 }
