@@ -12,28 +12,11 @@ export function ChatInterface() {
   const prevLastMessageLoadingRef = useRef(false);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
   };
 
   useEffect(() => {
-    const currentMessagesLength = messages.length;
-    const lastMessage = messages[messages.length - 1];
-    const isLastMessageLoading = lastMessage?.isLoading || false;
-    
-    // Scroll when:
-    // 1. A new message is added (length increased)
-    // 2. The last message transitions from loading to complete
-    const shouldScroll = 
-      currentMessagesLength > prevMessagesLengthRef.current ||
-      (prevLastMessageLoadingRef.current && !isLastMessageLoading && lastMessage);
-    
-    if (shouldScroll) {
-      scrollToBottom();
-    }
-    
-    // Update refs for next comparison
-    prevMessagesLengthRef.current = currentMessagesLength;
-    prevLastMessageLoadingRef.current = isLastMessageLoading;
+    scrollToBottom();
   }, [messages]);
 
   const handlePresetClick = (prompt: string) => {

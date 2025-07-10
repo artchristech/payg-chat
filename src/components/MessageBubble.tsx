@@ -39,8 +39,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         )}
         
         <p className={`
-          whitespace-pre-wrap text-base leading-relaxed transition-opacity duration-500 ease-out
-          ${message.isLoading ? 'opacity-0' : 'opacity-100'}
+          whitespace-pre-wrap text-base leading-relaxed
         `}>
           {message.content}
           {message.isLoading && (
