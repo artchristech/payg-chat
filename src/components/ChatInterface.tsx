@@ -57,7 +57,7 @@ export function ChatInterface() {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto hide-scrollbar">
+      <div className="flex-1 overflow-y-auto hide-scrollbar scroll-snap-type-y-mandatory">
         <div className="max-w-4xl mx-auto px-4 py-6">
           {isEmpty ? (
             <div className="flex flex-col justify-center items-center h-full min-h-[50vh]">
@@ -84,9 +84,11 @@ export function ChatInterface() {
               </div>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-6 scroll-snap-align-start">
               {messages.map((message) => (
-                <MessageBubble key={message.id} message={message} />
+                <div key={message.id} className="scroll-snap-align-start">
+                  <MessageBubble message={message} />
+                </div>
               ))}
               <div ref={messagesEndRef} />
             </div>
