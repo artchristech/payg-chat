@@ -10,7 +10,7 @@ export function ConvergenceIcon({ className = "w-4 h-4" }: ConvergenceIconProps)
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.5"
+      strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
@@ -23,7 +23,7 @@ export function ConvergenceIcon({ className = "w-4 h-4" }: ConvergenceIconProps)
       <path d="M18 22 L12 12" />
       
       {/* Convergence point */}
-      <circle cx="12" cy="12" r="1" fill="currentColor" />
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" />
       
       {/* Single output stream with arrow pointing up */}
       <path d="M12 12 L12 2" />
