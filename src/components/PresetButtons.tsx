@@ -1,13 +1,10 @@
 import React from 'react';
 import { PresetOption } from '../types/chat';
 import { 
-  FileText, 
-  Code, 
-  Palette, 
-  Search, 
   Lightbulb, 
-  Brain, 
-  GraduationCap 
+  MessageCircle,
+  Puzzle,
+  PenTool
 } from 'lucide-react';
 
 interface PresetButtonsProps {
@@ -16,61 +13,40 @@ interface PresetButtonsProps {
 
 const presetOptions: PresetOption[] = [
   {
-    id: 'summary',
-    label: 'Summary',
-    prompt: 'Please provide a concise summary of the following:',
-    icon: 'FileText',
-  },
-  {
-    id: 'code',
-    label: 'Code',
-    prompt: 'Help me write code for:',
-    icon: 'Code',
-  },
-  {
-    id: 'design',
-    label: 'Design',
-    prompt: 'Help me design something creative:',
-    icon: 'Palette',
-  },
-  {
-    id: 'research',
-    label: 'Research',
-    prompt: 'I need help researching:',
-    icon: 'Search',
-  },
-  {
-    id: 'inspiration',
-    label: 'Get Inspired',
-    prompt: 'Give me creative ideas for:',
+    id: 'brainstorm',
+    label: 'Brainstorm',
+    prompt: 'Help me brainstorm creative ideas for:',
     icon: 'Lightbulb',
   },
   {
-    id: 'think',
-    label: 'Think Deeply',
-    prompt: 'Let\'s think deeply about:',
-    icon: 'Brain',
+    id: 'explain',
+    label: 'Explain',
+    prompt: 'Explain this concept in simple terms:',
+    icon: 'MessageCircle',
   },
   {
-    id: 'learn',
-    label: 'Learn Gently',
-    prompt: 'Teach me about:',
-    icon: 'GraduationCap',
+    id: 'solve',
+    label: 'Solve',
+    prompt: 'Help me solve this problem step by step:',
+    icon: 'Puzzle',
+  },
+  {
+    id: 'write',
+    label: 'Write',
+    prompt: 'Help me write professional content for:',
+    icon: 'PenTool',
   },
 ];
 
 const IconComponent = ({ name }: { name: string }) => {
   const iconMap = {
-    FileText,
-    Code,
-    Palette,
-    Search,
     Lightbulb,
-    Brain,
-    GraduationCap,
+    MessageCircle,
+    Puzzle,
+    PenTool,
   };
   
-  const Icon = iconMap[name as keyof typeof iconMap] || FileText;
+  const Icon = iconMap[name as keyof typeof iconMap] || Lightbulb;
   return <Icon className="w-4 h-4" />;
 };
 
