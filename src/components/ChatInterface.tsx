@@ -8,7 +8,9 @@ import { AlertCircle, Trash2, Zap } from 'lucide-react';
 export function ChatInterface() {
   const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [showWelcomeScreen, setShowWelcomeScreen] = React.useState(true);
+  
+  // Derive welcome screen visibility directly from messages
+  const showWelcomeScreen = messages.length === 0;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -16,14 +18,7 @@ export function ChatInterface() {
 
   useEffect(() => {
     scrollToBottom();
-    
-    // Control welcome screen visibility based on messages
-    if (messages.length > 0) {
-      setShowWelcomeScreen(false);
-    } else {
-      setShowWelcomeScreen(true);
-    }
-  }, [messages, showWelcomeScreen]);
+  }, [messages]);
 
   const handlePresetClick = (prompt: string) => {
     sendMessage(prompt);
