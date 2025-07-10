@@ -25,6 +25,23 @@ export function useChat() {
     return newMessage;
   }, []);
 
+  const addAssistantMessageDirectly = useCallback((content: string) => {
+    const assistantMessage: Message = {
+      id: Date.now().toString(),
+      role: 'assistant',
+      content,
+      type: 'text',
+      timestamp: new Date(),
+    };
+
+    setChatState(prev => ({
+      ...prev,
+      messages: [...prev.messages, assistantMessage],
+    }));
+
+    return assistantMessage;
+  }, []);
+
   const sendMessage = useCallback(async (
     content: string,
     type: 'text' | 'image' | 'audio' = 'text',
@@ -131,6 +148,7 @@ export function useChat() {
   return {
     ...chatState,
     sendMessage,
+    addAssistantMessageDirectly,
     clearChat,
     setSelectedModel,
     clearError,

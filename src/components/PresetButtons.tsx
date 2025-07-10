@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 
 interface PresetButtonsProps {
-  onPresetClick: (prompt: string) => void;
+  onPresetClick: (preset: PresetOption) => void;
 }
 
 const presetOptions: PresetOption[] = [
@@ -61,7 +61,7 @@ export function PresetButtons({ onPresetClick }: PresetButtonsProps) {
         {topThreeButtons.map((preset) => (
           <button
             key={preset.id}
-            onClick={() => onPresetClick(preset.prompt)}
+            onClick={() => onPresetClick(preset)}
             className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 rounded-full hover:bg-gray-700 hover:border-gray-600 transition-all duration-200 text-sm font-medium text-gray-100 shadow-sm hover:shadow-md"
           >
             <IconComponent name={preset.icon} />
@@ -73,7 +73,7 @@ export function PresetButtons({ onPresetClick }: PresetButtonsProps) {
       {/* Market button - larger and centered below */}
       <div className="flex justify-center">
         <button
-          onClick={() => onPresetClick(marketButton.prompt)}
+          onClick={() => onPresetClick(marketButton)}
           className="flex items-center gap-3 px-6 py-3 bg-gray-800 border border-gray-700 rounded-full hover:bg-gray-700 hover:border-gray-600 transition-all duration-200 text-base font-medium text-gray-100 shadow-sm hover:shadow-md"
         >
           <IconComponent name={marketButton.icon} />

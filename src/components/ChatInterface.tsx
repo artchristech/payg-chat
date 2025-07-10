@@ -7,7 +7,7 @@ import { AlertCircle, Trash2 } from 'lucide-react';
 import { ConvergenceIcon } from './ConvergenceIcon';
 
 export function ChatInterface() {
-  const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError } = useChat();
+  const { messages, isLoading, error, selectedModel, sendMessage, addAssistantMessageDirectly, clearChat, setSelectedModel, clearError } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -18,8 +18,18 @@ export function ChatInterface() {
     scrollToBottom();
   }, [messages]);
 
-  const handlePresetClick = (prompt: string) => {
-    sendMessage(prompt);
+  const handlePresetClick = (preset: any) => {
+    if (preset.id === 'travel') {
+      // For travel preset, send the user's selection and then add assistant question
+      sendMessage(preset.label);
+      // Add a small delay to ensure the user message is processed first
+      setTimeout(() => {
+        addAssistantMessageDirectly("Where do you want to go?");
+      }, 100);
+    } else {
+      // For other presets, use the original behavior
+      sendMessage(preset.prompt);
+    }
   };
 
   const handleClearChat = () => {
