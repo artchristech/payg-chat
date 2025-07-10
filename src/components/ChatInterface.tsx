@@ -4,12 +4,37 @@ import { InputArea } from './InputArea';
 import { PresetButtons } from './PresetButtons';
 import { useChat } from '../hooks/useChat';
 import { AlertCircle, Trash2 } from 'lucide-react';
-import { ConvergenceIcon } from './ConvergenceIcon';
 
 export function ChatInterface() {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
   const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError } = useChat();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const prevMessagesLengthRef = useRef(0);
+  const prevLastMessageLoadingRef = useRef(false);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    const currentMessagesLength = messages.length;
+    const lastMessage = messages[messages.length - 1];
+    const isLastMessageLoading = lastMessage?.isLoading || false;
+    
+    // Scroll when:
+    // 1. A new message is added (length increased)
+    // 2. The last message transitions from loading to complete
+    const shouldScroll = 
+      currentMessagesLength > prevMessagesLengthRef.current ||
+      (prevLastMessageLoadingRef.current && !isLastMessageLoading && lastMessage);
+    
+    if (shouldScroll) {
+      scrollToBottom();
+    }
+    
+    // Update refs for next comparison
+    prevMessagesLengthRef.current = currentMessagesLength;
+    prevLastMessageLoadingRef.current = isLastMessageLoading;
+  }, [messages]);
 
   const handlePresetClick = (prompt: string) => {
     sendMessage(prompt);
@@ -84,7 +109,7 @@ export function ChatInterface() {
               </div>
             </div>
           ) : (
-            <div className="space-y-6 scroll-snap-align-start">
+            <div className="space-y-6">
               {messages.map((message) => (
                 <div key={message.id} className="scroll-snap-align-start">
                   <MessageBubble message={message} />
