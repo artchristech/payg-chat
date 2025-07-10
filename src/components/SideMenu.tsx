@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Menu, MessageSquare, Settings, User, HelpCircle, LogOut } from 'lucide-react';
 
 export function SideMenu() {
   const [isHovered, setIsHovered] = useState(false);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const menuItems = [
     { icon: MessageSquare, label: 'New Chat', action: () => console.log('New Chat') },
@@ -12,11 +13,37 @@ export function SideMenu() {
     { icon: LogOut, label: 'Sign Out', action: () => console.log('Sign Out') },
   ];
 
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleMouseEnter = () => {
+    // Clear any existing timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    // Set a delay before hiding the menu
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovered(false);
+      hoverTimeoutRef.current = null;
+    }, 200); // 200ms delay
+  };
+
   return (
     <div
       className="fixed bottom-6 left-6 z-50"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Expanded Menu Panel */}
       <div
