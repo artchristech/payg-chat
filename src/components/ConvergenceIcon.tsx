@@ -10,22 +10,24 @@ export function ConvergenceIcon({ className = "w-4 h-4" }: ConvergenceIconProps)
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
     >
-      {/* Two input lines converging to one output line */}
-      <path d="M3 8 L12 12" />
-      <path d="M3 16 L12 12" />
-      <path d="M12 12 L21 12" />
+      {/* Multiple input streams converging to one output */}
+      <path d="M2 6 L12 12" />
+      <path d="M2 9 L12 12" />
+      <path d="M2 12 L12 12" />
+      <path d="M2 15 L12 12" />
+      <path d="M2 18 L12 12" />
       
-      {/* Small dots at the start points */}
-      <circle cx="3" cy="8" r="1.5" fill="currentColor" />
-      <circle cx="3" cy="16" r="1.5" fill="currentColor" />
+      {/* Convergence point */}
+      <circle cx="12" cy="12" r="1" fill="currentColor" />
       
-      {/* Arrow at the end */}
-      <path d="M18 9 L21 12 L18 15" />
+      {/* Single output stream with arrow */}
+      <path d="M12 12 L22 12" />
+      <path d="M19 9 L22 12 L19 15" />
     </svg>
   );
 }
