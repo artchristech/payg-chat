@@ -7,16 +7,13 @@ import { AlertCircle, Trash2 } from 'lucide-react';
 import { ConvergenceIcon } from './ConvergenceIcon';
 
 export function ChatInterface() {
-  const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError } = useChat(scrollToBottom);
 
   const handlePresetClick = (prompt: string) => {
     sendMessage(prompt);
