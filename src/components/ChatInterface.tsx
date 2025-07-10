@@ -75,9 +75,6 @@ export function ChatInterface() {
             <div className="flex flex-col justify-center items-center h-full min-h-[60vh]">
               <div className="text-center py-12">
                 <div className="mb-8">
-                  <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <ConvergenceIcon className="w-8 h-8 text-white" />
-                  </div>
                   <h2 className="text-3xl font-bold text-gray-100 mb-2">
                     What's on your mind?
                   </h2>
