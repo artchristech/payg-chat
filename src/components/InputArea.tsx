@@ -114,27 +114,15 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
-              className="w-full resize-none bg-transparent pr-16 focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 text-gray-100"
+              className="w-full resize-none bg-transparent focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 text-gray-100"
               rows={1}
               disabled={isLoading}
             />
-
-            {/* Send Button */}
-            <button
-              type="submit"
-              disabled={isLoading || (!message.trim() && !selectedImage)}
-              className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-gray-500 text-white rounded-full hover:bg-gray-600 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center"
-            >
-              {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <ArrowUp className="w-5 h-5" />
-              )}
-            </button>
             </div>
 
             {/* Attachment and Model Section */}
-            <div className="flex items-center gap-3 mt-3">
+            <div className="flex items-center justify-between mt-3">
+              <div className="flex items-center gap-3">
               <AttachmentMenu
                 onImageSelect={handleImageSelect}
                 onAudioRecordingComplete={handleAudioRecording}
@@ -145,6 +133,20 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                 onSelectionComplete={focusMessageInput}
                 compact={true}
               />
+              </div>
+              
+              {/* Send Button */}
+              <button
+                type="submit"
+                disabled={isLoading || (!message.trim() && !selectedImage)}
+                className="w-10 h-10 bg-gray-500 text-white rounded-full hover:bg-gray-600 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <ArrowUp className="w-5 h-5" />
+                )}
+              </button>
             </div>
           </div>
         </div>
