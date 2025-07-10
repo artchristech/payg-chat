@@ -33,18 +33,18 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
         onClick={() => setIsOpen(!isOpen)}
         className={`flex items-center gap-2 bg-gray-700 hover:bg-gray-600 transition-all duration-200 text-gray-100 ${
           compact 
-            ? 'px-3 py-2 rounded-full text-sm scale-[0.85] bg-gradient-to-br from-gray-800 to-gray-700 border border-gray-600 shadow-lg hover:from-gray-700 hover:to-gray-600 gap-1' 
+            ? 'px-3 py-2 rounded-full text-sm scale-[0.85] bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-500/30 shadow-md hover:from-gray-600 hover:to-gray-700 hover:border-gray-400/40 gap-1.5' 
             : 'px-4 py-4 rounded-3xl min-h-[56px]'
         }`}
       >
         <span className="text-sm font-medium">
           {selectedModelInfo?.name.split(' ')[0] || 'Model'}
         </span>
-        <ChevronDown className={`${compact ? 'w-3 h-3' : 'w-4 h-4'} transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`${compact ? 'w-3 h-3' : 'w-4 h-4'} transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} text-gray-300`} />
       </button>
 
       {isOpen && (
-        <div className={`absolute ${compact ? 'bottom-full right-0' : 'bottom-full left-0'} mb-2 w-80 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50`}>
+        <div className={`absolute ${compact ? 'bottom-full right-0' : 'bottom-full left-0'} mb-2 w-80 bg-gray-800 border border-gray-600/50 rounded-xl shadow-2xl backdrop-blur-sm z-50`}>
           <div className="p-2 max-h-80 overflow-y-auto">
             {groqModels.map((model) => (
               <button
@@ -56,8 +56,8 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
                   onSelectionComplete?.();
                 }}
                 className={`
-                  w-full text-left p-3 rounded-lg hover:bg-gray-700 transition-colors
-                  ${selectedModel === model.id ? 'bg-blue-800' : ''}
+                  w-full text-left p-3 rounded-lg hover:bg-gray-700/80 transition-all duration-200
+                  ${selectedModel === model.id ? 'bg-gradient-to-r from-blue-800/80 to-blue-700/80 border-l-2 border-blue-400' : ''}
                 `}
               >
                 <div className="flex items-center justify-between">

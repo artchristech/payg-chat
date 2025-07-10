@@ -122,24 +122,25 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
 
             {/* Attachment and Model Section */}
             <div className="flex items-center justify-between mt-3">
-              <div className="flex items-center gap-3">
+              {/* Left side - Attachment */}
               <AttachmentMenu
                 onImageSelect={handleImageSelect}
                 onAudioRecordingComplete={handleAudioRecording}
               />
+              
+              {/* Right side - Model Selector and Send Button */}
+              <div className="flex items-center gap-2">
               <ModelSelector
                 selectedModel={selectedModel}
                 onModelChange={onModelChange}
                 onSelectionComplete={focusMessageInput}
                 compact={true}
               />
-              </div>
               
-              {/* Send Button */}
               <button
                 type="submit"
                 disabled={isLoading || (!message.trim() && !selectedImage)}
-                className="w-10 h-10 bg-gray-500 text-white rounded-full hover:bg-gray-600 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center"
+                className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-full hover:from-blue-600 hover:to-blue-700 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center shadow-md"
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -147,6 +148,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                   <ArrowUp className="w-5 h-5" />
                 )}
               </button>
+              </div>
             </div>
           </div>
         </div>
