@@ -32,13 +32,13 @@ export function ChatInterface() {
     <div className="flex flex-col h-screen bg-gray-900 relative">
       {/* Header */}
       <div className="bg-gray-900 px-4 py-3">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
+        <div className="max-w-4xl mx-auto flex items-center justify-center relative">
           <h1 className="text-xl font-semibold text-gray-100">payg.chat</h1>
           
           {!isEmpty && (
             <button
               onClick={handleClearChat}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:bg-gray-700 hover:text-gray-200 rounded-lg transition-colors"
+              className="absolute right-0 flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:bg-gray-700 hover:text-gray-200 rounded-lg transition-colors"
             >
               <Trash2 className="w-4 h-4" />
               Clear Chat
