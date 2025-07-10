@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+    font-family: 'Tahoma', 'Verdana', 'Arial', sans-serif;
   }
   
   /* Keep buttons with default font */

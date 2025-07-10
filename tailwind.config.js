@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'sans': ['Cormorant Garamond', 'Georgia', 'Times New Roman', 'serif'],
+        'sans': ['Tahoma', 'Verdana', 'Arial', 'sans-serif'],
       },
     },
   },
