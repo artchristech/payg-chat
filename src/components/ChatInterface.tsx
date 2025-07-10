@@ -9,11 +9,7 @@ import { ConvergenceIcon } from './ConvergenceIcon';
 export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError } = useChat(scrollToBottom);
+  const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError } = useChat();
 
   const handlePresetClick = (prompt: string) => {
     sendMessage(prompt);

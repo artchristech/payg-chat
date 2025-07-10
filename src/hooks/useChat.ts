@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { Message, ChatState } from '../types/chat';
 import { sendMessageToGroq, convertMessagesToGroqFormat } from '../utils/groq';
 
-export function useChat(onScrollToBottom?: () => void) {
+export function useChat() {
   const [chatState, setChatState] = useState<ChatState>({
     messages: [],
     isLoading: false,
@@ -63,8 +63,6 @@ export function useChat(onScrollToBottom?: () => void) {
       isLoading: true,
     }));
 
-    // Scroll to bottom after adding user message and starting AI response
-    setTimeout(() => onScrollToBottom?.(), 100);
     try {
       // Prepare messages for API (including the new user message)
       const messagesForAPI = [...chatState.messages, userMessage];
@@ -95,8 +93,6 @@ export function useChat(onScrollToBottom?: () => void) {
             ),
             isLoading: false,
           }));
-          // Scroll to bottom when AI response is complete
-          setTimeout(() => onScrollToBottom?.(), 100);
         }
       );
     } catch (error) {
@@ -114,7 +110,7 @@ export function useChat(onScrollToBottom?: () => void) {
         error: errorMessage,
       }));
     }
-  }, [chatState.messages, chatState.selectedModel, onScrollToBottom]);
+  }, [chatState.messages, chatState.selectedModel]);
 
   const clearChat = useCallback(() => {
     setChatState(prev => ({
