@@ -3,7 +3,8 @@ import { MessageBubble } from './MessageBubble';
 import { InputArea } from './InputArea';
 import { PresetButtons } from './PresetButtons';
 import { useChat } from '../hooks/useChat';
-import { AlertCircle, Trash2, Workflow } from 'lucide-react';
+import { AlertCircle, Trash2 } from 'lucide-react';
+import { ConvergenceIcon } from './ConvergenceIcon';
 
 export function ChatInterface() {
   const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError } = useChat();
@@ -34,7 +35,7 @@ export function ChatInterface() {
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <Workflow className="w-4 h-4 text-white" />
+              <ConvergenceIcon className="w-4 h-4 text-white" />
             </div>
             <h1 className="text-xl font-semibold text-gray-100">PayG</h1>
           </div>
@@ -75,7 +76,7 @@ export function ChatInterface() {
               <div className="text-center py-12">
                 <div className="mb-8">
                   <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Workflow className="w-8 h-8 text-white" />
+                    <ConvergenceIcon className="w-8 h-8 text-white" />
                   </div>
                   <h2 className="text-3xl font-bold text-gray-100 mb-2">
                     What's on your mind?
