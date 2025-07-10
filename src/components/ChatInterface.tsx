@@ -67,7 +67,7 @@ export function ChatInterface() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-4 py-6">
           {isEmpty ? (
-            <div className="flex flex-col justify-center items-center h-full min-h-[60vh]">
+            <div className="flex flex-col justify-center items-center h-full min-h-[50vh]">
               <div className="text-center py-12">
                 <div className="mb-8">
                   <h2 className="text-3xl font-bold text-gray-100 mb-2">
@@ -76,6 +76,18 @@ export function ChatInterface() {
                 </div>
                 
                 <PresetButtons onPresetClick={handlePresetClick} />
+              </div>
+              
+              {/* Centered Input Area for Welcome Screen */}
+              <div className="w-full max-w-2xl mt-8">
+                <InputArea
+                  onSendMessage={sendMessage}
+                  isLoading={isLoading}
+                  placeholder="Ask me anything..."
+                  selectedModel={selectedModel}
+                  onModelChange={setSelectedModel}
+                  centered={true}
+                />
               </div>
             </div>
           ) : (
@@ -89,14 +101,17 @@ export function ChatInterface() {
         </div>
       </div>
 
-      {/* Input Area */}
-      <InputArea
-        onSendMessage={sendMessage}
-        isLoading={isLoading}
-        placeholder={isEmpty ? "Ask me anything..." : "Continue the conversation..."}
-        selectedModel={selectedModel}
-        onModelChange={setSelectedModel}
-      />
+      {/* Input Area - Only show when there are messages */}
+      {!isEmpty && (
+        <InputArea
+          onSendMessage={sendMessage}
+          isLoading={isLoading}
+          placeholder="Continue the conversation..."
+          selectedModel={selectedModel}
+          onModelChange={setSelectedModel}
+          centered={false}
+        />
+      )}
     </div>
   );
 }

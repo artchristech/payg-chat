@@ -9,9 +9,10 @@ interface InputAreaProps {
   placeholder?: string;
   selectedModel: string;
   onModelChange: (model: string) => void;
+  centered?: boolean;
 }
 
-export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange }: InputAreaProps) {
+export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false }: InputAreaProps) {
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
@@ -82,8 +83,8 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   }, [placeholder]); // Trigger when placeholder changes (indicates welcome screen state change)
 
   return (
-    <div className="bg-gray-900 p-4">
-      <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+    <div className={`${centered ? '' : 'bg-gray-900 p-4'}`}>
+      <form onSubmit={handleSubmit} className={`${centered ? 'w-full' : 'max-w-4xl mx-auto'}`}>
         <div className="space-y-3">
           {/* Image Preview */}
           {selectedImage && (
@@ -105,7 +106,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
           )}
 
           {/* Main Input Container */}
-          <div className="bg-gray-800 rounded-3xl transition-all duration-200 p-4">
+          <div className={`bg-gray-800 rounded-3xl transition-all duration-200 p-4 ${centered ? 'shadow-2xl border border-gray-700' : ''}`}>
             {/* Text Input Area */}
             <div className="relative">
             <textarea
