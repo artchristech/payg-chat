@@ -104,7 +104,7 @@ export function ChatInterface() {
       <div className="bg-gray-900 p-4">
         <div className={`mx-auto ${isEmpty ? 'max-w-2xl' : 'max-w-4xl'}`}>
           <div className="flex items-center justify-between mb-3">
-            <div>
+            <div className="w-32">
               <ResponseLengthSlider
                 value={responseLength}
                 onChange={setResponseLength}

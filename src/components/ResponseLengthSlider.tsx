@@ -20,15 +20,15 @@ export function ResponseLengthSlider({
   };
 
   return (
-    <div className="flex items-center gap-3 px-3 py-2 min-w-[160px]">
+    <div className="flex items-center gap-3 px-3 py-2">
       <div className="flex items-center gap-2 min-w-0">
         <span className="text-xs text-gray-400 whitespace-nowrap">Length:</span>
-        <span className="text-xs font-medium text-gray-200">
+        <span className="text-xs font-medium text-gray-200 min-w-[50px]">
           {value} words
         </span>
       </div>
       
-      <div className="w-40 relative">
+      <div className="w-20 relative">
         <input
           type="range"
           min={min}
