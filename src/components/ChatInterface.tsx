@@ -78,16 +78,6 @@ export function ChatInterface() {
               </div>
               
               {/* Centered Input Area for Welcome Screen */}
-              <div className="w-full max-w-2xl mt-8">
-                <InputArea
-                  onSendMessage={sendMessage}
-                  isLoading={isLoading}
-                  placeholder="Ask me anything..."
-                  selectedModel={selectedModel}
-                  onModelChange={setSelectedModel}
-                  centered={true}
-                />
-              </div>
             </div>
           ) : (
             <div className="space-y-6">
@@ -100,23 +90,28 @@ export function ChatInterface() {
         </div>
       </div>
 
-      {/* Input Area - Only show when there are messages */}
-      {!isEmpty && (
-        <div>
-          <ResponseLengthSlider
-            value={responseLength}
-            onChange={setResponseLength}
-          />
+      {/* Bottom Section - Always visible */}
+      <div className="bg-gray-900 p-4">
+        <div className={`${isEmpty ? 'max-w-2xl' : 'max-w-4xl'} mx-auto`}>
+          {/* Response Length Slider */}
+          <div className={`${isEmpty ? 'max-w-xs' : 'max-w-sm'} mx-auto mb-4`}>
+            <ResponseLengthSlider
+              value={responseLength}
+              onChange={setResponseLength}
+            />
+          </div>
+          
+          {/* Input Area */}
           <InputArea
             onSendMessage={sendMessage}
             isLoading={isLoading}
-            placeholder="Continue the conversation..."
+            placeholder={isEmpty ? "Ask me anything..." : "Continue the conversation..."}
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
-            centered={false}
+            centered={isEmpty}
           />
         </div>
-      )}
+      </div>
     </div>
   );
 }
