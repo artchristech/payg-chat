@@ -68,7 +68,7 @@ export function ChatInterface() {
               <div className="text-center py-12">
                 <div className="mb-8">
                   <h2 className="text-3xl font-bold text-gray-100 mb-2">
-                    all the models, no subscription
+                    Pay As You Go, no subscription
                   </h2>
                 </div>
                 
