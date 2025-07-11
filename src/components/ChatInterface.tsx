@@ -100,28 +100,23 @@ export function ChatInterface() {
         </div>
       </div>
 
-      {/* Bottom Section - Always visible */}
-      <div className="bg-gray-900 p-4">
-        <div className={`mx-auto ${isEmpty ? 'max-w-2xl' : 'max-w-4xl'}`}>
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-32">
-              <ResponseLengthSlider
-                value={responseLength}
-                onChange={setResponseLength}
-              />
-            </div>
-            <div className="flex-1" />
-          </div>
+      {/* Input Area - Only show when there are messages */}
+      {!isEmpty && (
+        <div>
+          <ResponseLengthSlider
+            value={responseLength}
+            onChange={setResponseLength}
+          />
           <InputArea
             onSendMessage={sendMessage}
             isLoading={isLoading}
-            placeholder={isEmpty ? "Ask me anything..." : "Continue the conversation..."}
+            placeholder="Continue the conversation..."
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
-            centered={isEmpty}
+            centered={false}
           />
         </div>
-      </div>
+      )}
     </div>
   );
 }
