@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check } from 'lucide-react';
+import { ChevronDown, Check, Plus } from 'lucide-react';
 import { groqModels } from '../utils/groq';
 
 interface ModelSelectorProps {
@@ -45,6 +45,20 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
 
       {isOpen && (
         <div className={`absolute ${compact ? 'bottom-full right-0' : 'bottom-full left-0'} mb-2 w-80 bg-gray-800 border border-gray-600/50 rounded-xl shadow-2xl backdrop-blur-sm z-50`}>
+          {/* Header with Add Button */}
+          <div className="flex items-center justify-between p-3 border-b border-gray-700">
+            <span className="text-sm font-medium text-gray-300">Models</span>
+            <button
+              type="button"
+              onClick={() => console.log('Add new model clicked')}
+              className="w-6 h-6 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-full flex items-center justify-center transition-all duration-200"
+              title="Add new model"
+            >
+              <Plus className="w-3 h-3" />
+            </button>
+          </div>
+          
+          {/* Model List */}
           <div className="p-2 max-h-80 overflow-y-auto">
             {groqModels.map((model) => (
               <button
