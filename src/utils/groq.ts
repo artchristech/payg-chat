@@ -137,12 +137,12 @@ export async function sendMessageToGroq(
   }
 }
 
-export function convertMessagesToGroqFormat(messages: Message[], selectedModelId: string): GroqMessage[] {
+export function convertMessagesToGroqFormat(messages: Message[], selectedModelId: string, responseLength: number = 200): GroqMessage[] {
   // Find the selected model to check if it supports multimodal input
   const selectedModel = groqModels.find(model => model.id === selectedModelId);
   const isMultiModal = selectedModel?.multiModal || false;
 
-  return messages
+  const convertedMessages = messages
     .filter(msg => msg.role !== 'assistant' || !msg.isLoading)
     .map(msg => {
       // Only include image content if the model supports multimodal input
@@ -170,4 +170,12 @@ export function convertMessagesToGroqFormat(messages: Message[], selectedModelId
         content: textContent
       };
     });
+
+  // Add system message at the beginning to control response length
+  const systemMessage: GroqMessage = {
+    role: 'system',
+    content: `Please keep your responses concise and aim for approximately ${responseLength} words or fewer. Be helpful and informative while staying within this word limit.`
+  };
+
+  return [systemMessage, ...convertedMessages];
 }

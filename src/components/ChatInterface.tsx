@@ -5,15 +5,17 @@ import { PresetButtons } from './PresetButtons';
 import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen } from 'lucide-react';
 import { ConvergenceIcon } from './ConvergenceIcon';
+import { ResponseLengthSlider } from './ResponseLengthSlider';
 
 export function ChatInterface() {
+  const [responseLength, setResponseLength] = React.useState(200);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError } = useChat(scrollToBottom);
+  const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError } = useChat(scrollToBottom, responseLength);
 
   const handlePresetClick = (prompt: string) => {
     sendMessage(prompt);
@@ -100,14 +102,20 @@ export function ChatInterface() {
 
       {/* Input Area - Only show when there are messages */}
       {!isEmpty && (
-        <InputArea
-          onSendMessage={sendMessage}
-          isLoading={isLoading}
-          placeholder="Continue the conversation..."
-          selectedModel={selectedModel}
-          onModelChange={setSelectedModel}
-          centered={false}
-        />
+        <div>
+          <ResponseLengthSlider
+            value={responseLength}
+            onChange={setResponseLength}
+          />
+          <InputArea
+            onSendMessage={sendMessage}
+            isLoading={isLoading}
+            placeholder="Continue the conversation..."
+            selectedModel={selectedModel}
+            onModelChange={setSelectedModel}
+            centered={false}
+          />
+        </div>
       )}
     </div>
   );
