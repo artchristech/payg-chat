@@ -3,7 +3,7 @@ import { MessageBubble } from './MessageBubble';
 import { InputArea } from './InputArea';
 import { PresetButtons } from './PresetButtons';
 import { useChat } from '../hooks/useChat';
-import { AlertCircle, Trash2 } from 'lucide-react';
+import { AlertCircle, SquarePen } from 'lucide-react';
 import { ConvergenceIcon } from './ConvergenceIcon';
 
 export function ChatInterface() {
@@ -35,10 +35,10 @@ export function ChatInterface() {
           {!isEmpty && (
             <button
               onClick={handleClearChat}
-              className="absolute right-0 flex items-center gap-2 px-3 py-2 text-sm text-gray-400 hover:bg-gray-700 hover:text-gray-200 rounded-lg transition-colors"
+              className="absolute right-0 w-10 h-10 flex items-center justify-center text-gray-400 hover:bg-gray-700 hover:text-gray-200 rounded-lg transition-colors"
+              title="Clear Chat"
             >
-              <Trash2 className="w-4 h-4" />
-              Clear Chat
+              <SquarePen className="w-4 h-4" />
             </button>
           )}
         </div>
