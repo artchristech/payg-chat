@@ -6,7 +6,7 @@ interface MessageBubbleProps {
   message: Message;
 }
 
-function MessageBubbleComponent({ message }: MessageBubbleProps) {
+export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
 
   return (
