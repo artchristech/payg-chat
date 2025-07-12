@@ -28,7 +28,7 @@ export function PresetButtons({ onPresetClick }: PresetButtonsProps) {
   const marketButton = presetOptions[0];
 
   return (
-    <div className="flex flex-col items-center gap-4 max-h-96 overflow-y-auto">
+    <div className="flex flex-col items-center gap-8 max-h-96 overflow-y-auto hide-scrollbar">
       {[...Array(5)].map((_, index) => (
         <button
           key={index}
