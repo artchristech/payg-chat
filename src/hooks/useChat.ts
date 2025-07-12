@@ -8,6 +8,7 @@ export function useChat(onScrollToBottom?: () => void) {
     isLoading: false,
     error: null,
     selectedModel: 'llama-3.1-8b-instant',
+    maxTokens: 1024,
   });
 
   const addMessage = useCallback((message: Omit<Message, 'id' | 'timestamp'>) => {
@@ -29,7 +30,8 @@ export function useChat(onScrollToBottom?: () => void) {
     content: string,
     type: 'text' | 'image' | 'audio' = 'text',
     imageUrl?: string,
-    audioUrl?: string
+    audioUrl?: string,
+    maxTokens?: number
   ) => {
     if (!content.trim()) return;
 
@@ -73,6 +75,7 @@ export function useChat(onScrollToBottom?: () => void) {
       await sendMessageToGroq(
         groqMessages, 
         chatState.selectedModel,
+        maxTokens || chatState.maxTokens,
         // onUpdate callback - append content as it streams
         (content: string) => {
           setChatState(prev => ({
@@ -114,7 +117,7 @@ export function useChat(onScrollToBottom?: () => void) {
         error: errorMessage,
       }));
     }
-  }, [chatState.messages, chatState.selectedModel, onScrollToBottom]);
+  }, [chatState.messages, chatState.selectedModel, chatState.maxTokens, onScrollToBottom]);
 
   const clearChat = useCallback(() => {
     setChatState(prev => ({
@@ -128,6 +131,9 @@ export function useChat(onScrollToBottom?: () => void) {
     setChatState(prev => ({ ...prev, selectedModel: model }));
   }, []);
 
+  const setMaxTokens = useCallback((maxTokens: number) => {
+    setChatState(prev => ({ ...prev, maxTokens }));
+  }, []);
   const clearError = useCallback(() => {
     setChatState(prev => ({ ...prev, error: null }));
   }, []);
@@ -137,6 +143,8 @@ export function useChat(onScrollToBottom?: () => void) {
     sendMessage,
     clearChat,
     setSelectedModel,
+    setMaxTokens,
     clearError,
   };
+  maxTokens: number;
 }

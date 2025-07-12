@@ -36,6 +36,7 @@ export interface GroqMessage {
 export async function sendMessageToGroq(
   messages: GroqMessage[],
   model: string = 'llama-3.1-8b-instant',
+  maxTokens: number = 1024,
   onUpdate?: (content: string) => void,
   onComplete?: () => void
 ): Promise<void> {
@@ -58,7 +59,7 @@ export async function sendMessageToGroq(
         model,
         messages,
         temperature: 0.7,
-        max_tokens: 1024,
+        max_tokens: maxTokens,
         top_p: 1,
         stream: true,
       }),

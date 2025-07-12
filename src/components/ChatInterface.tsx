@@ -14,6 +14,7 @@ export function ChatInterface() {
   };
 
   const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError } = useChat(scrollToBottom);
+  const { maxTokens, setMaxTokens } = useChat(scrollToBottom);
 
   const handlePresetClick = (prompt: string) => {
     sendMessage(prompt);
@@ -96,6 +97,8 @@ export function ChatInterface() {
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
             centered={isEmpty}
+            maxTokens={maxTokens}
+            onMaxTokensChange={setMaxTokens}
           />
         </div>
       </div>

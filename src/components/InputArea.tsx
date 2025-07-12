@@ -2,17 +2,20 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ArrowUp, Loader2, X } from 'lucide-react';
 import { AttachmentMenu } from './AttachmentMenu';
 import { ModelSelector } from './ModelSelector';
+import { ResponseLengthSlider } from './ResponseLengthSlider';
 
 interface InputAreaProps {
-  onSendMessage: (content: string, type?: 'text' | 'image' | 'audio', imageUrl?: string, audioUrl?: string) => void;
+  onSendMessage: (content: string, type?: 'text' | 'image' | 'audio', imageUrl?: string, audioUrl?: string, maxTokens?: number) => void;
   isLoading: boolean;
   placeholder?: string;
   selectedModel: string;
   onModelChange: (model: string) => void;
   centered?: boolean;
+  maxTokens: number;
+  onMaxTokensChange: (value: number) => void;
 }
 
-export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false }: InputAreaProps) {
+export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange }: InputAreaProps) {
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
@@ -32,7 +35,8 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
         message.trim(),
         selectedImage ? 'image' : 'text',
         selectedImage || undefined
-      );
+        undefined,
+        maxTokens
       setMessage('');
       setSelectedImage(null);
       setSelectedImageFile(null);
@@ -50,7 +54,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   };
 
   const handleAudioRecording = (audioBlob: Blob, audioUrl: string) => {
-    onSendMessage('Audio message', 'audio', undefined, audioUrl);
+    onSendMessage('Audio message', 'audio', undefined, audioUrl, maxTokens);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -124,10 +128,16 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
             {/* Attachment and Model Section */}
             <div className="flex items-center justify-between mt-3">
               {/* Left side - Attachment */}
-              <AttachmentMenu
-                onImageSelect={handleImageSelect}
-                onAudioRecordingComplete={handleAudioRecording}
-              />
+              <div className="flex items-center gap-3">
+                <AttachmentMenu
+                  onImageSelect={handleImageSelect}
+                  onAudioRecordingComplete={handleAudioRecording}
+                />
+                <ResponseLengthSlider
+                  maxTokens={maxTokens}
+                  onValueChange={onMaxTokensChange}
+                />
+              </div>
               
               {/* Right side - Model Selector and Send Button */}
               <div className="flex items-center gap-2">
