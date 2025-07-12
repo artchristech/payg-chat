@@ -31,7 +31,7 @@ export function PresetButtons({ onPresetClick }: PresetButtonsProps) {
     <div className="flex justify-center">
       <button
         onClick={() => onPresetClick(marketButton.prompt)}
-        className="flex items-center gap-3 px-8 py-4 bg-gray-800 border border-gray-600 rounded-2xl hover:bg-gray-700 hover:border-gray-500 transition-all duration-200 text-lg font-semibold text-gray-100 shadow-lg hover:shadow-xl hover:scale-105"
+        className="flex items-center gap-6 px-16 py-8 bg-gray-800 border border-gray-600 rounded-2xl hover:bg-gray-700 hover:border-gray-500 transition-all duration-200 text-2xl font-semibold text-gray-100 shadow-lg hover:shadow-xl hover:scale-105"
       >
         <IconComponent name={marketButton.icon} />
         {marketButton.label}
