@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check, List, Star } from 'lucide-react';
+import { ChevronDown, Check, Plus } from 'lucide-react';
 import { openRouterModels } from '../utils/api';
 
 interface ModelSelectorProps {
@@ -11,23 +11,7 @@ interface ModelSelectorProps {
 
 export function ModelSelector({ selectedModel, onModelChange, onSelectionComplete, compact = false }: ModelSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [displayMode, setDisplayMode] = useState<'featured' | 'all'>('featured');
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Featured models - curated selection for quick access
-  const featuredModelIds = [
-    'anthropic/claude-3.5-sonnet',
-    'openai/gpt-4o',
-    'openai/gpt-4o-mini',
-    'meta-llama/llama-3.1-70b-instruct',
-    'mistralai/mistral-7b-instruct'
-  ];
-
-  const featuredModels = openRouterModels.filter(model => 
-    featuredModelIds.includes(model.id)
-  );
-
-  const modelsToDisplay = displayMode === 'featured' ? featuredModels : openRouterModels;
 
   const selectedModelInfo = openRouterModels.find(model => model.id === selectedModel);
 
@@ -42,9 +26,6 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleToggleDisplayMode = () => {
-    setDisplayMode(prev => prev === 'featured' ? 'all' : 'featured');
-  };
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -64,34 +45,22 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
 
       {isOpen && (
         <div className={`absolute ${compact ? 'bottom-full right-0' : 'bottom-full left-0'} mb-2 w-80 bg-gray-800 border border-gray-600/50 rounded-xl shadow-2xl backdrop-blur-sm z-50`}>
-          {/* Header with Toggle Button */}
+          {/* Header with Add Button */}
           <div className="flex items-center justify-between p-3 border-b border-gray-700">
-            <span className="text-sm font-medium text-gray-300">
-              {displayMode === 'featured' ? 'Featured Models' : 'All Models'}
-            </span>
+            <span className="text-sm font-medium text-gray-300">Models</span>
             <button
               type="button"
-              onClick={handleToggleDisplayMode}
-              className="flex items-center gap-1.5 px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-md text-xs transition-all duration-200"
-              title={displayMode === 'featured' ? 'Show all models' : 'Show featured models'}
+              onClick={() => console.log('Add new model clicked')}
+              className="w-6 h-6 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-full flex items-center justify-center transition-all duration-200"
+              title="Add new model"
             >
-              {displayMode === 'featured' ? (
-                <>
-                  <List className="w-3 h-3" />
-                  All
-                </>
-              ) : (
-                <>
-                  <Star className="w-3 h-3" />
-                  Featured
-                </>
-              )}
+              <Plus className="w-3 h-3" />
             </button>
           </div>
           
           {/* Model List */}
           <div className="p-2 max-h-80 overflow-y-auto">
-            {modelsToDisplay.map((model) => (
+            {openRouterModels.map((model) => (
               <button
                 key={model.id}
                 type="button"
