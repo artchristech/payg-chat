@@ -6,9 +6,6 @@ interface MessageBubbleProps {
   message: Message;
 }
 
-// Memoize the component to prevent unnecessary re-renders
-export const MessageBubble = React.memo(MessageBubbleComponent);
-
 function MessageBubbleComponent({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
 
@@ -53,3 +50,4 @@ function MessageBubbleComponent({ message }: MessageBubbleProps) {
       </div>
     </div>
   );
+}
