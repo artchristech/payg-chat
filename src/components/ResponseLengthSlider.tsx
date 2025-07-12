@@ -27,61 +27,59 @@ export function ResponseLengthSlider({ maxTokens, onValueChange }: ResponseLengt
   // Convert tokens to approximate words (rough estimate: 1 token ≈ 0.75 words)
   const approximateWords = Math.round(maxTokens * 0.75);
 
+  // Calculate position percentage for the dot
+  const minTokens = 50;
+  const maxTokensRange = 2000;
+  const position = ((maxTokens - minTokens) / (maxTokensRange - minTokens)) * 100;
+
   return (
     <div 
       className="relative flex items-center"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Dot */}
+      {/* Slider Track - fades in when expanded */}
+      <div 
+        className={`absolute left-0 h-1 bg-gray-600 rounded-full transition-all duration-300 ease-in-out ${
+          isExpanded ? 'w-20 opacity-100' : 'w-0 opacity-0'
+        }`}
+      />
+
+      {/* Dot/Marker */}
       <button
         type="button"
         onClick={handleClick}
-        className={`w-2 h-2 rounded-full transition-all duration-300 ease-in-out ${
+        className={`relative w-2 h-2 rounded-full transition-all duration-300 ease-in-out z-10 ${
           isExpanded 
             ? 'bg-blue-400 scale-125' 
             : 'bg-gray-500 hover:bg-gray-400'
         }`}
+        style={{
+          left: isExpanded ? `${(position / 100) * 80}px` : '0px'
+        }}
         title="Response length"
       />
 
-      {/* Expanded Slider */}
+      {/* Hidden range input for interaction */}
       {isExpanded && (
-        <div className="absolute left-4 flex items-center gap-2 bg-gray-700 px-3 py-2 rounded-lg shadow-lg transition-all duration-300 ease-in-out whitespace-nowrap z-10">
-          <input
-            type="range"
-            min="50"
-            max="2000"
-            value={maxTokens}
-            onChange={handleSliderChange}
-            className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
-          />
-          <span className="text-xs text-gray-300 min-w-fit">
+        <input
+          type="range"
+          min="50"
+          max="2000"
+          value={maxTokens}
+          onChange={handleSliderChange}
+          className="absolute left-0 w-20 h-1 opacity-0 cursor-pointer z-20"
+        />
+      )}
+
+      {/* Word count label */}
+      {isExpanded && (
+        <div className="absolute left-24 flex items-center bg-gray-700 px-2 py-1 rounded shadow-lg transition-all duration-300 ease-in-out whitespace-nowrap z-10">
+          <span className="text-xs text-gray-300">
             {approximateWords}w
           </span>
         </div>
       )}
-
-      <style jsx>{`
-        .slider::-webkit-slider-thumb {
-          appearance: none;
-          height: 12px;
-          width: 12px;
-          border-radius: 50%;
-          background: #60a5fa;
-          cursor: pointer;
-          border: none;
-        }
-        
-        .slider::-moz-range-thumb {
-          height: 12px;
-          width: 12px;
-          border-radius: 50%;
-          background: #60a5fa;
-          cursor: pointer;
-          border: none;
-        }
-      `}</style>
     </div>
   );
 }
