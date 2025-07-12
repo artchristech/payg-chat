@@ -9,7 +9,7 @@ interface PresetButtonsProps {
 const presetOptions: PresetOption[] = [
   {
     id: 'market',
-    label: 'Market',
+    label: 'Agent',
     prompt: 'Help me with market research and analysis for:',
     icon: 'Store',
   },
