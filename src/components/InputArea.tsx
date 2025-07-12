@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ArrowUp, Loader2, X } from 'lucide-react';
 import { AttachmentMenu } from './AttachmentMenu';
 import { ModelSelector } from './ModelSelector';
@@ -21,14 +21,14 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const focusMessageInput = () => {
+  const focusMessageInput = useCallback(() => {
     // Small delay to ensure the dropdown has closed
     setTimeout(() => {
       textareaRef.current?.focus();
     }, 100);
-  };
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim() || selectedImage) {
       onSendMessage(
@@ -42,28 +42,28 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
       setSelectedImage(null);
       setSelectedImageFile(null);
     }
-  };
+  }, [message, selectedImage, onSendMessage, maxTokens]);
 
-  const handleImageSelect = (file: File, preview: string) => {
+  const handleImageSelect = useCallback((file: File, preview: string) => {
     setSelectedImage(preview);
     setSelectedImageFile(file);
-  };
+  }, []);
 
-  const handleImageRemove = () => {
+  const handleImageRemove = useCallback(() => {
     setSelectedImage(null);
     setSelectedImageFile(null);
-  };
+  }, []);
 
-  const handleAudioRecording = (audioBlob: Blob, audioUrl: string) => {
+  const handleAudioRecording = useCallback((audioBlob: Blob, audioUrl: string) => {
     onSendMessage('Audio message', 'audio', undefined, audioUrl, maxTokens);
-  };
+  }, [onSendMessage, maxTokens]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
     }
-  };
+  }, [handleSubmit]);
 
   // Auto-resize textarea
   useEffect(() => {

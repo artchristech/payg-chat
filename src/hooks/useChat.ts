@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Message, ChatState } from '../types/chat';
 import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat } from '../utils/api';
 
@@ -138,13 +138,21 @@ export function useChat(onScrollToBottom?: () => void) {
     setChatState(prev => ({ ...prev, error: null }));
   }, []);
 
+  // Memoize derived state to prevent unnecessary recalculations
+  const memoizedState = useMemo(() => ({
+    messages: chatState.messages,
+    isLoading: chatState.isLoading,
+    error: chatState.error,
+    selectedModel: chatState.selectedModel,
+    maxTokens: chatState.maxTokens,
+  }), [chatState]);
+
   return {
-    ...chatState,
+    ...memoizedState,
     sendMessage,
     clearChat,
     setSelectedModel,
     setMaxTokens,
     clearError,
   };
-  maxTokens: number;
 }

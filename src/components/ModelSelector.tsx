@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { ChevronDown, Check, Plus, List, Star } from 'lucide-react';
 import { openRouterModels } from '../utils/api';
 
@@ -14,11 +14,19 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
   const [displayMode, setDisplayMode] = useState<'featured' | 'all'>('featured');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const featuredModelIds = ['x-ai/grok-4', 'meta-llama/llama-4-maverick', 'google/gemini-2.5-pro'];
-  const featuredModels = openRouterModels.filter(model => featuredModelIds.includes(model.id));
-  
-  const selectedModelInfo = openRouterModels.find(model => model.id === selectedModel);
-  const modelsToDisplay = displayMode === 'featured' ? featuredModels : openRouterModels;
+  // Memoize expensive computations
+  const { featuredModels, selectedModelInfo, modelsToDisplay } = useMemo(() => {
+    const featuredModelIds = ['x-ai/grok-4', 'meta-llama/llama-4-maverick', 'google/gemini-2.5-pro'];
+    const featured = openRouterModels.filter(model => featuredModelIds.includes(model.id));
+    const selected = openRouterModels.find(model => model.id === selectedModel);
+    const toDisplay = displayMode === 'featured' ? featured : openRouterModels;
+    
+    return {
+      featuredModels: featured,
+      selectedModelInfo: selected,
+      modelsToDisplay: toDisplay
+    };
+  }, [selectedModel, displayMode]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
