@@ -34,9 +34,10 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
       onSendMessage(
         message.trim(),
         selectedImage ? 'image' : 'text',
-        selectedImage || undefined
+        selectedImage || undefined,
         undefined,
         maxTokens
+      );
       setMessage('');
       setSelectedImage(null);
       setSelectedImageFile(null);
