@@ -76,24 +76,6 @@ export function ChatInterface() {
                 
                 <PresetButtons onPresetClick={handlePresetClick} />
               </div>
-              
-              {/* Centered Input Area for Welcome Screen */}
-              <div className="w-full max-w-2xl mt-8">
-                <div className="w-40 mb-4">
-                  <ResponseLengthSlider
-                    value={responseLength}
-                    onChange={setResponseLength}
-                  />
-                </div>
-                <InputArea
-                  onSendMessage={sendMessage}
-                  isLoading={isLoading}
-                  placeholder="Ask me anything..."
-                  selectedModel={selectedModel}
-                  onModelChange={setSelectedModel}
-                  centered={true}
-                />
-              </div>
             </div>
           ) : (
             <div className="space-y-6">
@@ -106,27 +88,25 @@ export function ChatInterface() {
         </div>
       </div>
 
-      {/* Input Area and Slider - Only show when there are messages */}
-      {!isEmpty && (
-        <div className="bg-gray-900 p-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="w-48 mb-4">
-              <ResponseLengthSlider
-                value={responseLength}
-                onChange={setResponseLength}
-              />
-            </div>
-            <InputArea
-              onSendMessage={sendMessage}
-              isLoading={isLoading}
-              placeholder="Continue the conversation..."
-              selectedModel={selectedModel}
-              onModelChange={setSelectedModel}
-              centered={false}
+      {/* Bottom Section - Always present */}
+      <div className="bg-gray-900 p-4">
+        <div className={`mx-auto ${isEmpty ? 'max-w-2xl' : 'max-w-4xl'}`}>
+          <div className={`${isEmpty ? 'w-40' : 'w-48'} mb-4`}>
+            <ResponseLengthSlider
+              value={responseLength}
+              onChange={setResponseLength}
             />
           </div>
+          <InputArea
+            onSendMessage={sendMessage}
+            isLoading={isLoading}
+            placeholder={isEmpty ? "Ask me anything..." : "Continue the conversation..."}
+            selectedModel={selectedModel}
+            onModelChange={setSelectedModel}
+            centered={isEmpty}
+          />
         </div>
-      )}
+      </div>
     </div>
   );
 }

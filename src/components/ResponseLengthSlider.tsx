@@ -21,22 +21,15 @@ export function ResponseLengthSlider({
     onChange(Number(e.target.value));
   };
 
-  const handleMouseEnter = () => setIsInteracting(true);
-  const handleMouseLeave = () => setIsInteracting(false);
-  const handleFocus = () => setIsInteracting(true);
-  const handleBlur = () => setIsInteracting(false);
-  const handleMouseDown = () => setIsInteracting(true);
-  const handleMouseUp = () => setIsInteracting(false);
-
   return (
     <div className="flex items-center gap-4">
       <div className="flex items-center gap-2 min-w-0">
         <span className="text-sm text-gray-400 whitespace-nowrap">Response length:</span>
-        {isInteracting && (
-          <span className="text-sm font-medium text-gray-200 min-w-[60px]">
-            {value} words
-          </span>
-        )}
+        <span className={`text-sm font-medium text-gray-200 min-w-[60px] transition-opacity duration-200 ${
+          isInteracting ? 'opacity-100' : 'opacity-0'
+        }`}>
+          {value} words
+        </span>
       </div>
       
       <div className="flex-1 relative">
@@ -47,12 +40,12 @@ export function ResponseLengthSlider({
           step={step}
           value={value}
           onChange={handleChange}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
+          onMouseEnter={() => setIsInteracting(true)}
+          onMouseLeave={() => setIsInteracting(false)}
+          onFocus={() => setIsInteracting(true)}
+          onBlur={() => setIsInteracting(false)}
+          onMouseDown={() => setIsInteracting(true)}
+          onMouseUp={() => setIsInteracting(false)}
           className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
         />
         <style jsx>{`
