@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { Message, ChatState } from '../types/chat';
 import { sendMessageToGroq, convertMessagesToGroqFormat } from '../utils/groq';
 
-export function useChat(onScrollToBottom?: () => void, responseLength: number = 200) {
+export function useChat(onScrollToBottom?: () => void) {
   const [chatState, setChatState] = useState<ChatState>({
     messages: [],
     isLoading: false,
@@ -68,7 +68,7 @@ export function useChat(onScrollToBottom?: () => void, responseLength: number = 
     try {
       // Prepare messages for API (including the new user message)
       const messagesForAPI = [...chatState.messages, userMessage];
-      const groqMessages = convertMessagesToGroqFormat(messagesForAPI, chatState.selectedModel, responseLength);
+      const groqMessages = convertMessagesToGroqFormat(messagesForAPI, chatState.selectedModel);
       
       await sendMessageToGroq(
         groqMessages, 

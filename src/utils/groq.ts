@@ -137,7 +137,7 @@ export async function sendMessageToGroq(
   }
 }
 
-export function convertMessagesToGroqFormat(messages: Message[], selectedModelId: string, responseLength: number = 200): GroqMessage[] {
+export function convertMessagesToGroqFormat(messages: Message[], selectedModelId: string): GroqMessage[] {
   // Find the selected model to check if it supports multimodal input
   const selectedModel = groqModels.find(model => model.id === selectedModelId);
   const isMultiModal = selectedModel?.multiModal || false;
@@ -171,11 +171,5 @@ export function convertMessagesToGroqFormat(messages: Message[], selectedModelId
       };
     });
 
-  // Add system message at the beginning to control response length
-  const systemMessage: GroqMessage = {
-    role: 'system',
-    content: `Please keep your responses concise and aim for approximately ${responseLength} words or fewer. Be helpful and informative while staying within this word limit.`
-  };
-
-  return [systemMessage, ...convertedMessages];
+  return convertedMessages;
 }
