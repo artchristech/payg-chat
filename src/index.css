@@ -27,31 +27,4 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera*/
   }
-
-  /* Custom slider styles */
-  .slider-custom::-webkit-slider-thumb {
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    background: transparent;
-    cursor: pointer;
-    border-radius: 50%;
-  }
-
-  .slider-custom::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    background: transparent;
-    cursor: pointer;
-    border-radius: 50%;
-    border: none;
-  }
-
-  .slider-custom::-webkit-slider-track {
-    background: transparent;
-  }
-
-  .slider-custom::-moz-range-track {
-    background: transparent;
-  }
 }

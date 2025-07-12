@@ -4,7 +4,7 @@ import { InputArea } from './InputArea';
 import { PresetButtons } from './PresetButtons';
 import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen } from 'lucide-react';
-import { TopSlider } from './TopSlider';
+import { ConvergenceIcon } from './ConvergenceIcon';
 
 export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -27,9 +27,6 @@ export function ChatInterface() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-900 relative">
-      {/* Top Slider */}
-      <TopSlider />
-      
       {/* Header */}
       <div className="bg-gray-900 px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-center relative">
