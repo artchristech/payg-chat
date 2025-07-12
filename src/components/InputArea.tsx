@@ -83,7 +83,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   }, [placeholder]); // Trigger when placeholder changes (indicates welcome screen state change)
 
   return (
-    <div className={`${centered ? '' : 'bg-gray-900 p-4'}`}>
+    <div>
       <form onSubmit={handleSubmit} className={`${centered ? 'w-full' : 'max-w-4xl mx-auto'}`}>
         <div className="space-y-3">
           {/* Image Preview */}

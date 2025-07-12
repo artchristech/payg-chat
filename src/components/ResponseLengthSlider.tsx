@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface ResponseLengthSliderProps {
   value: number;
@@ -15,17 +15,28 @@ export function ResponseLengthSlider({
   max = 500, 
   step = 25 
 }: ResponseLengthSliderProps) {
+  const [isInteracting, setIsInteracting] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(Number(e.target.value));
   };
 
+  const handleMouseEnter = () => setIsInteracting(true);
+  const handleMouseLeave = () => setIsInteracting(false);
+  const handleFocus = () => setIsInteracting(true);
+  const handleBlur = () => setIsInteracting(false);
+  const handleMouseDown = () => setIsInteracting(true);
+  const handleMouseUp = () => setIsInteracting(false);
+
   return (
-    <div className="flex items-center gap-4 px-4 py-2">
+    <div className="flex items-center gap-4">
       <div className="flex items-center gap-2 min-w-0">
         <span className="text-sm text-gray-400 whitespace-nowrap">Response length:</span>
-        <span className="text-sm font-medium text-gray-200 min-w-[60px]">
-          {value} words
-        </span>
+        {isInteracting && (
+          <span className="text-sm font-medium text-gray-200 min-w-[60px]">
+            {value} words
+          </span>
+        )}
       </div>
       
       <div className="flex-1 relative">
@@ -36,6 +47,12 @@ export function ResponseLengthSlider({
           step={step}
           value={value}
           onChange={handleChange}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
           className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
         />
         <style jsx>{`
