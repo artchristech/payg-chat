@@ -59,7 +59,7 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
           </div>
           
           {/* Model List */}
-          <div className="p-2 max-h-80 overflow-y-auto">
+          <div className="p-2 max-h-80 overflow-y-auto hide-scrollbar">
             {openRouterModels.map((model) => (
               <button
                 key={model.id}
