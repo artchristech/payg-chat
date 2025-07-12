@@ -33,7 +33,7 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
         onClick={() => setIsOpen(!isOpen)}
         className={`flex items-center gap-2 bg-gray-700 hover:bg-gray-600 transition-all duration-200 text-gray-100 ${
           compact 
-            ? 'px-3 py-2 rounded-full text-sm scale-[0.80] bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-500/30 shadow-md hover:from-gray-600 hover:to-gray-700 hover:border-gray-400/40 gap-1.5' 
+            ? 'px-3 py-2 rounded-full text-sm scale-[0.85] bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-500/30 shadow-md hover:from-gray-600 hover:to-gray-700 hover:border-gray-400/40 gap-1.5' 
             : 'px-4 py-4 rounded-3xl min-h-[56px]'
         }`}
       >
