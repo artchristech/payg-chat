@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react';
 import { Message, ChatState } from '../types/chat';
-import { sendMessageToGroq, convertMessagesToGroqFormat } from '../utils/groq';
+import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat } from '../utils/api';
 
 export function useChat(onScrollToBottom?: () => void) {
   const [chatState, setChatState] = useState<ChatState>({
     messages: [],
     isLoading: false,
     error: null,
-    selectedModel: 'llama-3.1-8b-instant',
+    selectedModel: 'mistralai/mistral-7b-instruct',
     maxTokens: 1024,
   });
 
@@ -70,10 +70,10 @@ export function useChat(onScrollToBottom?: () => void) {
     try {
       // Prepare messages for API (including the new user message)
       const messagesForAPI = [...chatState.messages, userMessage];
-      const groqMessages = convertMessagesToGroqFormat(messagesForAPI, chatState.selectedModel);
+      const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel);
       
-      await sendMessageToGroq(
-        groqMessages, 
+      await sendMessageToOpenRouter(
+        openRouterMessages, 
         chatState.selectedModel,
         maxTokens || chatState.maxTokens,
         // onUpdate callback - append content as it streams

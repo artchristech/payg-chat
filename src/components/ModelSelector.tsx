@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check, Plus } from 'lucide-react';
-import { groqModels } from '../utils/groq';
+import { openRouterModels } from '../utils/api';
 
 interface ModelSelectorProps {
   selectedModel: string;
@@ -13,7 +13,7 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const selectedModelInfo = groqModels.find(model => model.id === selectedModel);
+  const selectedModelInfo = openRouterModels.find(model => model.id === selectedModel);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -60,7 +60,7 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
           
           {/* Model List */}
           <div className="p-2 max-h-80 overflow-y-auto">
-            {groqModels.map((model) => (
+            {openRouterModels.map((model) => (
               <button
                 key={model.id}
                 type="button"
@@ -78,6 +78,9 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-gray-100">{model.name}</span>
+                      <span className="px-2 py-1 text-xs bg-gray-700 text-gray-300 rounded">
+                        {model.provider}
+                      </span>
                       {model.multiModal && (
                         <span className="px-2 py-1 text-xs bg-purple-900 text-purple-300 rounded">
                           Multimodal

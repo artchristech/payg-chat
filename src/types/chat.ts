@@ -14,14 +14,16 @@ export interface ChatState {
   isLoading: boolean;
   error: string | null;
   selectedModel: string;
+  maxTokens: number;
 }
 
-export interface GroqModel {
+export interface OpenRouterModel {
   id: string;
   name: string;
   description: string;
   contextLength: number;
   multiModal: boolean;
+  provider: string;
 }
 
 export interface PresetOption {
