@@ -73,6 +73,7 @@ export function ChatInterface() {
           ) : (
             <div className="space-y-6">
               <div className="w-full h-1 bg-gray-600 rounded-full"></div>
+              {messages.map((message) => (
                 <MessageBubble key={message.id} message={message} />
               ))}
               <div ref={messagesEndRef} />
