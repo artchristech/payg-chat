@@ -13,6 +13,12 @@ const presetOptions: PresetOption[] = [
     prompt: 'Help me with market research and analysis for:',
     icon: 'Store',
   },
+  {
+    id: 'explore',
+    label: 'Explore',
+    prompt: 'Let me explore and discover:',
+    icon: 'Store',
+  },
 ];
 
 const IconComponent = ({ name }: { name: string }) => {
@@ -25,16 +31,24 @@ const IconComponent = ({ name }: { name: string }) => {
 };
 
 export function PresetButtons({ onPresetClick }: PresetButtonsProps) {
-  const marketButton = presetOptions[0];
+  const agentButton = presetOptions[0];
+  const exploreButton = presetOptions[1];
 
   return (
-    <div className="flex justify-center">
+    <div className="flex flex-col items-center space-y-8">
       <button
-        onClick={() => onPresetClick(marketButton.prompt)}
+        onClick={() => onPresetClick(agentButton.prompt)}
         className="flex items-center gap-6 px-16 py-8 bg-gray-800 border border-gray-600 rounded-2xl hover:bg-gray-700 hover:border-gray-500 transition-all duration-200 text-2xl font-semibold text-gray-100 shadow-lg hover:shadow-xl hover:scale-105"
       >
-        <IconComponent name={marketButton.icon} />
-        {marketButton.label}
+        <IconComponent name={agentButton.icon} />
+        {agentButton.label}
+      </button>
+      <button
+        onClick={() => onPresetClick(exploreButton.prompt)}
+        className="flex items-center gap-6 px-16 py-8 bg-gray-800 border border-gray-600 rounded-2xl hover:bg-gray-700 hover:border-gray-500 transition-all duration-200 text-2xl font-semibold text-gray-100 shadow-lg hover:shadow-xl hover:scale-105"
+      >
+        <IconComponent name={exploreButton.icon} />
+        {exploreButton.label}
       </button>
     </div>
   );
