@@ -14,6 +14,30 @@ export interface OpenRouterModel {
 
 export const openRouterModels: OpenRouterModel[] = [
   {
+    id: 'x-ai/grok-4',
+    name: 'Grok 4',
+    description: 'xAI\'s latest reasoning model with a 256k context window. Supports parallel tool calling, structured outputs, and both image and text inputs.',
+    contextLength: 256000,
+    multiModal: true,
+    provider: 'xAI',
+  },
+  {
+    id: 'meta-llama/llama-4-maverick',
+    name: 'Llama 4 Maverick',
+    description: 'High-capacity multimodal language model from Meta, built on MoE architecture. Supports multilingual text and image input. Optimized for vision-language tasks.',
+    contextLength: 128000,
+    multiModal: true,
+    provider: 'Meta',
+  },
+  {
+    id: 'google/gemini-2.5-pro',
+    name: 'Gemini 2.5 Pro',
+    description: 'Google\'s state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientific tasks.',
+    contextLength: 1000000,
+    multiModal: true,
+    provider: 'Google',
+  },
+  {
     id: 'anthropic/claude-3.5-sonnet',
     name: 'Claude 3.5 Sonnet',
     description: 'Most capable Claude model with vision',
