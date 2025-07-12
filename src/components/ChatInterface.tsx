@@ -31,7 +31,7 @@ export function ChatInterface() {
       {/* Header */}
       <div className="bg-gray-900 px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-center relative">
-          <h1 className="text-xl font-semibold text-gray-100">payg.chat</h1>
+          <div className="w-32 h-1 bg-gradient-to-r from-blue-500/30 via-purple-500/40 to-blue-500/30 rounded-full"></div>
           
           {!isEmpty && (
             <button
