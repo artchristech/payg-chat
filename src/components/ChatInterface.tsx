@@ -67,12 +67,6 @@ export function ChatInterface() {
           {isEmpty ? (
             <div className="flex flex-col justify-center items-center h-full min-h-[50vh]">
               <div className="text-center py-12">
-                <div className="mb-8">
-                  <h2 className="text-3xl font-bold text-gray-100 mb-2">
-                    Pay As You Go, no subscription
-                  </h2>
-                </div>
-                
                 <PresetButtons onPresetClick={handlePresetClick} />
               </div>
             </div>
