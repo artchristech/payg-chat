@@ -3,7 +3,6 @@ import { ArrowUp, Loader2, X } from 'lucide-react';
 import { AttachmentMenu } from './AttachmentMenu';
 import { ModelSelector } from './ModelSelector';
 import { ResponseLengthSlider } from './ResponseLengthSlider';
-import { ToggleSwitch } from './ToggleSwitch';
 
 interface InputAreaProps {
   onSendMessage: (content: string, type?: 'text' | 'image' | 'audio', imageUrl?: string, audioUrl?: string, maxTokens?: number) => void;
@@ -20,7 +19,6 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
-  const [isSwitchOn, setIsSwitchOn] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const focusMessageInput = () => {
@@ -54,10 +52,6 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   const handleImageRemove = () => {
     setSelectedImage(null);
     setSelectedImageFile(null);
-  };
-
-  const handleToggleSwitch = () => {
-    setIsSwitchOn(!isSwitchOn);
   };
 
   const handleAudioRecording = (audioBlob: Blob, audioUrl: string) => {
@@ -143,10 +137,6 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                 <ResponseLengthSlider
                   maxTokens={maxTokens}
                   onValueChange={onMaxTokensChange}
-                />
-                <ToggleSwitch
-                  isOn={isSwitchOn}
-                  onToggle={handleToggleSwitch}
                 />
               </div>
               
