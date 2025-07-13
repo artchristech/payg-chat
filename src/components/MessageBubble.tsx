@@ -14,8 +14,8 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       <div className={`
         max-w-[70%] relative
         ${isUser 
-          ? 'bg-gray-600 text-white rounded-2xl px-4 py-3' 
-          : 'text-gray-100'
+          ? 'bg-blue-500 dark:bg-gray-600 text-white rounded-2xl px-4 py-3' 
+          : 'text-gray-900 dark:text-gray-100'
         }
       `}>
         {message.type === 'image' && message.imageUrl && (
