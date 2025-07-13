@@ -10,6 +10,8 @@ export interface OpenRouterModel {
   contextLength: number;
   multiModal: boolean;
   provider: string;
+  inputCostPerToken: number;
+  outputCostPerToken: number;
 }
 
 export const openRouterModels: OpenRouterModel[] = [
@@ -20,6 +22,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 256000,
     multiModal: true,
     provider: 'xAI',
+    inputCostPerToken: 0.000005,
+    outputCostPerToken: 0.000015,
   },
   {
     id: 'meta-llama/llama-4-maverick',
@@ -28,6 +32,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 128000,
     multiModal: true,
     provider: 'Meta',
+    inputCostPerToken: 0.000003,
+    outputCostPerToken: 0.000009,
   },
   {
     id: 'google/gemini-2.5-pro',
@@ -36,6 +42,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 1000000,
     multiModal: true,
     provider: 'Google',
+    inputCostPerToken: 0.00000125,
+    outputCostPerToken: 0.000005,
   },
   {
     id: 'anthropic/claude-3.5-sonnet',
@@ -44,6 +52,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 200000,
     multiModal: true,
     provider: 'Anthropic',
+    inputCostPerToken: 0.000003,
+    outputCostPerToken: 0.000015,
   },
   {
     id: 'openai/gpt-4o',
@@ -52,6 +62,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 128000,
     multiModal: true,
     provider: 'OpenAI',
+    inputCostPerToken: 0.0000025,
+    outputCostPerToken: 0.00001,
   },
   {
     id: 'openai/gpt-4o-mini',
@@ -60,6 +72,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 128000,
     multiModal: true,
     provider: 'OpenAI',
+    inputCostPerToken: 0.00000015,
+    outputCostPerToken: 0.0000006,
   },
   {
     id: 'meta-llama/llama-3.1-70b-instruct',
@@ -68,6 +82,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 131072,
     multiModal: false,
     provider: 'Meta',
+    inputCostPerToken: 0.00000088,
+    outputCostPerToken: 0.00000088,
   },
   {
     id: 'meta-llama/llama-3.1-8b-instruct',
@@ -76,6 +92,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 131072,
     multiModal: false,
     provider: 'Meta',
+    inputCostPerToken: 0.00000018,
+    outputCostPerToken: 0.00000018,
   },
   {
     id: 'mistralai/mistral-7b-instruct',
@@ -84,6 +102,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 32768,
     multiModal: false,
     provider: 'Mistral AI',
+    inputCostPerToken: 0.00000025,
+    outputCostPerToken: 0.00000025,
   },
   {
     id: 'google/gemini-pro-1.5',
@@ -92,6 +112,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 2000000,
     multiModal: true,
     provider: 'Google',
+    inputCostPerToken: 0.00000125,
+    outputCostPerToken: 0.000005,
   },
   {
     id: 'perplexity/llama-3.1-sonar-large-128k-online',
@@ -100,6 +122,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 127072,
     multiModal: false,
     provider: 'Perplexity',
+    inputCostPerToken: 0.000001,
+    outputCostPerToken: 0.000001,
   },
   {
     id: 'anthropic/claude-3-haiku',
@@ -108,6 +132,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 200000,
     multiModal: true,
     provider: 'Anthropic',
+    inputCostPerToken: 0.00000025,
+    outputCostPerToken: 0.00000125,
   },
   {
     id: 'cohere/command-r-plus',
@@ -116,6 +142,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 128000,
     multiModal: false,
     provider: 'Cohere',
+    inputCostPerToken: 0.000003,
+    outputCostPerToken: 0.000015,
   },
 ];
 
@@ -124,12 +152,17 @@ export interface OpenRouterMessage {
   content: string | Array<{ type: 'text' | 'image_url'; text?: string; image_url?: { url: string } }>;
 }
 
+export interface UsageData {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+}
 export async function sendMessageToOpenRouter(
   messages: OpenRouterMessage[],
   model: string = 'mistralai/mistral-7b-instruct',
   maxTokens: number = 1024,
   onUpdate?: (content: string) => void,
-  onComplete?: () => void
+  onComplete?: (usage?: UsageData) => void
 ): Promise<void> {
   if (!OPENROUTER_API_KEY) {
     throw new Error('OpenRouter API key not configured. Please add VITE_OPENROUTER_API_KEY to your .env file and restart the development server.');
@@ -179,6 +212,7 @@ export async function sendMessageToOpenRouter(
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
+    let finalUsage: UsageData | undefined;
 
     try {
       while (true) {
@@ -195,13 +229,18 @@ export async function sendMessageToOpenRouter(
             const data = line.slice(6);
             
             if (data === '[DONE]') {
-              onComplete?.();
+              onComplete?.(finalUsage);
               return;
             }
             
             try {
               const parsed = JSON.parse(data);
               const content = parsed.choices?.[0]?.delta?.content;
+              
+              // Capture usage data from the final chunk
+              if (parsed.usage) {
+                finalUsage = parsed.usage;
+              }
               
               if (content) {
                 onUpdate?.(content);
@@ -214,7 +253,7 @@ export async function sendMessageToOpenRouter(
         }
       }
       
-      onComplete?.();
+      onComplete?.(finalUsage);
     } catch (error) {
       console.error('Error reading stream:', error);
       throw error;

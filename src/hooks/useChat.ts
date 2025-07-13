@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Message, ChatState } from '../types/chat';
-import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat } from '../utils/api';
+import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat, openRouterModels, UsageData } from '../utils/api';
 
 export function useChat(onScrollToBottom?: () => void) {
   const [chatState, setChatState] = useState<ChatState>({
@@ -9,6 +9,7 @@ export function useChat(onScrollToBottom?: () => void) {
     error: null,
     selectedModel: 'x-ai/grok-4',
     maxTokens: 1024,
+    conversationCost: 0,
   });
 
   const addMessage = useCallback((message: Omit<Message, 'id' | 'timestamp'>) => {
@@ -88,7 +89,22 @@ export function useChat(onScrollToBottom?: () => void) {
           }));
         },
         // onComplete callback - mark as finished
-        () => {
+        (usage?: UsageData) => {
+          // Calculate cost if usage data is available
+          if (usage) {
+            const selectedModelInfo = openRouterModels.find(model => model.id === chatState.selectedModel);
+            if (selectedModelInfo) {
+              const inputCost = usage.prompt_tokens * selectedModelInfo.inputCostPerToken;
+              const outputCost = usage.completion_tokens * selectedModelInfo.outputCostPerToken;
+              const totalCost = inputCost + outputCost;
+              
+              setChatState(prev => ({
+                ...prev,
+                conversationCost: prev.conversationCost + totalCost,
+              }));
+            }
+          }
+          
           setChatState(prev => ({
             ...prev,
             messages: prev.messages.map(msg =>
@@ -123,6 +139,7 @@ export function useChat(onScrollToBottom?: () => void) {
     setChatState(prev => ({
       ...prev,
       messages: [],
+      conversationCost: 0,
       error: null,
     }));
   }, []);
@@ -145,6 +162,7 @@ export function useChat(onScrollToBottom?: () => void) {
     error: chatState.error,
     selectedModel: chatState.selectedModel,
     maxTokens: chatState.maxTokens,
+    conversationCost: chatState.conversationCost,
   }), [chatState]);
 
   return {

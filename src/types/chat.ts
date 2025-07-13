@@ -15,6 +15,7 @@ export interface ChatState {
   error: string | null;
   selectedModel: string;
   maxTokens: number;
+  conversationCost: number;
 }
 
 export interface OpenRouterModel {
