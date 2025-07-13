@@ -16,6 +16,7 @@ export interface ChatState {
   selectedModel: string;
   maxTokens: number;
   conversationCost: number;
+  conversationCost: number;
 }
 
 export interface OpenRouterModel {

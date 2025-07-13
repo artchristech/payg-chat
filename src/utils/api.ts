@@ -157,6 +157,7 @@ export interface UsageData {
   completion_tokens: number;
   total_tokens: number;
 }
+
 export async function sendMessageToOpenRouter(
   messages: OpenRouterMessage[],
   model: string = 'mistralai/mistral-7b-instruct',
