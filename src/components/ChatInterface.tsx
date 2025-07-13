@@ -33,16 +33,6 @@ export function ChatInterface() {
         <div className="max-w-4xl mx-auto flex items-center justify-center relative">
           <div className="w-32 h-1 bg-gradient-to-r from-blue-500/30 via-purple-500/40 to-blue-500/30 rounded-full"></div>
           
-          {/* Conversation Cost Display */}
-          {!isEmpty && conversationCost > 0 && (
-            <div className="absolute left-0 flex items-center gap-2 text-sm text-gray-400">
-              <span className="text-xs">Cost:</span>
-              <span className="font-mono text-green-400">
-                ${conversationCost.toFixed(6)}
-              </span>
-            </div>
-          )}
-          
           {!isEmpty && (
             <button
               onClick={handleClearChat}
@@ -103,6 +93,7 @@ export function ChatInterface() {
             centered={isEmpty}
             maxTokens={maxTokens}
             onMaxTokensChange={setMaxTokens}
+            conversationCost={conversationCost}
           />
         </div>
       </div>
