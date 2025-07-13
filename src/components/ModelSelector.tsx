@@ -7,10 +7,9 @@ interface ModelSelectorProps {
   onModelChange: (model: string) => void;
   onSelectionComplete?: () => void;
   compact?: boolean;
-  conversationCost?: number;
 }
 
-export function ModelSelector({ selectedModel, onModelChange, onSelectionComplete, compact = false, conversationCost = 0 }: ModelSelectorProps) {
+export function ModelSelector({ selectedModel, onModelChange, onSelectionComplete, compact = false }: ModelSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [displayMode, setDisplayMode] = useState<'featured' | 'all'>('featured');
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -61,19 +60,9 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
         <div className={`absolute ${compact ? 'bottom-full right-0' : 'bottom-full left-0'} mb-2 w-80 bg-gray-800 border border-gray-600/50 rounded-xl shadow-2xl backdrop-blur-sm z-50`}>
           {/* Header with Add Button */}
           <div className="flex items-center justify-between p-3 border-b border-gray-700">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-gray-300">
-                {displayMode === 'featured' ? 'Featured Models' : 'All Models'}
-              </span>
-              {conversationCost > 0 && (
-                <div className="flex items-center gap-1 text-xs text-gray-400">
-                  <span>Cost:</span>
-                  <span className="font-mono text-green-400">
-                    ${conversationCost.toFixed(6)}
-                  </span>
-                </div>
-              )}
-            </div>
+            <span className="text-sm font-medium text-gray-300">
+              {displayMode === 'featured' ? 'Featured Models' : 'All Models'}
+            </span>
             <button
               type="button"
               onClick={() => setDisplayMode(displayMode === 'featured' ? 'all' : 'featured')}
