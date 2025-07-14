@@ -66,7 +66,7 @@ export function useChat(onScrollToBottom?: () => void) {
     }));
 
     // Scroll to bottom after adding user message and starting AI response
-    setTimeout(() => onScrollToBottom?.(), 100);
+    setTimeout(() => onScrollToBottom?.(), 50);
     try {
       // Prepare messages for API (including the new user message)
       const messagesForAPI = [...chatState.messages, userMessage];
@@ -99,7 +99,7 @@ export function useChat(onScrollToBottom?: () => void) {
             isLoading: false,
           }));
           // Scroll to bottom when AI response is complete
-          setTimeout(() => onScrollToBottom?.(), 100);
+          setTimeout(() => onScrollToBottom?.(), 50);
         }
       );
     } catch (error) {

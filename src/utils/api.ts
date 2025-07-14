@@ -135,6 +135,24 @@ export async function sendMessageToOpenRouter(
     throw new Error('OpenRouter API key not configured. Please add VITE_OPENROUTER_API_KEY to your .env file and restart the development server.');
   }
 
+  // Debounce updates to prevent excessive re-renders
+  let updateBuffer = '';
+  let updateTimeout: NodeJS.Timeout | null = null;
+  
+  const debouncedUpdate = (content: string) => {
+    updateBuffer += content;
+    
+    if (updateTimeout) {
+      clearTimeout(updateTimeout);
+    }
+    
+    updateTimeout = setTimeout(() => {
+      if (updateBuffer) {
+        onUpdate?.(updateBuffer);
+        updateBuffer = '';
+      }
+    }, 16); // ~60fps update rate
+  };
   try {
     const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',
@@ -204,7 +222,7 @@ export async function sendMessageToOpenRouter(
               const content = parsed.choices?.[0]?.delta?.content;
               
               if (content) {
-                onUpdate?.(content);
+                debouncedUpdate(content);
               }
             } catch (e) {
               // Skip invalid JSON lines
@@ -212,6 +230,11 @@ export async function sendMessageToOpenRouter(
             }
           }
         }
+      }
+      
+      // Flush any remaining buffered content
+      if (updateBuffer) {
+        onUpdate?.(updateBuffer);
       }
       
       onComplete?.();

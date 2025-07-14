@@ -1,16 +1,19 @@
 import React, { useEffect, useRef } from 'react';
-import { MessageBubble } from './MessageBubble';
 import { InputArea } from './InputArea';
 import { PresetButtons } from './PresetButtons';
 import { ThemeSelector } from './ThemeSelector';
+import { VirtualizedMessageList } from './VirtualizedMessageList';
 import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen } from 'lucide-react';
 
 export function ChatInterface() {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (listRef.current && messages.length > 0) {
+      listRef.current.scrollToItem(messages.length - 1, 'end');
+    }
   };
 
   const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError, maxTokens, setMaxTokens } = useChat(scrollToBottom);
@@ -64,8 +67,8 @@ export function ChatInterface() {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto hide-scrollbar">
-        <div className="max-w-4xl mx-auto px-4 py-6">
+      <div ref={containerRef} className="flex-1 overflow-hidden">
+        <div className="max-w-4xl mx-auto h-full">
           {isEmpty ? (
             <div className="flex flex-col justify-center items-center h-full min-h-[50vh]">
               <div className="text-center py-12">
@@ -73,12 +76,12 @@ export function ChatInterface() {
               </div>
             </div>
           ) : (
-            <div className="space-y-6">
-              {messages.map((message) => (
-                <MessageBubble key={message.id} message={message} />
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
+            <VirtualizedMessageList
+              ref={listRef}
+              messages={messages}
+              height={containerRef.current?.clientHeight || 600}
+              onScrollToBottom={scrollToBottom}
+            />
           )}
         </div>
       </div>

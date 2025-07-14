@@ -1,6 +1,7 @@
 import React from 'react';
 import { Message } from '../types/chat';
 import { Volume2 } from 'lucide-react';
+import { LazyImage } from './LazyImage';
 
 interface MessageBubbleProps {
   message: Message;
@@ -20,10 +21,11 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       `}>
         {message.type === 'image' && message.imageUrl && (
           <div className="mb-2">
-            <img 
+            <LazyImage
               src={message.imageUrl} 
               alt="Uploaded image" 
               className="max-w-full h-auto rounded-lg"
+              placeholder="Loading image..."
             />
           </div>
         )}
