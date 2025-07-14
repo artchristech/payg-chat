@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { InputArea } from './InputArea';
 import { PresetButtons } from './PresetButtons';
 import { ThemeSelector } from './ThemeSelector';
+import { OutputCustomization } from './OutputCustomization';
 import { VirtualizedMessageList } from './VirtualizedMessageList';
 import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen } from 'lucide-react';
@@ -17,6 +18,7 @@ export function ChatInterface() {
   };
 
   const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError, maxTokens, setMaxTokens } = useChat(scrollToBottom);
+  const { outputFontFamily, outputLineSpacing, setOutputFontFamily, setOutputLineSpacing } = useChat(scrollToBottom);
 
   const handlePresetClick = (prompt: string) => {
     sendMessage(prompt);
@@ -45,6 +47,12 @@ export function ChatInterface() {
                 <SquarePen className="w-4 h-4" />
               </button>
             )}
+            <OutputCustomization
+              outputFontFamily={outputFontFamily}
+              outputLineSpacing={outputLineSpacing}
+              onFontFamilyChange={setOutputFontFamily}
+              onLineSpacingChange={setOutputLineSpacing}
+            />
             <ThemeSelector />
           </div>
         </div>
@@ -81,6 +89,8 @@ export function ChatInterface() {
               messages={messages}
               height={containerRef.current?.clientHeight || 600}
               onScrollToBottom={scrollToBottom}
+              outputFontFamily={outputFontFamily}
+              outputLineSpacing={outputLineSpacing}
             />
           )}
         </div>

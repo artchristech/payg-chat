@@ -5,9 +5,11 @@ import { LazyImage } from './LazyImage';
 
 interface MessageBubbleProps {
   message: Message;
+  outputFontFamily?: string;
+  outputLineSpacing?: number;
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({ message, outputFontFamily, outputLineSpacing }: MessageBubbleProps) {
   const isUser = message.role === 'user';
 
   return (
@@ -44,6 +46,15 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           whitespace-pre-wrap text-base leading-relaxed transition-opacity duration-500 ease-out
           ${message.isLoading ? 'opacity-0' : 'opacity-100'}
         `}>
+        `}
+        style={
+          !isUser && outputFontFamily && outputLineSpacing
+            ? {
+                fontFamily: outputFontFamily,
+                lineHeight: outputLineSpacing,
+              }
+            : undefined
+        }>
           {message.content}
           {message.isLoading && (
             <span className="inline-block w-0.5 h-4 bg-current ml-0.5 animate-pulse" />
