@@ -9,8 +9,6 @@ export function useChat(onScrollToBottom?: () => void) {
     error: null,
     selectedModel: 'x-ai/grok-4',
     maxTokens: 1024,
-    outputFontFamily: 'system-ui, -apple-system, sans-serif',
-    outputLineSpacing: 1.5,
   });
 
   const addMessage = useCallback((message: Omit<Message, 'id' | 'timestamp'>) => {
@@ -136,15 +134,6 @@ export function useChat(onScrollToBottom?: () => void) {
   const setMaxTokens = useCallback((maxTokens: number) => {
     setChatState(prev => ({ ...prev, maxTokens }));
   }, []);
-
-  const setOutputFontFamily = useCallback((fontFamily: string) => {
-    setChatState(prev => ({ ...prev, outputFontFamily: fontFamily }));
-  }, []);
-
-  const setOutputLineSpacing = useCallback((lineSpacing: number) => {
-    setChatState(prev => ({ ...prev, outputLineSpacing: lineSpacing }));
-  }, []);
-
   const clearError = useCallback(() => {
     setChatState(prev => ({ ...prev, error: null }));
   }, []);
@@ -156,8 +145,6 @@ export function useChat(onScrollToBottom?: () => void) {
     error: chatState.error,
     selectedModel: chatState.selectedModel,
     maxTokens: chatState.maxTokens,
-    outputFontFamily: chatState.outputFontFamily,
-    outputLineSpacing: chatState.outputLineSpacing,
   }), [chatState]);
 
   return {
@@ -166,8 +153,6 @@ export function useChat(onScrollToBottom?: () => void) {
     clearChat,
     setSelectedModel,
     setMaxTokens,
-    setOutputFontFamily,
-    setOutputLineSpacing,
     clearError,
   };
 }

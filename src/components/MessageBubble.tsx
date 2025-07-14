@@ -5,11 +5,9 @@ import { LazyImage } from './LazyImage';
 
 interface MessageBubbleProps {
   message: Message;
-  outputFontFamily?: string;
-  outputLineSpacing?: number;
 }
 
-export function MessageBubble({ message, outputFontFamily, outputLineSpacing }: MessageBubbleProps) {
+export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
 
   return (
@@ -17,8 +15,8 @@ export function MessageBubble({ message, outputFontFamily, outputLineSpacing }: 
       <div className={`
         max-w-[70%] relative
         ${isUser 
-          ? 'bg-primary text-primary-text rounded-2xl px-4 py-3' 
-          : 'text-text'
+          ? 'bg-blue-500 dark:bg-gray-600 text-white rounded-2xl px-4 py-3' 
+          : 'text-gray-900 dark:text-gray-100'
         }
       `}>
         {message.type === 'image' && message.imageUrl && (
@@ -45,15 +43,7 @@ export function MessageBubble({ message, outputFontFamily, outputLineSpacing }: 
         <p className={`
           whitespace-pre-wrap text-base leading-relaxed transition-opacity duration-500 ease-out
           ${message.isLoading ? 'opacity-0' : 'opacity-100'}
-        `}
-        style={
-          !isUser && outputFontFamily && outputLineSpacing
-            ? {
-                fontFamily: outputFontFamily,
-                lineHeight: outputLineSpacing,
-              }
-            : undefined
-        }>
+        `}>
           {message.content}
           {message.isLoading && (
             <span className="inline-block w-0.5 h-4 bg-current ml-0.5 animate-pulse" />
