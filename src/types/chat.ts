@@ -17,6 +17,7 @@ export interface ChatState {
   maxTokens: number;
   outputFontFamily: string;
   outputLineSpacing: number;
+  outputFontSize: number;
 }
 
 export interface OpenRouterModel {

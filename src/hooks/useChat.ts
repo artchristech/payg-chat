@@ -168,6 +168,7 @@ export function useChat(onScrollToBottom?: () => void) {
     setMaxTokens,
     setOutputFontFamily,
     setOutputLineSpacing,
+    setOutputFontSize,
     clearError,
   };
 }

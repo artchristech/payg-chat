@@ -116,6 +116,29 @@ export function OutputCustomization({
               </div>
             </div>
 
+            {/* Font Size Section */}
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-2">
+                Font Size: {outputFontSize}px
+              </label>
+              <div className="space-y-2">
+                <input
+                  type="range"
+                  min="12"
+                  max="24"
+                  step="1"
+                  value={outputFontSize}
+                  onChange={handleFontSizeChange}
+                  className="w-full h-2 bg-surface-active rounded-lg appearance-none cursor-pointer slider"
+                />
+                <div className="flex justify-between text-xs text-text-muted">
+                  <span>Small</span>
+                  <span>Medium</span>
+                  <span>Large</span>
+                </div>
+              </div>
+            </div>
+
             {/* Preview */}
             <div className="pt-2 border-t border-border">
               <label className="block text-sm font-medium text-text-secondary mb-2">
@@ -125,7 +148,8 @@ export function OutputCustomization({
                 className="p-3 bg-surface-active rounded-md text-sm text-text"
                 style={{ 
                   fontFamily: outputFontFamily,
-                  lineHeight: outputLineSpacing 
+                  lineHeight: outputLineSpacing,
+                  fontSize: `${outputFontSize}px`
                 }}
               >
                 This is how the AI responses will appear with your selected font and spacing settings.

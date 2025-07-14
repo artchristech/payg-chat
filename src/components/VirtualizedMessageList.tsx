@@ -19,6 +19,7 @@ interface MessageItemProps {
     itemHeights: number[];
     outputFontFamily: string;
     outputLineSpacing: number;
+    outputFontSize: number;
   };
 }
 
@@ -41,7 +42,7 @@ const MessageItem = React.memo(({ index, style, data }: MessageItemProps) => {
 MessageItem.displayName = 'MessageItem';
 
 export const VirtualizedMessageList = forwardRef<any, VirtualizedMessageListProps>(
-  ({ messages, height, onScrollToBottom, outputFontFamily, outputLineSpacing }, ref) => {
+  ({ messages, height, onScrollToBottom, outputFontFamily, outputLineSpacing, outputFontSize }, ref) => {
     // Estimate item height based on message content
     const getItemHeight = useCallback((message: Message) => {
       let baseHeight = 80; // Base height for a message bubble
@@ -79,7 +80,8 @@ export const VirtualizedMessageList = forwardRef<any, VirtualizedMessageListProp
       itemHeights,
       outputFontFamily,
       outputLineSpacing,
-    }), [messages, itemHeights, outputFontFamily, outputLineSpacing]);
+      outputFontSize,
+    }), [messages, itemHeights, outputFontFamily, outputLineSpacing, outputFontSize]);
 
     const handleScroll = useCallback(({ scrollTop, scrollHeight, clientHeight }: any) => {
       // Check if scrolled to bottom (with small threshold)

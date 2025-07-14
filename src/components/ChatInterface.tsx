@@ -18,7 +18,7 @@ export function ChatInterface() {
   };
 
   const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError, maxTokens, setMaxTokens } = useChat(scrollToBottom);
-  const { outputFontFamily, outputLineSpacing, setOutputFontFamily, setOutputLineSpacing } = useChat(scrollToBottom);
+  const { outputFontFamily, outputLineSpacing, outputFontSize, setOutputFontFamily, setOutputLineSpacing, setOutputFontSize } = useChat(scrollToBottom);
 
   const handlePresetClick = (prompt: string) => {
     sendMessage(prompt);
@@ -92,6 +92,7 @@ export function ChatInterface() {
                 onScrollToBottom={scrollToBottom}
                 outputFontFamily={outputFontFamily}
                 outputLineSpacing={outputLineSpacing}
+                outputFontSize={outputFontSize}
               />
             )}
           </div>

@@ -47,10 +47,11 @@ export function MessageBubble({ message, outputFontFamily, outputLineSpacing }: 
           ${message.isLoading ? 'opacity-0' : 'opacity-100'}
         `}
         style={
-          !isUser && outputFontFamily && outputLineSpacing
+          !isUser && outputFontFamily && outputLineSpacing && outputFontSize
             ? {
                 fontFamily: outputFontFamily,
                 lineHeight: outputLineSpacing,
+                fontSize: `${outputFontSize}px`,
               }
             : undefined
         }>
