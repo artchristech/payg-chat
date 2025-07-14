@@ -10,12 +10,11 @@ interface InputAreaProps {
   placeholder?: string;
   selectedModel: string;
   onModelChange: (model: string) => void;
-  centered?: boolean;
   maxTokens: number;
   onMaxTokensChange: (value: number) => void;
 }
 
-export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange }: InputAreaProps) {
+export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, maxTokens, onMaxTokensChange }: InputAreaProps) {
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
@@ -89,7 +88,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className={`${centered ? 'w-full' : 'max-w-4xl mx-auto'}`}>
+      <form onSubmit={handleSubmit} className="w-full">
         <div className="space-y-3">
           {/* Image Preview */}
           {selectedImage && (
@@ -111,7 +110,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
           )}
 
           {/* Main Input Container */}
-          <div className={`bg-white dark:bg-gray-800 rounded-3xl transition-all duration-200 p-4 ${centered ? 'shadow-2xl border border-gray-200 dark:border-gray-700' : 'border border-gray-200 dark:border-gray-700'}`}>
+          <div className="bg-white dark:bg-gray-800 rounded-3xl transition-all duration-200 p-4 border border-gray-200 dark:border-gray-700">
             {/* Text Input Area */}
             <div className="relative">
             <textarea
