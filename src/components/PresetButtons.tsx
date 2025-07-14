@@ -38,14 +38,14 @@ export function PresetButtons({ onPresetClick }: PresetButtonsProps) {
     <div className="flex flex-col items-center space-y-8">
       <button
         onClick={() => onPresetClick(agentButton.prompt)}
-        className="flex items-center gap-6 px-16 py-8 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 text-2xl font-semibold text-gray-900 dark:text-gray-100 shadow-lg hover:shadow-xl hover:scale-105"
+        className="flex items-center gap-6 px-16 py-8 bg-surface border border-border rounded-2xl hover:bg-surface-hover hover:border-border-hover transition-all duration-200 text-2xl font-semibold text-text shadow-lg hover:shadow-xl hover:scale-105"
       >
         <IconComponent name={agentButton.icon} />
         {agentButton.label}
       </button>
       <button
         onClick={() => onPresetClick(exploreButton.prompt)}
-        className="flex items-center gap-6 px-16 py-8 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 text-2xl font-semibold text-gray-900 dark:text-gray-100 shadow-lg hover:shadow-xl hover:scale-105"
+        className="flex items-center gap-6 px-16 py-8 bg-surface border border-border rounded-2xl hover:bg-surface-hover hover:border-border-hover transition-all duration-200 text-2xl font-semibold text-text shadow-lg hover:shadow-xl hover:scale-105"
       >
         <IconComponent name={exploreButton.icon} />
         {exploreButton.label}

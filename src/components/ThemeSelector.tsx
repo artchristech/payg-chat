@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { Sun, Moon, Monitor, Zap, Waves, Clock } from 'lucide-react';
 
-type Theme = 'light' | 'dark' | 'system';
+type Theme = 'light' | 'dark' | 'system' | 'cyber' | 'ambient' | 'vintage';
 
 export function ThemeSelector() {
-  const [theme, setTheme] = useState<Theme>('system');
+  const [theme, setTheme] = useState<Theme>('light');
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -20,18 +20,20 @@ export function ThemeSelector() {
   useEffect(() => {
     const root = document.documentElement;
     
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else if (theme === 'light') {
-      root.classList.remove('dark');
-    } else {
+    // Remove all theme classes
+    root.classList.remove('light-theme', 'dark-theme', 'cyber-theme', 'ambient-theme', 'vintage-theme');
+    
+    if (theme === 'system') {
       // System theme
       const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       if (systemPrefersDark) {
-        root.classList.add('dark');
+        root.classList.add('dark-theme');
       } else {
-        root.classList.remove('dark');
+        root.classList.add('light-theme');
       }
+    } else {
+      // Apply specific theme
+      root.classList.add(`${theme}-theme`);
     }
     
     localStorage.setItem('theme', theme);
@@ -43,10 +45,11 @@ export function ThemeSelector() {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleChange = () => {
         const root = document.documentElement;
+        root.classList.remove('light-theme', 'dark-theme');
         if (mediaQuery.matches) {
-          root.classList.add('dark');
+          root.classList.add('dark-theme');
         } else {
-          root.classList.remove('dark');
+          root.classList.add('light-theme');
         }
       };
       
@@ -70,6 +73,9 @@ export function ThemeSelector() {
   const getThemeIcon = () => {
     if (theme === 'light') return Sun;
     if (theme === 'dark') return Moon;
+    if (theme === 'cyber') return Zap;
+    if (theme === 'ambient') return Waves;
+    if (theme === 'vintage') return Clock;
     return Monitor;
   };
 
@@ -78,6 +84,9 @@ export function ThemeSelector() {
   const themes = [
     { id: 'light' as Theme, label: 'Light', icon: Sun },
     { id: 'dark' as Theme, label: 'Dark', icon: Moon },
+    { id: 'cyber' as Theme, label: 'Cyber', icon: Zap },
+    { id: 'ambient' as Theme, label: 'Ambient', icon: Waves },
+    { id: 'vintage' as Theme, label: 'Vintage', icon: Clock },
     { id: 'system' as Theme, label: 'System', icon: Monitor },
   ];
 
@@ -94,7 +103,7 @@ export function ThemeSelector() {
 
       {isOpen && (
         <div 
-          className="absolute top-full right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50 min-w-[120px]"
+          className="absolute top-full right-0 mt-2 bg-surface border border-border rounded-lg shadow-lg z-50 min-w-[120px]"
           onMouseLeave={() => setIsOpen(false)}
         >
           <div className="p-1">
@@ -109,8 +118,8 @@ export function ThemeSelector() {
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-colors ${
                     theme === themeOption.id
-                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100'
-                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-primary text-primary-text'
+                      : 'text-text hover:bg-surface-hover'
                   }`}
                 >
                   <IconComponent className="w-4 h-4" />

@@ -32,16 +32,17 @@ export function ChatInterface() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 relative">
+    <div className="flex flex-col h-screen bg-app relative">
       {/* Header */}
-      <div className="bg-gray-100 dark:bg-gray-900 px-4 py-3">
+      <div className="bg-app px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-center relative">
-          <div className="w-32 h-1 bg-gradient-to-r from-blue-500/30 via-purple-500/40 to-blue-500/30 rounded-full"></div>
+          <div className="w-32 h-1 bg-gradient-to-r from-primary/30 via-accent/40 to-primary/30 rounded-full"></div>
           
           <div className="absolute right-0 flex items-center gap-2">
             {!isEmpty && (
               <button
                 onClick={handleClearChat}
-                className="w-10 h-10 flex items-center justify-center text-gray-400 hover:bg-gray-700 dark:hover:bg-gray-600 hover:text-gray-200 rounded-lg transition-colors"
+                className="w-10 h-10 flex items-center justify-center text-text-muted hover:bg-surface-hover hover:text-text rounded-lg transition-colors"
                 title="Clear Chat"
               >
                 <SquarePen className="w-4 h-4" />
@@ -60,13 +61,13 @@ export function ChatInterface() {
 
       {/* Error Banner */}
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 px-4 py-3">
+        <div className="bg-error-bg px-4 py-3">
           <div className="max-w-4xl mx-auto flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
-            <span className="text-red-800 dark:text-red-200 text-sm">{error}</span>
+            <AlertCircle className="w-5 h-5 text-error" />
+            <span className="text-error-text text-sm">{error}</span>
             <button
               onClick={clearError}
-              className="ml-auto text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 text-sm"
+              className="ml-auto text-error hover:text-error-text text-sm"
             >
               Dismiss
             </button>
@@ -97,7 +98,7 @@ export function ChatInterface() {
       </div>
 
       {/* Bottom Section - Always present */}
-      <div className="bg-gray-100 dark:bg-gray-900 p-4">
+      <div className="bg-app p-4">
         <div className={`mx-auto ${isEmpty ? 'max-w-2xl' : 'max-w-4xl'}`}>
           <InputArea
             onSendMessage={sendMessage}

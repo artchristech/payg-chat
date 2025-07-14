@@ -17,8 +17,8 @@ export function MessageBubble({ message, outputFontFamily, outputLineSpacing }: 
       <div className={`
         max-w-[70%] relative
         ${isUser 
-          ? 'bg-blue-500 dark:bg-gray-600 text-white rounded-2xl px-4 py-3' 
-          : 'text-gray-900 dark:text-gray-100'
+          ? 'bg-primary text-primary-text rounded-2xl px-4 py-3' 
+          : 'text-text'
         }
       `}>
         {message.type === 'image' && message.imageUrl && (

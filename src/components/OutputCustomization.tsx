@@ -53,7 +53,7 @@ export function OutputCustomization({
       <button
         onClick={() => setIsOpen(!isOpen)}
         onMouseEnter={() => setIsOpen(true)}
-        className="w-10 h-10 flex items-center justify-center text-gray-400 hover:bg-gray-700 dark:hover:bg-gray-600 hover:text-gray-200 rounded-lg transition-colors"
+        className="w-10 h-10 flex items-center justify-center text-text-muted hover:bg-surface-hover hover:text-text rounded-lg transition-colors"
         title="Customize output font and spacing"
       >
         <Type className="w-4 h-4" />
@@ -61,13 +61,13 @@ export function OutputCustomization({
 
       {isOpen && (
         <div 
-          className="absolute top-full right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50 min-w-[240px]"
+          className="absolute top-full right-0 mt-2 bg-surface border border-border rounded-lg shadow-lg z-50 min-w-[240px]"
           onMouseLeave={() => setIsOpen(false)}
         >
           <div className="p-4 space-y-4">
             {/* Font Family Section */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-text-secondary mb-2">
                 Font Family
               </label>
               <div className="space-y-1">
@@ -79,8 +79,8 @@ export function OutputCustomization({
                     }}
                     className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${
                       outputFontFamily === font.value
-                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100'
-                        : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        ? 'bg-primary/20 text-primary'
+                        : 'text-text hover:bg-surface-hover'
                     }`}
                     style={{ fontFamily: font.value }}
                   >
@@ -95,7 +95,7 @@ export function OutputCustomization({
 
             {/* Line Spacing Section */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-text-secondary mb-2">
                 Line Spacing: {outputLineSpacing.toFixed(1)}
               </label>
               <div className="space-y-2">
@@ -106,9 +106,9 @@ export function OutputCustomization({
                   step="0.1"
                   value={outputLineSpacing}
                   onChange={handleLineSpacingChange}
-                  className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                  className="w-full h-2 bg-surface-active rounded-lg appearance-none cursor-pointer slider"
                 />
-                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                <div className="flex justify-between text-xs text-text-muted">
                   <span>Tight</span>
                   <span>Normal</span>
                   <span>Loose</span>
@@ -117,12 +117,12 @@ export function OutputCustomization({
             </div>
 
             {/* Preview */}
-            <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="pt-2 border-t border-border">
+              <label className="block text-sm font-medium text-text-secondary mb-2">
                 Preview
               </label>
               <div 
-                className="p-3 bg-gray-50 dark:bg-gray-700 rounded-md text-sm text-gray-900 dark:text-gray-100"
+                className="p-3 bg-surface-active rounded-md text-sm text-text"
                 style={{ 
                   fontFamily: outputFontFamily,
                   lineHeight: outputLineSpacing 

@@ -46,9 +46,9 @@ export function LazyImage({ src, alt, className = '', placeholder }: LazyImagePr
   return (
     <div ref={imgRef} className={`relative overflow-hidden ${className}`}>
       {!isLoaded && (
-        <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse flex items-center justify-center">
+        <div className="absolute inset-0 bg-surface-active animate-pulse flex items-center justify-center">
           {placeholder && (
-            <span className="text-gray-400 dark:text-gray-500 text-sm">
+            <span className="text-text-muted text-sm">
               {placeholder}
             </span>
           )}
@@ -69,8 +69,8 @@ export function LazyImage({ src, alt, className = '', placeholder }: LazyImagePr
       )}
       
       {hasError && (
-        <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-          <span className="text-gray-400 dark:text-gray-500 text-sm">
+        <div className="absolute inset-0 bg-surface-active flex items-center justify-center">
+          <span className="text-text-muted text-sm">
             Failed to load image
           </span>
         </div>
