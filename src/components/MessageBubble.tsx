@@ -10,6 +10,7 @@ interface MessageBubbleProps {
   outputFontSize?: number;
 }
 
+export function MessageBubble({ message, outputFontFamily, outputLineSpacing, outputFontSize }: MessageBubbleProps) {
   const isUser = message.role === 'user';
 
   return (
