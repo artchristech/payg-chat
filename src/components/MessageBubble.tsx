@@ -45,7 +45,6 @@ export function MessageBubble({ message, outputFontFamily, outputLineSpacing }: 
         <p className={`
           whitespace-pre-wrap text-base leading-relaxed transition-opacity duration-500 ease-out
           ${message.isLoading ? 'opacity-0' : 'opacity-100'}
-        `}>
         `}
         style={
           !isUser && outputFontFamily && outputLineSpacing
