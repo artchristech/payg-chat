@@ -44,7 +44,6 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2 bg-gray-700 hover:bg-gray-600 transition-all duration-200 text-gray-100 ${
         className={`flex items-center gap-2 transition-all duration-200 ${
           compact 
             ? 'px-3 py-2 rounded-full text-sm scale-[0.85] bg-gradient-to-br from-button-secondary to-button-secondary-hover border border-border shadow-md hover:from-button-secondary-hover hover:to-surface-active hover:border-border-hover gap-1.5 text-button-secondary-text' 
