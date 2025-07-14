@@ -40,8 +40,6 @@ export function ResponseLengthSlider({ maxTokens, onValueChange }: ResponseLengt
     >
       {/* Slider Track - fades in when expanded */}
       <div 
-        className={`absolute left-0 h-1 bg-gray-600 rounded-full transition-all duration-300 ease-in-out ${
-        }
         className={`absolute left-0 h-1 bg-text-muted rounded-full transition-all duration-300 ease-in-out ${
           isExpanded ? 'w-20 opacity-100' : 'w-0 opacity-0'
         }`}
