@@ -83,4 +83,3 @@ export function ResponseLengthSlider({ maxTokens, onValueChange }: ResponseLengt
     </div>
   );
 }
-}
