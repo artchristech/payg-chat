@@ -7,10 +7,9 @@ interface MessageBubbleProps {
   message: Message;
   outputFontFamily?: string;
   outputLineSpacing?: number;
-  outputFontSize?: number;
 }
 
-export function MessageBubble({ message, outputFontFamily, outputLineSpacing, outputFontSize }: MessageBubbleProps) {
+export function MessageBubble({ message, outputFontFamily, outputLineSpacing }: MessageBubbleProps) {
   const isUser = message.role === 'user';
 
   return (
@@ -48,11 +47,10 @@ export function MessageBubble({ message, outputFontFamily, outputLineSpacing, ou
           ${message.isLoading ? 'opacity-0' : 'opacity-100'}
         `}
         style={
-          !isUser && outputFontFamily && outputLineSpacing && outputFontSize
+          !isUser && outputFontFamily && outputLineSpacing
             ? {
                 fontFamily: outputFontFamily,
                 lineHeight: outputLineSpacing,
-                fontSize: `${outputFontSize}px`,
               }
             : undefined
         }>

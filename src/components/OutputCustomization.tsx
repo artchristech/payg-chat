@@ -4,10 +4,8 @@ import { Type, Check } from 'lucide-react';
 interface OutputCustomizationProps {
   outputFontFamily: string;
   outputLineSpacing: number;
-  outputFontSize: number;
   onFontFamilyChange: (fontFamily: string) => void;
   onLineSpacingChange: (lineSpacing: number) => void;
-  onFontSizeChange: (fontSize: number) => void;
 }
 
 const fontOptions = [
@@ -23,10 +21,8 @@ const fontOptions = [
 export function OutputCustomization({ 
   outputFontFamily, 
   outputLineSpacing, 
-  outputFontSize,
   onFontFamilyChange, 
-  onLineSpacingChange,
-  onFontSizeChange
+  onLineSpacingChange 
 }: OutputCustomizationProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -45,10 +41,6 @@ export function OutputCustomization({
 
   const handleLineSpacingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onLineSpacingChange(parseFloat(e.target.value));
-  };
-
-  const handleFontSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onFontSizeChange(parseInt(e.target.value));
   };
 
   const getCurrentFontLabel = () => {
@@ -124,29 +116,6 @@ export function OutputCustomization({
               </div>
             </div>
 
-            {/* Font Size Section */}
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">
-                Font Size: {outputFontSize}px
-              </label>
-              <div className="space-y-2">
-                <input
-                  type="range"
-                  min="12"
-                  max="24"
-                  step="1"
-                  value={outputFontSize}
-                  onChange={handleFontSizeChange}
-                  className="w-full h-2 bg-surface-active rounded-lg appearance-none cursor-pointer slider"
-                />
-                <div className="flex justify-between text-xs text-text-muted">
-                  <span>Small</span>
-                  <span>Medium</span>
-                  <span>Large</span>
-                </div>
-              </div>
-            </div>
-
             {/* Preview */}
             <div className="pt-2 border-t border-border">
               <label className="block text-sm font-medium text-text-secondary mb-2">
@@ -156,8 +125,7 @@ export function OutputCustomization({
                 className="p-3 bg-surface-active rounded-md text-sm text-text"
                 style={{ 
                   fontFamily: outputFontFamily,
-                  lineHeight: outputLineSpacing,
-                  fontSize: `${outputFontSize}px`
+                  lineHeight: outputLineSpacing 
                 }}
               >
                 This is how the AI responses will appear with your selected font and spacing settings.
