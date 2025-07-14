@@ -4,8 +4,10 @@ import { Type, Check } from 'lucide-react';
 interface OutputCustomizationProps {
   outputFontFamily: string;
   outputLineSpacing: number;
+  outputFontSize: number;
   onFontFamilyChange: (fontFamily: string) => void;
   onLineSpacingChange: (lineSpacing: number) => void;
+  onFontSizeChange: (fontSize: number) => void;
 }
 
 const fontOptions = [
@@ -21,8 +23,10 @@ const fontOptions = [
 export function OutputCustomization({ 
   outputFontFamily, 
   outputLineSpacing, 
+  outputFontSize,
   onFontFamilyChange, 
-  onLineSpacingChange 
+  onLineSpacingChange,
+  onFontSizeChange
 }: OutputCustomizationProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -41,6 +45,10 @@ export function OutputCustomization({
 
   const handleLineSpacingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onLineSpacingChange(parseFloat(e.target.value));
+  };
+
+  const handleFontSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onFontSizeChange(parseInt(e.target.value));
   };
 
   const getCurrentFontLabel = () => {

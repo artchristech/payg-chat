@@ -11,6 +11,7 @@ export function useChat(onScrollToBottom?: () => void) {
     maxTokens: 1024,
     outputFontFamily: 'system-ui, -apple-system, sans-serif',
     outputLineSpacing: 1.5,
+    outputFontSize: 16,
   });
 
   const addMessage = useCallback((message: Omit<Message, 'id' | 'timestamp'>) => {
@@ -145,6 +146,10 @@ export function useChat(onScrollToBottom?: () => void) {
     setChatState(prev => ({ ...prev, outputLineSpacing: lineSpacing }));
   }, []);
 
+  const setOutputFontSize = useCallback((fontSize: number) => {
+    setChatState(prev => ({ ...prev, outputFontSize: fontSize }));
+  }, []);
+
   const clearError = useCallback(() => {
     setChatState(prev => ({ ...prev, error: null }));
   }, []);
@@ -158,6 +163,7 @@ export function useChat(onScrollToBottom?: () => void) {
     maxTokens: chatState.maxTokens,
     outputFontFamily: chatState.outputFontFamily,
     outputLineSpacing: chatState.outputLineSpacing,
+    outputFontSize: chatState.outputFontSize,
   }), [chatState]);
 
   return {

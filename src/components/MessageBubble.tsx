@@ -7,9 +7,9 @@ interface MessageBubbleProps {
   message: Message;
   outputFontFamily?: string;
   outputLineSpacing?: number;
+  outputFontSize?: number;
 }
 
-export function MessageBubble({ message, outputFontFamily, outputLineSpacing }: MessageBubbleProps) {
   const isUser = message.role === 'user';
 
   return (
