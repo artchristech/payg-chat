@@ -40,7 +40,6 @@ export async function fetchHuggingFaceModels(
     sort?: 'downloads' | 'created_at' | 'last_modified';
     direction?: 'asc' | 'desc';
     limit?: number;
-    offset?: number;
   } = {}
 ): Promise<HuggingFaceModel[]> {
   const {
@@ -49,8 +48,7 @@ export async function fetchHuggingFaceModels(
     pipeline_tag,
     sort = 'downloads',
     direction = 'desc',
-    limit = 20,
-    offset = 0
+    limit = 20
   } = options;
 
   const params = new URLSearchParams();
@@ -61,7 +59,6 @@ export async function fetchHuggingFaceModels(
   params.append('sort', sort);
   params.append('direction', direction);
   params.append('limit', limit.toString());
-  if (offset > 0) params.append('offset', offset.toString());
 
   try {
     const response = await fetch(`${HUGGING_FACE_API_BASE}?${params.toString()}`, {

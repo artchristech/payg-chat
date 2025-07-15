@@ -27,14 +27,12 @@ export function HuggingFaceModelsPage({ onBackToChat }: HuggingFaceModelsPagePro
         setIsLoadingMore(true);
       }
 
-      const offset = reset ? 0 : models.length;
       const newModels = await fetchHuggingFaceModels({
         search: searchQuery || undefined,
         pipeline_tag: selectedCategory || undefined,
         sort: sortBy,
         direction: 'desc',
-        limit: 20,
-        offset,
+        limit: 20
       });
 
       if (reset) {
@@ -50,7 +48,7 @@ export function HuggingFaceModelsPage({ onBackToChat }: HuggingFaceModelsPagePro
       setLoading(false);
       setIsLoadingMore(false);
     }
-  }, [searchQuery, selectedCategory, sortBy, models.length]);
+  }, [searchQuery, selectedCategory, sortBy]);
 
   useEffect(() => {
     loadModels(true);
