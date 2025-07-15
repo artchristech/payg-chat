@@ -36,7 +36,7 @@ export async function fetchHuggingFaceModels(
   options: {
     search?: string;
     author?: string;
-    filter?: string;
+    pipeline_tag?: string;
     sort?: 'downloads' | 'created_at' | 'last_modified';
     direction?: 'asc' | 'desc';
     limit?: number;
@@ -46,7 +46,7 @@ export async function fetchHuggingFaceModels(
   const {
     search,
     author,
-    filter,
+    pipeline_tag,
     sort = 'downloads',
     direction = 'desc',
     limit = 20,
@@ -57,7 +57,7 @@ export async function fetchHuggingFaceModels(
   
   if (search) params.append('search', search);
   if (author) params.append('author', author);
-  if (filter) params.append('filter', filter);
+  if (pipeline_tag) params.append('pipeline_tag', pipeline_tag);
   params.append('sort', sort);
   params.append('direction', direction);
   params.append('limit', limit.toString());
