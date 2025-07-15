@@ -15,6 +15,7 @@ export function HuggingFaceModelsPage({ onBackToChat }: HuggingFaceModelsPagePro
   const [sortBy, setSortBy] = useState<'downloads' | 'created_at' | 'last_modified'>('downloads');
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
 
   const categories = getModelCategories();
 
@@ -23,22 +24,26 @@ export function HuggingFaceModelsPage({ onBackToChat }: HuggingFaceModelsPagePro
       if (reset) {
         setLoading(true);
         setError(null);
+        setCurrentPage(0);
       } else {
         setIsLoadingMore(true);
       }
+
+      const pageToFetch = reset ? 0 : currentPage + 1;
 
       const newModels = await fetchHuggingFaceModels({
         search: searchQuery || undefined,
         pipeline_tag: selectedCategory || undefined,
         sort: sortBy,
         direction: 'desc',
-        limit: 20
+        page: pageToFetch
       });
 
       if (reset) {
         setModels(newModels);
       } else {
         setModels(prev => [...prev, ...newModels]);
+        setCurrentPage(pageToFetch);
       }
 
       setHasMore(newModels.length === 20);
@@ -48,7 +53,7 @@ export function HuggingFaceModelsPage({ onBackToChat }: HuggingFaceModelsPagePro
       setLoading(false);
       setIsLoadingMore(false);
     }
-  }, [searchQuery, selectedCategory, sortBy]);
+  }, [searchQuery, selectedCategory, sortBy, currentPage]);
 
   useEffect(() => {
     loadModels(true);
