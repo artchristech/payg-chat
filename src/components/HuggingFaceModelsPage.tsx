@@ -35,7 +35,7 @@ export function HuggingFaceModelsPage({ onBackToChat }: HuggingFaceModelsPagePro
         search: searchQuery || undefined,
         pipeline_tag: selectedCategory || undefined,
         sort: sortBy,
-        direction: 'desc',
+        direction: -1,
         page: pageToFetch
       });
 
