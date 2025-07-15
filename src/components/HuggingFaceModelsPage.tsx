@@ -30,7 +30,7 @@ export function HuggingFaceModelsPage({ onBackToChat }: HuggingFaceModelsPagePro
       const offset = reset ? 0 : models.length;
       const newModels = await fetchHuggingFaceModels({
         search: searchQuery || undefined,
-        filter: selectedCategory || undefined,
+        pipeline_tag: selectedCategory || undefined,
         sort: sortBy,
         direction: 'desc',
         limit: 20,
