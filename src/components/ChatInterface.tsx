@@ -85,14 +85,14 @@ export function ChatInterface() {
 
       {/* Bottom Section - Always present */}
       <div className="bg-gray-100 dark:bg-gray-900 p-4">
-        <div className={`mx-auto ${isEmpty ? 'max-w-2xl' : 'max-w-4xl'}`}>
+        <div className="mx-auto max-w-4xl">
           <InputArea
             onSendMessage={sendMessage}
             isLoading={isLoading}
             placeholder={isEmpty ? "Ask me anything..." : "Continue the conversation..."}
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
-            centered={isEmpty}
+            centered={false}
             maxTokens={maxTokens}
             onMaxTokensChange={setMaxTokens}
           />
