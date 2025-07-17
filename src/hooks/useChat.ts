@@ -77,7 +77,7 @@ export function useChat(onScrollToBottom?: () => void) {
     setTimeout(() => onScrollToBottom?.(), 50);
     try {
       // Prepare messages for API (including the new user message)
-      const messagesForAPI = [...chatState.messages, userMessage];
+      const messagesForAPI = [...chatState.messages, userMessage, assistantMessage];
       const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel);
       
       await sendMessageToOpenRouter(
