@@ -4,15 +4,7 @@ import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat } from '../u
 
 export function useChat(onScrollToBottom?: () => void) {
   const [chatState, setChatState] = useState<ChatState>({
-    messages: [
-      {
-        id: 'initial-greeting',
-        role: 'assistant',
-        content: 'Hi! How can I help you today?',
-        timestamp: new Date(),
-        type: 'text',
-      }
-    ],
+    messages: [],
     isLoading: false,
     error: null,
     selectedModel: 'x-ai/grok-4',
@@ -74,10 +66,10 @@ export function useChat(onScrollToBottom?: () => void) {
     }));
 
     // Scroll to bottom after adding user message and starting AI response
-    setTimeout(() => onScrollToBottom?.(), 50);
+    setTimeout(() => onScrollToBottom?.(), 100);
     try {
       // Prepare messages for API (including the new user message)
-      const messagesForAPI = [...chatState.messages, userMessage, assistantMessage];
+      const messagesForAPI = [...chatState.messages, userMessage];
       const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel);
       
       await sendMessageToOpenRouter(
@@ -107,7 +99,7 @@ export function useChat(onScrollToBottom?: () => void) {
             isLoading: false,
           }));
           // Scroll to bottom when AI response is complete
-          setTimeout(() => onScrollToBottom?.(), 50);
+          setTimeout(() => onScrollToBottom?.(), 100);
         }
       );
     } catch (error) {

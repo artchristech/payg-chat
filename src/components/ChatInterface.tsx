@@ -1,23 +1,16 @@
 import React, { useEffect, useRef } from 'react';
+import { MessageBubble } from './MessageBubble';
 import { InputArea } from './InputArea';
 import { PresetButtons } from './PresetButtons';
 import { ThemeSelector } from './ThemeSelector';
-import { VirtualizedMessageList } from './VirtualizedMessageList';
 import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen } from 'lucide-react';
 
-interface ChatInterfaceProps {
-  onViewChange: (view: 'chat' | 'explore') => void;
-}
-
-export function ChatInterface({ onViewChange }: ChatInterfaceProps) {
-  const listRef = useRef<any>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+export function ChatInterface() {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    if (listRef.current && messages.length > 0) {
-      listRef.current.scrollToItem(messages.length - 1, 'end');
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError, maxTokens, setMaxTokens } = useChat(scrollToBottom);
@@ -26,15 +19,11 @@ export function ChatInterface({ onViewChange }: ChatInterfaceProps) {
     sendMessage(prompt);
   };
 
-  const handleExploreClick = () => {
-    onViewChange('explore');
-  };
-
   const handleClearChat = () => {
     clearChat();
   };
 
-  const isEmpty = messages.length <= 1; // Account for initial greeting message
+  const isEmpty = messages.length === 0;
 
   return (
     <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 relative">
@@ -75,34 +64,35 @@ export function ChatInterface({ onViewChange }: ChatInterfaceProps) {
       )}
 
       {/* Messages */}
-      <div ref={containerRef} className="flex-1 overflow-hidden">
-        <div className="max-w-4xl mx-auto h-full">
+      <div className="flex-1 overflow-y-auto hide-scrollbar">
+        <div className="max-w-4xl mx-auto px-4 py-6">
           {isEmpty ? (
             <div className="flex flex-col justify-center items-center h-full min-h-[50vh]">
               <div className="text-center py-12">
-                <PresetButtons onPresetClick={handlePresetClick} onExploreClick={handleExploreClick} />
+                <PresetButtons onPresetClick={handlePresetClick} />
               </div>
             </div>
           ) : (
-            <VirtualizedMessageList
-              ref={listRef}
-              messages={messages}
-              height={containerRef.current?.clientHeight || 600}
-              onScrollToBottom={scrollToBottom}
-            />
+            <div className="space-y-6">
+              {messages.map((message) => (
+                <MessageBubble key={message.id} message={message} />
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
           )}
         </div>
       </div>
 
       {/* Bottom Section - Always present */}
       <div className="bg-gray-100 dark:bg-gray-900 p-4">
-        <div className="mx-auto max-w-4xl">
+        <div className={`mx-auto ${isEmpty ? 'max-w-2xl' : 'max-w-4xl'}`}>
           <InputArea
             onSendMessage={sendMessage}
             isLoading={isLoading}
             placeholder={isEmpty ? "Ask me anything..." : "Continue the conversation..."}
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
+            centered={isEmpty}
             maxTokens={maxTokens}
             onMaxTokensChange={setMaxTokens}
           />
