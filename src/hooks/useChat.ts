@@ -33,10 +33,11 @@ export function useChat(onScrollToBottom?: () => void) {
     audioUrl?: string,
     maxTokens?: number
   ) => {
-    if (!content.trim() && !imageUrl && !audioUrl) return;
+    if (!content.trim()) return;
 
     setChatState(prev => ({ ...prev, error: null }));
 
+    // Create user message
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
@@ -47,6 +48,7 @@ export function useChat(onScrollToBottom?: () => void) {
       timestamp: new Date(),
     };
 
+    // Create loading assistant message
     const assistantMessage: Message = {
       id: (Date.now() + 1).toString(),
       role: 'assistant',
@@ -56,33 +58,36 @@ export function useChat(onScrollToBottom?: () => void) {
       timestamp: new Date(),
     };
 
-    const updatedMessages = [...chatState.messages, userMessage, assistantMessage];
-
+    // Add both messages to state at once
     setChatState(prev => ({
       ...prev,
-      messages: updatedMessages,
+      messages: [...prev.messages, userMessage, assistantMessage],
       isLoading: true,
     }));
 
+    // Scroll to bottom after adding user message and starting AI response
     setTimeout(() => onScrollToBottom?.(), 50);
-
     try {
-      const openRouterMessages = convertMessagesToOpenRouterFormat(updatedMessages, chatState.selectedModel);
+      // Prepare messages for API (including the new user message)
+      const messagesForAPI = [...chatState.messages, userMessage];
+      const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel);
       
       await sendMessageToOpenRouter(
         openRouterMessages, 
         chatState.selectedModel,
         maxTokens || chatState.maxTokens,
-        (streamedContent: string) => {
+        // onUpdate callback - append content as it streams
+        (content: string) => {
           setChatState(prev => ({
             ...prev,
             messages: prev.messages.map(msg =>
               msg.id === assistantMessage.id
-                ? { ...msg, content: msg.content + streamedContent }
+                ? { ...msg, content: msg.content + content }
                 : msg
             ),
           }));
         },
+        // onComplete callback - mark as finished
         () => {
           setChatState(prev => ({
             ...prev,
@@ -93,6 +98,7 @@ export function useChat(onScrollToBottom?: () => void) {
             ),
             isLoading: false,
           }));
+          // Scroll to bottom when AI response is complete
           setTimeout(() => onScrollToBottom?.(), 50);
         }
       );

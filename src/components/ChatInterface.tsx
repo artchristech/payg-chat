@@ -6,7 +6,11 @@ import { VirtualizedMessageList } from './VirtualizedMessageList';
 import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen } from 'lucide-react';
 
-export function ChatInterface() {
+interface ChatInterfaceProps {
+  onViewChange: (view: 'chat' | 'explore') => void;
+}
+
+export function ChatInterface({ onViewChange }: ChatInterfaceProps) {
   const listRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -20,6 +24,10 @@ export function ChatInterface() {
 
   const handlePresetClick = (prompt: string) => {
     sendMessage(prompt);
+  };
+
+  const handleExploreClick = () => {
+    onViewChange('explore');
   };
 
   const handleClearChat = () => {
@@ -72,7 +80,7 @@ export function ChatInterface() {
           {isEmpty ? (
             <div className="flex flex-col justify-center items-center h-full min-h-[50vh]">
               <div className="text-center py-12">
-                <PresetButtons onPresetClick={handlePresetClick} />
+                <PresetButtons onPresetClick={handlePresetClick} onExploreClick={handleExploreClick} />
               </div>
             </div>
           ) : (
