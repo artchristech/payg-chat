@@ -4,7 +4,15 @@ import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat } from '../u
 
 export function useChat(onScrollToBottom?: () => void) {
   const [chatState, setChatState] = useState<ChatState>({
-    messages: [],
+    messages: [
+      {
+        id: 'initial-greeting',
+        role: 'assistant',
+        content: 'Hi! How can I help you today?',
+        timestamp: new Date(),
+        type: 'text',
+      }
+    ],
     isLoading: false,
     error: null,
     selectedModel: 'x-ai/grok-4',

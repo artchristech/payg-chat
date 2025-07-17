@@ -34,7 +34,7 @@ export function ChatInterface({ onViewChange }: ChatInterfaceProps) {
     clearChat();
   };
 
-  const isEmpty = messages.length === 0;
+  const isEmpty = messages.length <= 1; // Account for initial greeting message
 
   return (
     <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 relative">
