@@ -3,14 +3,7 @@ import { ArrowUp, Loader2, X, Wand2 } from 'lucide-react';
 import { AttachmentMenu } from './AttachmentMenu';
 import { ModelSelector } from './ModelSelector';
 import { ResponseLengthSlider } from './ResponseLengthSlider';
-import { AutocompleteMenu, autocompleteCommands } from './AutocompleteMenu';
-
-interface AutocompleteOption {
-  id: string;
-  label: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
+import { AutocompleteMenu, autocompleteCommands, type AutocompleteOption } from './AutocompleteMenu';
 
 interface InputAreaProps {
   onSendMessage: (content: string, type?: 'text' | 'image' | 'audio', imageUrl?: string, audioUrl?: string, maxTokens?: number) => void;
@@ -35,6 +28,10 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   const [detectedCommand, setDetectedCommand] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('Autocomplete state:', { showAutocomplete, autocompleteOptions, autocompleteQuery });
+  }, [showAutocomplete, autocompleteOptions, autocompleteQuery]);
   // Command detection
   const detectCommand = useCallback((text: string) => {
     const trimmedText = text.trim().toLowerCase();
@@ -49,32 +46,44 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
     const newMessage = e.target.value;
     setMessage(newMessage);
     
+    console.log('Message changed:', newMessage);
+    
     // Handle autocomplete for @ commands
     const atIndex = newMessage.lastIndexOf('@');
+    console.log('At index:', atIndex);
     
-    if (atIndex !== -1) {
-      // Extract text after the last @
+    if (atIndex !== -1 && atIndex === newMessage.length - 1) {
+      // Just typed @, show all options
+      console.log('Just typed @, showing all options');
+      setShowAutocomplete(true);
+      setAutocompleteOptions(autocompleteCommands);
+      setAutocompleteQuery('');
+    } else if (atIndex !== -1) {
+      // Extract text after the last @ symbol
       const afterAt = newMessage.substring(atIndex + 1);
       const spaceIndex = afterAt.indexOf(' ');
-      const query = spaceIndex === -1 ? afterAt : afterAt.substring(0, spaceIndex);
       
-      // Show autocomplete if we're still typing the command (no space after @)
       if (spaceIndex === -1) {
+        // Still typing the command, filter options
+        const query = afterAt.toLowerCase();
+        console.log('Filtering with query:', query);
         const filteredOptions = autocompleteCommands.filter(cmd =>
-          cmd.label.toLowerCase().startsWith(query.toLowerCase())
+          cmd.label.toLowerCase().startsWith(query)
         );
         
         setShowAutocomplete(true);
         setAutocompleteOptions(filteredOptions);
-        setAutocompleteQuery(query);
+        setAutocompleteQuery(afterAt);
       } else {
-        // Command is complete (has space after it), hide autocomplete
+        // Command is complete, hide autocomplete
+        console.log('Command complete, hiding autocomplete');
         setShowAutocomplete(false);
         setAutocompleteOptions([]);
         setAutocompleteQuery('');
       }
     } else {
-      // No @ symbol found, hide autocomplete
+      // No @ symbol, hide autocomplete
+      console.log('No @ symbol, hiding autocomplete');
       setShowAutocomplete(false);
       setAutocompleteOptions([]);
       setAutocompleteQuery('');
@@ -101,6 +110,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
     if (atIndex !== -1) {
       const beforeAt = message.substring(0, atIndex);
       const newMessage = `${beforeAt}@${option.label} `;
+      console.log('Selected option, new message:', newMessage);
       setMessage(newMessage);
       setDetectedCommand(`@${option.label}`);
       setIsImageGenerationMode(option.id === 'image');
