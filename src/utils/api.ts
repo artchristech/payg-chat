@@ -22,12 +22,12 @@ export const openRouterModels: OpenRouterModel[] = [
     provider: 'xAI',
   },
   {
-    id: 'meta-llama/llama-4-maverick',
-    name: 'Llama 4 Maverick',
-    description: 'High-capacity multimodal language model from Meta, built on MoE architecture. Supports multilingual text and image input. Optimized for vision-language tasks.',
+    id: 'moonshotai/kimi-k2',
+    name: 'Kimi K2',
+    description: 'Moonshot AI\'s advanced language model with strong reasoning capabilities and multilingual support.',
     contextLength: 128000,
-    multiModal: true,
-    provider: 'Meta',
+    multiModal: false,
+    provider: 'Moonshot AI',
   },
   {
     id: 'google/gemini-2.5-pro',

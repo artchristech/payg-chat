@@ -7,7 +7,7 @@ export function useChat(onScrollToBottom?: () => void) {
     messages: [],
     isLoading: false,
     error: null,
-    selectedModel: 'x-ai/grok-4',
+    selectedModel: 'moonshotai/kimi-k2',
     maxTokens: 1024,
   });
 
