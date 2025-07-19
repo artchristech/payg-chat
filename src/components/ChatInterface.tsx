@@ -1,19 +1,16 @@
 import React, { useEffect, useRef } from 'react';
+import { MessageBubble } from './MessageBubble';
 import { InputArea } from './InputArea';
 import { PresetButtons } from './PresetButtons';
 import { ThemeSelector } from './ThemeSelector';
-import { VirtualizedMessageList } from './VirtualizedMessageList';
 import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen } from 'lucide-react';
 
 export function ChatInterface() {
-  const listRef = useRef<any>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    if (listRef.current && messages.length > 0) {
-      listRef.current.scrollToItem(messages.length - 1, 'end');
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError, maxTokens, setMaxTokens } = useChat(scrollToBottom);
@@ -67,8 +64,8 @@ export function ChatInterface() {
       )}
 
       {/* Messages */}
-      <div ref={containerRef} className="flex-1 overflow-hidden">
-        <div className="max-w-4xl mx-auto h-full">
+      <div className="flex-1 overflow-y-auto hide-scrollbar">
+        <div className="max-w-4xl mx-auto px-4 py-6">
           {isEmpty ? (
             <div className="flex flex-col justify-center items-center h-full min-h-[50vh]">
               <div className="text-center py-12">
@@ -76,12 +73,12 @@ export function ChatInterface() {
               </div>
             </div>
           ) : (
-            <VirtualizedMessageList
-              ref={listRef}
-              messages={messages}
-              height={containerRef.current?.clientHeight || 600}
-              onScrollToBottom={scrollToBottom}
-            />
+            <div className="space-y-6">
+              {messages.map((message) => (
+                <MessageBubble key={message.id} message={message} />
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
           )}
         </div>
       </div>
@@ -95,6 +92,7 @@ export function ChatInterface() {
             placeholder={isEmpty ? "Ask me anything..." : "Continue the conversation..."}
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
+            centered={false}
             maxTokens={maxTokens}
             onMaxTokensChange={setMaxTokens}
           />

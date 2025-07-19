@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { ChevronDown, Check, Plus, List, Star } from 'lucide-react';
+import { ChevronDown, Check, Grid3X3 } from 'lucide-react';
 import { openRouterModels } from '../utils/api';
+import { ModelSelectionModal } from './ModelSelectionModal';
 
 interface ModelSelectorProps {
   selectedModel: string;
@@ -11,23 +12,25 @@ interface ModelSelectorProps {
 
 export function ModelSelector({ selectedModel, onModelChange, onSelectionComplete, compact = false }: ModelSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [displayMode, setDisplayMode] = useState<'featured' | 'all'>('featured');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Memoize expensive computations
-  const { featuredModels, selectedModelInfo, modelsToDisplay } = useMemo(() => {
-    const featuredModelIds = ['x-ai/grok-4', 'meta-llama/llama-4-maverick', 'google/gemini-2.5-pro'];
+  // Memoize featured models and selected model info
+  const { featuredModels, selectedModelInfo } = useMemo(() => {
+    const featuredModelIds = ['x-ai/grok-4', 'moonshotai/kimi-k2', 'google/gemini-2.5-pro'];
     const featured = openRouterModels.filter(model => featuredModelIds.includes(model.id));
     const selected = openRouterModels.find(model => model.id === selectedModel);
-    const toDisplay = displayMode === 'featured' ? featured : openRouterModels;
     
     return {
       featuredModels: featured,
       selectedModelInfo: selected,
-      modelsToDisplay: toDisplay
     };
-  }, [selectedModel, displayMode]);
+  }, [selectedModel]);
 
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+    setIsOpen(false);
+  };
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -58,28 +61,24 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
 
       {isOpen && (
         <div className={`absolute ${compact ? 'bottom-full right-0' : 'bottom-full left-0'} mb-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600/50 rounded-xl shadow-2xl backdrop-blur-sm z-50`}>
-          {/* Header with Add Button */}
+          {/* Header with Explore Button */}
           <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              {displayMode === 'featured' ? 'Featured Models' : 'All Models'}
+              Featured Models
             </span>
             <button
               type="button"
-              onClick={() => setDisplayMode(displayMode === 'featured' ? 'all' : 'featured')}
+              onClick={handleOpenModal}
               className="w-6 h-6 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white rounded-full flex items-center justify-center transition-all duration-200"
-              title={displayMode === 'featured' ? 'Show all models' : 'Show featured models'}
+              title="Explore all models"
             >
-              {displayMode === 'featured' ? (
-                <List className="w-3 h-3" />
-              ) : (
-                <Star className="w-3 h-3" />
-              )}
+              <Grid3X3 className="w-3 h-3" />
             </button>
           </div>
           
           {/* Model List */}
           <div className="p-2 max-h-80 overflow-y-auto hide-scrollbar">
-            {modelsToDisplay.map((model) => (
+            {featuredModels.map((model) => (
               <button
                 key={model.id}
                 type="button"
@@ -120,6 +119,14 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
           </div>
         </div>
       )}
+
+      {/* Full-screen Modal */}
+      <ModelSelectionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onModelSelect={onModelChange}
+        currentSelectedModel={selectedModel}
+      />
     </div>
   );
 }
