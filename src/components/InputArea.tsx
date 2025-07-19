@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ArrowUp, Loader2, X, Sparkles } from 'lucide-react';
+import { ArrowUp, Loader2, X, Sparkles, Wand2 } from 'lucide-react';
 import { AttachmentMenu } from './AttachmentMenu';
 import { ModelSelector } from './ModelSelector';
 import { ResponseLengthSlider } from './ResponseLengthSlider';
@@ -13,6 +13,7 @@ interface InputAreaProps {
   centered?: boolean;
   maxTokens: number;
   onMaxTokensChange: (value: number) => void;
+  resetHistoryNavigation?: () => void;
 }
 
 export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange }: InputAreaProps) {
@@ -20,7 +21,41 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [isImageGenerationMode, setIsImageGenerationMode] = useState(false);
+  const [detectedCommand, setDetectedCommand] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Command detection
+  const imageCommands = ['/imagine', '/generate', '/image', '/draw', '/create'];
+  
+  const detectCommand = useCallback((text: string) => {
+    const trimmedText = text.trim().toLowerCase();
+    for (const command of imageCommands) {
+      if (trimmedText.startsWith(command)) {
+        return command;
+      }
+    }
+    return null;
+  }, []);
+
+  // Handle message change and command detection
+  const handleMessageChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newMessage = e.target.value;
+    setMessage(newMessage);
+    
+    const command = detectCommand(newMessage);
+    setDetectedCommand(command);
+    
+    // Auto-switch to image generation mode when command is detected
+    if (command && !isImageGenerationMode) {
+      setIsImageGenerationMode(true);
+    } else if (!command && isImageGenerationMode && detectedCommand) {
+      // Only exit image generation mode if we were in it due to a command
+      setIsImageGenerationMode(false);
+    }
+    
+    // Reset history navigation when user types
+    resetHistoryNavigation?.();
+  }, [isImageGenerationMode, detectedCommand, resetHistoryNavigation, detectCommand]);
 
   const focusMessageInput = useCallback(() => {
     // Small delay to ensure the dropdown has closed
@@ -31,20 +66,34 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    if (message.trim() || selectedImage || isImageGenerationMode) {
+    if (message.trim() || selectedImage) {
+      let finalMessage = message.trim();
+      let messageType: 'text' | 'image' | 'audio' | 'image_generation_request' = 'text';
+      
+      // Handle command-based image generation
+      if (detectedCommand && isImageGenerationMode) {
+        // Remove the command from the message
+        finalMessage = finalMessage.substring(detectedCommand.length).trim();
+        messageType = 'image_generation_request';
+      } else if (selectedImage) {
+        messageType = 'image';
+      }
+      
       onSendMessage(
-        message.trim(),
-        isImageGenerationMode ? 'image_generation_request' : selectedImage ? 'image' : 'text',
+        finalMessage,
+        messageType,
         selectedImage || undefined,
         undefined,
         maxTokens
       );
+      
       setMessage('');
       setSelectedImage(null);
       setSelectedImageFile(null);
       setIsImageGenerationMode(false);
+      setDetectedCommand(null);
     }
-  }, [message, selectedImage, isImageGenerationMode, onSendMessage, maxTokens]);
+  }, [message, selectedImage, isImageGenerationMode, detectedCommand, onSendMessage, maxTokens]);
 
   const handleImageSelect = useCallback((file: File, preview: string) => {
     setSelectedImage(preview);
@@ -65,6 +114,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   const handleCancelImageGeneration = useCallback(() => {
     setIsImageGenerationMode(false);
     setMessage('');
+    setDetectedCommand(null);
   }, []);
 
   const handleAudioRecording = useCallback((audioBlob: Blob, audioUrl: string) => {
@@ -100,16 +150,28 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
     return () => clearTimeout(timer);
   }, [placeholder]); // Trigger when placeholder changes (indicates welcome screen state change)
 
+  // Get appropriate placeholder text
+  const getPlaceholder = () => {
+    if (isImageGenerationMode && detectedCommand) {
+      return `${detectedCommand} - Describe the image you want to generate...`;
+    } else if (isImageGenerationMode) {
+      return "Describe the image you want to generate...";
+    }
+    return placeholder;
+  };
+
   return (
     <div>
       <form onSubmit={handleSubmit} className={`${centered ? 'w-full' : 'max-w-4xl mx-auto'}`}>
         <div className="space-y-3">
           {/* Image Generation Mode Indicator */}
           {isImageGenerationMode && (
-            <div className="flex items-center justify-between bg-purple-100 dark:bg-purple-900/30 px-4 py-2 rounded-xl">
+            <div className="flex items-center justify-between bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 px-4 py-2 rounded-xl border border-purple-200 dark:border-purple-700">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                <span className="text-sm text-purple-800 dark:text-purple-200">Image Generation Mode</span>
+                <Wand2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <span className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                  {detectedCommand ? `${detectedCommand.toUpperCase()} - Image Generation` : 'Image Generation Mode'}
+                </span>
               </div>
               <button
                 type="button"
@@ -147,9 +209,9 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
             <textarea
               ref={textareaRef}
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={handleMessageChange}
               onKeyDown={handleKeyDown}
-              placeholder={isImageGenerationMode ? "Describe the image you want to generate..." : placeholder}
+              placeholder={getPlaceholder()}
               className="w-full resize-none bg-transparent focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100"
               rows={1}
               disabled={isLoading}
@@ -182,7 +244,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               
               <button
                 type="submit"
-                disabled={isLoading || (!message.trim() && !selectedImage && !isImageGenerationMode)}
+                disabled={isLoading || (!message.trim() && !selectedImage)}
                 className="w-10 h-10 bg-gray-400 dark:bg-gray-500/85 text-white rounded-full hover:bg-gray-500 dark:hover:bg-gray-600/85 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center shadow-md"
               >
                 {isLoading ? (

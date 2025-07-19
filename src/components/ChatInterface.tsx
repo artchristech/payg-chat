@@ -95,6 +95,7 @@ export function ChatInterface() {
             centered={false}
             maxTokens={maxTokens}
             onMaxTokensChange={setMaxTokens}
+            resetHistoryNavigation={clearError}
           />
         </div>
       </div>
