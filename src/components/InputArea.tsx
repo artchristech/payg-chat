@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ArrowUp, Loader2, X, Sparkles, Wand2 } from 'lucide-react';
+import { ArrowUp, Loader2, X, Wand2 } from 'lucide-react';
 import { AttachmentMenu } from './AttachmentMenu';
 import { ModelSelector } from './ModelSelector';
 import { ResponseLengthSlider } from './ResponseLengthSlider';
+import { AutocompleteMenu, autocompleteCommands, type AutocompleteOption } from './AutocompleteMenu';
 
 interface InputAreaProps {
   onSendMessage: (content: string, type?: 'text' | 'image' | 'audio', imageUrl?: string, audioUrl?: string, maxTokens?: number) => void;
@@ -22,10 +23,13 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [isImageGenerationMode, setIsImageGenerationMode] = useState(false);
   const [detectedCommand, setDetectedCommand] = useState<string | null>(null);
+  const [showAutocomplete, setShowAutocomplete] = useState(false);
+  const [autocompleteOptions, setAutocompleteOptions] = useState<AutocompleteOption[]>([]);
+  const [autocompleteQuery, setAutocompleteQuery] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Command detection
-  const imageCommands = ['/imagine', '/generate', '/image', '/draw', '/create'];
+  const imageCommands = ['@image'];
   
   const detectCommand = useCallback((text: string) => {
     const trimmedText = text.trim().toLowerCase();
@@ -42,6 +46,40 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
     const newMessage = e.target.value;
     setMessage(newMessage);
     
+    // Handle autocomplete for @ commands
+    const atIndex = newMessage.lastIndexOf('@');
+    if (atIndex !== -1 && atIndex === newMessage.length - 1) {
+      // Just typed @, show all options
+      setShowAutocomplete(true);
+      setAutocompleteOptions(autocompleteCommands);
+      setAutocompleteQuery('');
+    } else if (atIndex !== -1) {
+      // Extract query after @
+      const afterAt = newMessage.substring(atIndex + 1);
+      const spaceIndex = afterAt.indexOf(' ');
+      const query = spaceIndex === -1 ? afterAt : afterAt.substring(0, spaceIndex);
+      
+      if (spaceIndex === -1) {
+        // Still typing the command
+        const filteredOptions = autocompleteCommands.filter(cmd =>
+          cmd.label.toLowerCase().startsWith(query.toLowerCase())
+        );
+        setShowAutocomplete(filteredOptions.length > 0);
+        setAutocompleteOptions(filteredOptions);
+        setAutocompleteQuery(query);
+      } else {
+        // Command is complete, hide autocomplete
+        setShowAutocomplete(false);
+        setAutocompleteOptions([]);
+        setAutocompleteQuery('');
+      }
+    } else {
+      // No @ symbol, hide autocomplete
+      setShowAutocomplete(false);
+      setAutocompleteOptions([]);
+      setAutocompleteQuery('');
+    }
+    
     const command = detectCommand(newMessage);
     setDetectedCommand(command);
     
@@ -56,6 +94,24 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
     // Reset history navigation when user types
     resetHistoryNavigation?.();
   }, [isImageGenerationMode, detectedCommand, resetHistoryNavigation, detectCommand]);
+
+  const handleAutocompleteSelect = useCallback((option: AutocompleteOption) => {
+    const atIndex = message.lastIndexOf('@');
+    if (atIndex !== -1) {
+      const beforeAt = message.substring(0, atIndex);
+      const newMessage = `${beforeAt}@${option.label} `;
+      setMessage(newMessage);
+      setDetectedCommand(`@${option.label}`);
+      setIsImageGenerationMode(option.id === 'image');
+    }
+    
+    setShowAutocomplete(false);
+    setAutocompleteOptions([]);
+    setAutocompleteQuery('');
+    
+    // Focus back to textarea
+    setTimeout(() => textareaRef.current?.focus(), 100);
+  }, [message]);
 
   const focusMessageInput = useCallback(() => {
     // Small delay to ensure the dropdown has closed
@@ -73,7 +129,10 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
       // Handle command-based image generation
       if (detectedCommand && isImageGenerationMode) {
         // Remove the command from the message
-        finalMessage = finalMessage.substring(detectedCommand.length).trim();
+        const commandIndex = finalMessage.toLowerCase().indexOf(detectedCommand.toLowerCase());
+        if (commandIndex !== -1) {
+          finalMessage = finalMessage.substring(commandIndex + detectedCommand.length).trim();
+        }
         messageType = 'image_generation_request';
       } else if (selectedImage) {
         messageType = 'image';
@@ -124,9 +183,20 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit(e);
+      
+      // If autocomplete is showing and has options, select the first one
+      if (showAutocomplete && autocompleteOptions.length > 0) {
+        handleAutocompleteSelect(autocompleteOptions[0]);
+      } else {
+        handleSubmit(e);
+      }
+    } else if (e.key === 'Escape' && showAutocomplete) {
+      // Hide autocomplete on escape
+      setShowAutocomplete(false);
+      setAutocompleteOptions([]);
+      setAutocompleteQuery('');
     }
-  }, [handleSubmit]);
+  }, [handleSubmit, showAutocomplete, autocompleteOptions, handleAutocompleteSelect]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -153,7 +223,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   // Get appropriate placeholder text
   const getPlaceholder = () => {
     if (isImageGenerationMode && detectedCommand) {
-      return `${detectedCommand} - Describe the image you want to generate...`;
+      return `${detectedCommand.toUpperCase()} - Describe the image you want to generate...`;
     } else if (isImageGenerationMode) {
       return "Describe the image you want to generate...";
     }
@@ -204,6 +274,14 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
 
           {/* Main Input Container */}
           <div className={`bg-white dark:bg-gray-800 rounded-3xl transition-all duration-200 p-4 ${centered ? 'shadow-2xl border border-gray-200 dark:border-gray-700' : 'border border-gray-200 dark:border-gray-700'}`}>
+            {/* Autocomplete Menu */}
+            <AutocompleteMenu
+              options={autocompleteOptions}
+              query={autocompleteQuery}
+              onSelect={handleAutocompleteSelect}
+              isVisible={showAutocomplete}
+            />
+            
             {/* Text Input Area */}
             <div className="relative">
             <textarea
