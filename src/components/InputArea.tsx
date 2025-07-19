@@ -293,12 +293,14 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
           {/* Main Input Container */}
           <div className={`bg-white dark:bg-gray-800 rounded-3xl transition-all duration-200 p-4 ${centered ? 'shadow-2xl border border-gray-200 dark:border-gray-700' : 'border border-gray-200 dark:border-gray-700'}`}>
             {/* Autocomplete Menu */}
-            <AutocompleteMenu
-              options={autocompleteOptions}
-              query={autocompleteQuery}
-              onSelect={handleAutocompleteSelect}
-              isVisible={showAutocomplete}
-            />
+            <div className="relative">
+              <AutocompleteMenu
+                options={autocompleteOptions}
+                query={autocompleteQuery}
+                onSelect={handleAutocompleteSelect}
+                isVisible={showAutocomplete}
+              />
+            </div>
             
             {/* Text Input Area */}
             <div className="relative">

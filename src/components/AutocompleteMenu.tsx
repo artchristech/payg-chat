@@ -17,11 +17,14 @@ interface AutocompleteMenuProps {
 
 export function AutocompleteMenu({ options, query, onSelect, isVisible }: AutocompleteMenuProps) {
   if (!isVisible || options.length === 0) {
+    console.log('AutocompleteMenu not visible:', { isVisible, optionsLength: options.length });
     return null;
   }
 
+  console.log('AutocompleteMenu rendering:', { options, query, isVisible });
+
   return (
-    <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow-lg z-50 overflow-hidden">
+    <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow-lg z-[9999] overflow-hidden">
       <div className="p-2">
         <div className="text-xs text-gray-500 dark:text-gray-400 px-3 py-2 font-medium">
           Available Commands
