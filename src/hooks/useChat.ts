@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Message, ChatState } from '../types/chat';
-import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat } from '../utils/api';
+import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat, generateImageWithTogetherAI, togetherImageModels } from '../utils/api';
 
 export function useChat(onScrollToBottom?: () => void) {
   const [chatState, setChatState] = useState<ChatState>({
@@ -28,7 +28,7 @@ export function useChat(onScrollToBottom?: () => void) {
 
   const sendMessage = useCallback(async (
     content: string,
-    type: 'text' | 'image' | 'audio' = 'text',
+    type: 'text' | 'image' | 'audio' | 'image_generation_request' = 'text',
     imageUrl?: string,
     audioUrl?: string,
     maxTokens?: number
@@ -48,26 +48,90 @@ export function useChat(onScrollToBottom?: () => void) {
       timestamp: new Date(),
     };
 
-    // Create loading assistant message
-    const assistantMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      role: 'assistant',
-      content: '',
-      type: 'text',
-      isLoading: true,
-      timestamp: new Date(),
-    };
-
-    // Add both messages to state at once
+    // Add user message first
     setChatState(prev => ({
       ...prev,
-      messages: [...prev.messages, userMessage, assistantMessage],
+      messages: [...prev.messages, userMessage],
       isLoading: true,
     }));
 
     // Scroll to bottom after adding user message and starting AI response
     setTimeout(() => onScrollToBottom?.(), 100);
+
+    // Handle image generation requests
+    if (type === 'image_generation_request') {
+      try {
+        // Create loading assistant message for image generation
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: 'Generating image...',
+          type: 'generated_image',
+          isLoading: true,
+          timestamp: new Date(),
+        };
+
+        setChatState(prev => ({
+          ...prev,
+          messages: [...prev.messages, assistantMessage],
+        }));
+
+        // Generate image using Together.ai
+        const defaultModel = togetherImageModels[0].id;
+        const generatedImageUrl = await generateImageWithTogetherAI(content, defaultModel);
+
+        // Update assistant message with generated image
+        setChatState(prev => ({
+          ...prev,
+          messages: prev.messages.map(msg =>
+            msg.id === assistantMessage.id
+              ? { 
+                  ...msg, 
+                  content: `Generated image for: "${content}"`,
+                  imageUrl: generatedImageUrl,
+                  isLoading: false 
+                }
+              : msg
+          ),
+          isLoading: false,
+        }));
+
+        setTimeout(() => onScrollToBottom?.(), 100);
+      } catch (error) {
+        console.error('Error generating image:', error);
+        
+        let errorMessage = 'Failed to generate image';
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+        
+        setChatState(prev => ({
+          ...prev,
+          messages: prev.messages.slice(0, -1), // Remove the loading message
+          isLoading: false,
+          error: errorMessage,
+        }));
+      }
+      return;
+    }
+
+    // Handle regular text/image/audio messages with OpenRouter
     try {
+      // Create loading assistant message
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: '',
+        type: 'text',
+        isLoading: true,
+        timestamp: new Date(),
+      };
+
+      setChatState(prev => ({
+        ...prev,
+        messages: [...prev.messages, assistantMessage],
+      }));
+
       // Prepare messages for API (including the new user message)
       const messagesForAPI = [...chatState.messages, userMessage];
       const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel, maxTokens || chatState.maxTokens);
@@ -111,7 +175,7 @@ export function useChat(onScrollToBottom?: () => void) {
       
       setChatState(prev => ({
         ...prev,
-        messages: prev.messages.filter(msg => msg.id !== assistantMessage.id),
+        messages: prev.messages.slice(0, -1), // Remove the loading message
         isLoading: false,
         error: errorMessage,
       }));

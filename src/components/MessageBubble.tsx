@@ -18,11 +18,11 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           : 'text-gray-900 dark:text-gray-100'
         }
       `}>
-        {message.type === 'image' && message.imageUrl && (
+        {(message.type === 'image' || message.type === 'generated_image') && message.imageUrl && (
           <div className="mb-2">
             <img 
               src={message.imageUrl} 
-              alt="Uploaded image" 
+              alt={message.type === 'generated_image' ? "Generated image" : "Uploaded image"}
               className="max-w-full h-auto rounded-lg"
             />
           </div>

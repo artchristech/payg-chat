@@ -3,7 +3,7 @@ export interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
-  type: 'text' | 'image' | 'audio';
+  type: 'text' | 'image' | 'audio' | 'image_generation_request' | 'generated_image';
   imageUrl?: string;
   audioUrl?: string;
   isLoading?: boolean;
@@ -23,6 +23,13 @@ export interface OpenRouterModel {
   description: string;
   contextLength: number;
   multiModal: boolean;
+  provider: string;
+}
+
+export interface TogetherImageModel {
+  id: string;
+  name: string;
+  description: string;
   provider: string;
 }
 

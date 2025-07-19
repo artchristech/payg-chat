@@ -2,6 +2,8 @@ import { Message } from '../types/chat';
 
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const TOGETHER_API_KEY = import.meta.env.VITE_TOGETHER_API_KEY;
+const TOGETHER_API_URL = 'https://api.together.xyz/v1/images/generations';
 
 export interface OpenRouterModel {
   id: string;
@@ -11,6 +13,34 @@ export interface OpenRouterModel {
   multiModal: boolean;
   provider: string;
 }
+
+export interface TogetherImageModel {
+  id: string;
+  name: string;
+  description: string;
+  provider: string;
+}
+
+export const togetherImageModels: TogetherImageModel[] = [
+  {
+    id: 'black-forest-labs/FLUX.1-schnell',
+    name: 'FLUX.1 Schnell',
+    description: 'Fast, high-quality image generation model',
+    provider: 'Black Forest Labs',
+  },
+  {
+    id: 'black-forest-labs/FLUX.1-dev',
+    name: 'FLUX.1 Dev',
+    description: 'Development version with enhanced capabilities',
+    provider: 'Black Forest Labs',
+  },
+  {
+    id: 'stabilityai/stable-diffusion-xl-base-1.0',
+    name: 'Stable Diffusion XL',
+    description: 'High-resolution image generation',
+    provider: 'Stability AI',
+  },
+];
 
 export const openRouterModels: OpenRouterModel[] = [
   {
@@ -274,4 +304,66 @@ export function convertMessagesToOpenRouterFormat(messages: Message[], selectedM
   }
 
   return convertedMessages;
+}
+
+export async function generateImageWithTogetherAI(
+  prompt: string,
+  model: string = 'black-forest-labs/FLUX.1-schnell',
+  width: number = 1024,
+  height: number = 1024
+): Promise<string> {
+  if (!TOGETHER_API_KEY) {
+    throw new Error('Together.ai API key not configured. Please add VITE_TOGETHER_API_KEY to your .env file and restart the development server.');
+  }
+
+  try {
+    const response = await fetch(TOGETHER_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${TOGETHER_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        prompt,
+        width,
+        height,
+        steps: 4,
+        n: 1,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      let errorMessage = `Together.ai API error: ${response.status} ${response.statusText}`;
+      
+      if (response.status === 401) {
+        errorMessage = 'Invalid Together.ai API key. Please check your VITE_TOGETHER_API_KEY in the .env file.';
+      } else if (response.status === 429) {
+        errorMessage = 'Rate limit exceeded. Please try again in a moment.';
+      } else if (response.status >= 500) {
+        errorMessage = 'Together.ai API server error. Please try again later.';
+      } else if (response.status === 402) {
+        errorMessage = 'Insufficient credits. Please add credits to your Together.ai account.';
+      }
+      
+      console.error('Together.ai API Response:', errorText);
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    
+    if (!data.data || !data.data[0] || !data.data[0].url) {
+      throw new Error('Invalid response format from Together.ai API');
+    }
+
+    return data.data[0].url;
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      throw new Error('Network error: Unable to connect to Together.ai API. Please check your internet connection.');
+    }
+    
+    console.error('Error calling Together.ai API:', error);
+    throw error instanceof Error ? error : new Error('Unknown error occurred while calling Together.ai API');
+  }
 }
