@@ -2,72 +2,14 @@ import { useState, useCallback, useMemo } from 'react';
 import { Message, ChatState } from '../types/chat';
 import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat } from '../utils/api';
 
-interface ChatStateWithHistory extends ChatState {
-  historyIndex: number | null;
-}
-
 export function useChat(onScrollToBottom?: () => void) {
-  const [chatState, setChatState] = useState<ChatStateWithHistory>({
+  const [chatState, setChatState] = useState<ChatState>({
     messages: [],
     isLoading: false,
     error: null,
     selectedModel: 'moonshotai/kimi-k2',
     maxTokens: 150,
-    historyIndex: null,
   });
-
-  // Memoize user messages for history navigation
-  const userMessages = useMemo(() => {
-    return chatState.messages
-      .filter(msg => msg.role === 'user')
-      .map(msg => msg.content);
-  }, [chatState.messages]);
-
-  const navigateHistory = useCallback((direction: 'up' | 'down'): string => {
-    if (userMessages.length === 0) return '';
-
-    setChatState(prev => {
-      let newIndex: number | null;
-      
-      if (direction === 'up') {
-        if (prev.historyIndex === null) {
-          // Start from the most recent message
-          newIndex = userMessages.length - 1;
-        } else {
-          // Go to older message, but don't go below 0
-          newIndex = Math.max(0, prev.historyIndex - 1);
-        }
-      } else { // direction === 'down'
-        if (prev.historyIndex === null) {
-          // Already at newest, return empty
-          return prev;
-        } else if (prev.historyIndex >= userMessages.length - 1) {
-          // Go to newest (empty input)
-          newIndex = null;
-        } else {
-          // Go to newer message
-          newIndex = prev.historyIndex + 1;
-        }
-      }
-      
-      return { ...prev, historyIndex: newIndex };
-    });
-
-    // Return the content for the new index
-    const newIndex = direction === 'up' 
-      ? (chatState.historyIndex === null ? userMessages.length - 1 : Math.max(0, chatState.historyIndex - 1))
-      : (chatState.historyIndex === null ? '' : 
-         chatState.historyIndex >= userMessages.length - 1 ? '' : userMessages[chatState.historyIndex + 1]);
-    
-    if (typeof newIndex === 'number') {
-      return userMessages[newIndex] || '';
-    }
-    return '';
-  }, [userMessages, chatState.historyIndex]);
-
-  const resetHistoryNavigation = useCallback(() => {
-    setChatState(prev => ({ ...prev, historyIndex: null }));
-  }, []);
 
   const addMessage = useCallback((message: Omit<Message, 'id' | 'timestamp'>) => {
     const newMessage: Message = {
@@ -211,7 +153,5 @@ export function useChat(onScrollToBottom?: () => void) {
     setSelectedModel,
     setMaxTokens,
     clearError,
-    navigateHistory,
-    resetHistoryNavigation,
   };
 }

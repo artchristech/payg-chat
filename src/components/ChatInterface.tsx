@@ -14,7 +14,6 @@ export function ChatInterface() {
   };
 
   const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError, maxTokens, setMaxTokens } = useChat(scrollToBottom);
-  const { navigateHistory, resetHistoryNavigation } = useChat(scrollToBottom);
 
   const handlePresetClick = (prompt: string) => {
     sendMessage(prompt);
@@ -96,8 +95,6 @@ export function ChatInterface() {
             centered={false}
             maxTokens={maxTokens}
             onMaxTokensChange={setMaxTokens}
-            navigateHistory={navigateHistory}
-            resetHistoryNavigation={resetHistoryNavigation}
           />
         </div>
       </div>
