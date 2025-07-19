@@ -28,8 +28,8 @@ export function ResponseLengthSlider({ maxTokens, onValueChange }: ResponseLengt
   const approximateWords = Math.round(maxTokens * 0.75);
 
   // Calculate position percentage for the dot
-  const minTokens = 50;
-  const maxTokensRange = 2000;
+  const minTokens = 5;
+  const maxTokensRange = 500;
   const position = ((maxTokens - minTokens) / (maxTokensRange - minTokens)) * 100;
 
   return (
@@ -64,8 +64,8 @@ export function ResponseLengthSlider({ maxTokens, onValueChange }: ResponseLengt
       {isExpanded && (
         <input
           type="range"
-          min="50"
-          max="2000"
+          min="5"
+          max="500"
           value={maxTokens}
           onChange={handleSliderChange}
           className="absolute left-0 w-20 h-1 opacity-0 cursor-pointer z-20"

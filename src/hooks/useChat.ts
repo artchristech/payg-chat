@@ -8,7 +8,7 @@ export function useChat(onScrollToBottom?: () => void) {
     isLoading: false,
     error: null,
     selectedModel: 'moonshotai/kimi-k2',
-    maxTokens: 1024,
+    maxTokens: 150,
   });
 
   const addMessage = useCallback((message: Omit<Message, 'id' | 'timestamp'>) => {
