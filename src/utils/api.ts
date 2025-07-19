@@ -127,7 +127,6 @@ export interface OpenRouterMessage {
 export async function sendMessageToOpenRouter(
   messages: OpenRouterMessage[],
   model: string = 'mistralai/mistral-7b-instruct',
-  maxTokens: number = 1024,
   onUpdate?: (content: string) => void,
   onComplete?: () => void
 ): Promise<void> {
@@ -148,7 +147,6 @@ export async function sendMessageToOpenRouter(
         model,
         messages,
         temperature: 0.7,
-        max_tokens: maxTokens,
         top_p: 1,
         stream: true,
       }),

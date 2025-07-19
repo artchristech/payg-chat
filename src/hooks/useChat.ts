@@ -75,7 +75,6 @@ export function useChat(onScrollToBottom?: () => void) {
       await sendMessageToOpenRouter(
         openRouterMessages, 
         chatState.selectedModel,
-        maxTokens || chatState.maxTokens,
         // onUpdate callback - append content as it streams
         (content: string) => {
           setChatState(prev => ({
