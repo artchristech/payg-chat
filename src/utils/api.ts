@@ -230,6 +230,7 @@ export async function sendMessageToOpenRouter(
 }
 
 export function convertMessagesToOpenRouterFormat(messages: Message[], selectedModelId: string): OpenRouterMessage[] {
+}
 export function convertMessagesToOpenRouterFormat(messages: Message[], selectedModelId: string, responseMaxTokens?: number): OpenRouterMessage[] {
   // Find the selected model to check if it supports multimodal input
   const selectedModel = openRouterModels.find(model => model.id === selectedModelId);
