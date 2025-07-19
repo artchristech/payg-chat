@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ArrowUp, Loader2, X } from 'lucide-react';
+import { ArrowUp, Loader2, X, Sparkles } from 'lucide-react';
 import { AttachmentMenu } from './AttachmentMenu';
 import { ModelSelector } from './ModelSelector';
 import { ResponseLengthSlider } from './ResponseLengthSlider';
