@@ -16,7 +16,7 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
 
   // Memoize expensive computations
   const { featuredModels, selectedModelInfo, modelsToDisplay } = useMemo(() => {
-    const featuredModelIds = ['x-ai/grok-4', 'meta-llama/llama-4-maverick', 'google/gemini-2.5-pro'];
+    const featuredModelIds = ['x-ai/grok-4', 'moonshotai/kimi-k2', 'google/gemini-2.5-pro'];
     const featured = openRouterModels.filter(model => featuredModelIds.includes(model.id));
     const selected = openRouterModels.find(model => model.id === selectedModel);
     const toDisplay = displayMode === 'featured' ? featured : openRouterModels;
