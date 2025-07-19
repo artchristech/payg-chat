@@ -1,6 +1,8 @@
 import React from 'react';
 import { Message } from '../types/chat';
 import { Volume2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface MessageBubbleProps {
   message: Message;
@@ -38,15 +40,29 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           </div>
         )}
         
-        <p className={`
-          whitespace-pre-wrap text-base leading-relaxed transition-opacity duration-500 ease-out
+        <div className={`
+          text-base leading-relaxed transition-opacity duration-500 ease-out
           ${message.isLoading ? 'opacity-0' : 'opacity-100'}
         `}>
-          {message.content}
+          {isUser ? (
+            <div className="whitespace-pre-wrap">
+              {message.content}
+              {message.isLoading && (
+                <span className="inline-block w-0.5 h-4 bg-current ml-0.5 animate-pulse" />
+              )}
+            </div>
+          ) : (
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              className="prose prose-sm max-w-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-900 dark:prose-p:text-gray-100 prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-pre:bg-gray-100 dark:prose-pre:bg-gray-800 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-600"
+            >
+              {message.content}
+            </ReactMarkdown>
+          )}
           {message.isLoading && (
             <span className="inline-block w-0.5 h-4 bg-current ml-0.5 animate-pulse" />
           )}
-        </p>
+        </div>
       </div>
     </div>
   );
