@@ -230,8 +230,6 @@ export async function sendMessageToOpenRouter(
 }
 
 export function convertMessagesToOpenRouterFormat(messages: Message[], selectedModelId: string): OpenRouterMessage[] {
-}
-export function convertMessagesToOpenRouterFormat(messages: Message[], selectedModelId: string, responseMaxTokens?: number): OpenRouterMessage[] {
   // Find the selected model to check if it supports multimodal input
   const selectedModel = openRouterModels.find(model => model.id === selectedModelId);
   const isMultiModal = selectedModel?.multiModal || false;
@@ -264,18 +262,6 @@ export function convertMessagesToOpenRouterFormat(messages: Message[], selectedM
         content: textContent
       };
     });
-
-  // Add system message for response length if specified
-  if (responseMaxTokens && responseMaxTokens > 0) {
-    const approximateWords = Math.round(responseMaxTokens * 0.75);
-    const systemMessage: OpenRouterMessage = {
-      role: 'system',
-      content: `Please keep your response to approximately ${approximateWords} words or fewer. Be concise while still providing helpful and complete information.`
-    };
-    
-    // Insert system message at the beginning
-    return [systemMessage, ...convertedMessages];
-  }
 
   return convertedMessages;
 }

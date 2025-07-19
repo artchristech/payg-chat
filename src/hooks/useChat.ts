@@ -70,7 +70,7 @@ export function useChat(onScrollToBottom?: () => void) {
     try {
       // Prepare messages for API (including the new user message)
       const messagesForAPI = [...chatState.messages, userMessage];
-      const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel, maxTokens || chatState.maxTokens);
+      const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel);
       
       await sendMessageToOpenRouter(
         openRouterMessages, 
