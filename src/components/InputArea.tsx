@@ -13,9 +13,11 @@ interface InputAreaProps {
   centered?: boolean;
   maxTokens: number;
   onMaxTokensChange: (value: number) => void;
+  navigateHistory: (direction: 'up' | 'down') => string;
+  resetHistoryNavigation: () => void;
 }
 
-export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange }: InputAreaProps) {
+export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, navigateHistory, resetHistoryNavigation }: InputAreaProps) {
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
@@ -59,11 +61,30 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   }, [onSendMessage, maxTokens]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const historyContent = navigateHistory('up');
+      setMessage(historyContent);
+      return;
+    }
+    
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const historyContent = navigateHistory('down');
+      setMessage(historyContent);
+      return;
+    }
+    
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
     }
-  }, [handleSubmit]);
+  }, [handleSubmit, navigateHistory]);
+
+  const handleMessageChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(e.target.value);
+    resetHistoryNavigation();
+  }, [resetHistoryNavigation]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -117,7 +138,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
             <textarea
               ref={textareaRef}
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={handleMessageChange}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
               className="w-full resize-none bg-transparent focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100"
