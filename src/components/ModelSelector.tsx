@@ -127,14 +127,12 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
       )}
 
       {/* Full-screen Modal */}
-      <Suspense fallback={null}>
-        <ModelSelectionModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onModelSelect={onModelChange}
-          currentSelectedModel={selectedModel}
-        />
-      </Suspense>
+      <ModelSelectionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onModelSelect={onModelChange}
+        currentSelectedModel={selectedModel}
+      />
     </div>
   );
 }
