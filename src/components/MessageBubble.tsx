@@ -8,7 +8,7 @@ interface MessageBubbleProps {
   message: Message;
 }
 
-function MessageBubble({ message }: MessageBubbleProps) {
+export const MessageBubble = React.memo(function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
 
   return (
@@ -65,6 +65,3 @@ function MessageBubble({ message }: MessageBubbleProps) {
       </div>
     </div>
   );
-}
-
-export default MessageBubble;

@@ -1,13 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { MessageBubble } from './MessageBubble';
-import { InputArea } from './InputArea';
+import { MessageBubble } from './MessageBubble';
 import { PresetButtons } from './PresetButtons';
 import { ThemeSelector } from './ThemeSelector';
 import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen } from 'lucide-react';
-
 export function ChatInterface() {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -64,24 +62,21 @@ export function ChatInterface() {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-hidden">
-        <div className="max-w-4xl mx-auto h-full">
+      <div className="flex-1 overflow-y-auto hide-scrollbar">
+        <div className="max-w-4xl mx-auto px-4 py-6">
           {isEmpty ? (
-            <div className="flex flex-col justify-center items-center h-full min-h-[50vh] px-4 py-6">
+            <div className="flex flex-col justify-center items-center h-full min-h-[50vh]">
               <div className="text-center py-12">
                 <PresetButtons onPresetClick={handlePresetClick} />
               </div>
             </div>
           ) : (
-            <List
-              ref={listRef}
-              height={window.innerHeight - 200} // Approximate height minus header and input
-              width="100%"
-              itemCount={messages.length}
-              itemSize={120} // Approximate height per message
-            >
-              {Row}
-            </List>
+            <div className="space-y-6">
+              {messages.map((message) => (
+                <MessageBubble key={message.id} message={message} />
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
           )}
         </div>
       </div>
