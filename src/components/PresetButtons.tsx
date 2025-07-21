@@ -2,7 +2,7 @@ import React from 'react';
 import { PresetOption } from '../types/chat';
 import { Store } from 'lucide-react';
 
-interface PresetButtonsProps {
+export interface PresetButtonsProps {
   onPresetClick: (prompt: string) => void;
 }
 

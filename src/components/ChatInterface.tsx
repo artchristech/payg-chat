@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { InputArea } from './InputArea';
 import { MessageBubble } from './MessageBubble';
 import { PresetButtons } from './PresetButtons';
 import { ThemeSelector } from './ThemeSelector';
