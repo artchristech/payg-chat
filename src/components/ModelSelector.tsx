@@ -11,7 +11,6 @@ interface ModelSelectorProps {
   conversationCost: number;
 }
 
-export function ModelSelector({ selectedModel, onModelChange, onSelectionComplete, compact = false }: ModelSelectorProps) {
 export function ModelSelector({ selectedModel, onModelChange, onSelectionComplete, compact = false, conversationCost }: ModelSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
