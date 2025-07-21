@@ -2,7 +2,7 @@ import React from 'react';
 import { PresetOption } from '../types/chat';
 import { Store } from 'lucide-react';
 
-export interface PresetButtonsProps {
+interface PresetButtonsProps {
   onPresetClick: (prompt: string) => void;
 }
 
@@ -30,7 +30,7 @@ const IconComponent = ({ name }: { name: string }) => {
   return <Icon className="w-5 h-5" />;
 };
 
-export const PresetButtons = React.memo(function PresetButtons({ onPresetClick }: PresetButtonsProps) {
+function PresetButtons({ onPresetClick }: PresetButtonsProps) {
   const agentButton = presetOptions[0];
   const exploreButton = presetOptions[1];
 
@@ -53,4 +53,3 @@ export const PresetButtons = React.memo(function PresetButtons({ onPresetClick }
     </div>
   );
 }
-)

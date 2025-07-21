@@ -4,11 +4,11 @@ import { Volume2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-export interface MessageBubbleProps {
+interface MessageBubbleProps {
   message: Message;
 }
 
-export const MessageBubble = React.memo(function MessageBubble({ message }: MessageBubbleProps) {
+function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
 
   return (
@@ -65,4 +65,6 @@ export const MessageBubble = React.memo(function MessageBubble({ message }: Mess
       </div>
     </div>
   );
-});
+}
+
+export default MessageBubble;
