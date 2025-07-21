@@ -15,6 +15,7 @@ export interface ChatState {
   error: string | null;
   selectedModel: string;
   maxTokens: number;
+  conversationCost: number;
 }
 
 export interface OpenRouterModel {
@@ -24,6 +25,8 @@ export interface OpenRouterModel {
   contextLength: number;
   multiModal: boolean;
   provider: string;
+  inputCostPer1kTokens: number;
+  outputCostPer1kTokens: number;
 }
 
 export interface TogetherImageModel {

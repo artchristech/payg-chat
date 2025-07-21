@@ -50,6 +50,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 256000,
     multiModal: true,
     provider: 'xAI',
+    inputCostPer1kTokens: 0.015,
+    outputCostPer1kTokens: 0.06,
   },
   {
     id: 'moonshotai/kimi-k2',
@@ -58,6 +60,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 128000,
     multiModal: false,
     provider: 'Moonshot AI',
+    inputCostPer1kTokens: 0.0015,
+    outputCostPer1kTokens: 0.006,
   },
   {
     id: 'google/gemini-2.5-pro',
@@ -66,6 +70,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 1000000,
     multiModal: true,
     provider: 'Google',
+    inputCostPer1kTokens: 0.00125,
+    outputCostPer1kTokens: 0.005,
   },
   {
     id: 'anthropic/claude-3.5-sonnet',
@@ -74,6 +80,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 200000,
     multiModal: true,
     provider: 'Anthropic',
+    inputCostPer1kTokens: 0.003,
+    outputCostPer1kTokens: 0.015,
   },
   {
     id: 'openai/gpt-4o',
@@ -82,6 +90,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 128000,
     multiModal: true,
     provider: 'OpenAI',
+    inputCostPer1kTokens: 0.0025,
+    outputCostPer1kTokens: 0.01,
   },
   {
     id: 'openai/gpt-4o-mini',
@@ -90,6 +100,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 128000,
     multiModal: true,
     provider: 'OpenAI',
+    inputCostPer1kTokens: 0.00015,
+    outputCostPer1kTokens: 0.0006,
   },
   {
     id: 'meta-llama/llama-3.1-70b-instruct',
@@ -98,6 +110,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 131072,
     multiModal: false,
     provider: 'Meta',
+    inputCostPer1kTokens: 0.00088,
+    outputCostPer1kTokens: 0.00088,
   },
   {
     id: 'meta-llama/llama-3.1-8b-instruct',
@@ -106,6 +120,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 131072,
     multiModal: false,
     provider: 'Meta',
+    inputCostPer1kTokens: 0.00018,
+    outputCostPer1kTokens: 0.00018,
   },
   {
     id: 'mistralai/mistral-7b-instruct',
@@ -114,6 +130,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 32768,
     multiModal: false,
     provider: 'Mistral AI',
+    inputCostPer1kTokens: 0.00025,
+    outputCostPer1kTokens: 0.00025,
   },
   {
     id: 'google/gemini-pro-1.5',
@@ -122,6 +140,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 2000000,
     multiModal: true,
     provider: 'Google',
+    inputCostPer1kTokens: 0.00125,
+    outputCostPer1kTokens: 0.005,
   },
   {
     id: 'perplexity/llama-3.1-sonar-large-128k-online',
@@ -130,6 +150,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 127072,
     multiModal: false,
     provider: 'Perplexity',
+    inputCostPer1kTokens: 0.001,
+    outputCostPer1kTokens: 0.001,
   },
   {
     id: 'anthropic/claude-3-haiku',
@@ -138,6 +160,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 200000,
     multiModal: true,
     provider: 'Anthropic',
+    inputCostPer1kTokens: 0.00025,
+    outputCostPer1kTokens: 0.00125,
   },
   {
     id: 'cohere/command-r-plus',
@@ -146,6 +170,8 @@ export const openRouterModels: OpenRouterModel[] = [
     contextLength: 128000,
     multiModal: false,
     provider: 'Cohere',
+    inputCostPer1kTokens: 0.003,
+    outputCostPer1kTokens: 0.015,
   },
 ];
 
@@ -154,11 +180,38 @@ export interface OpenRouterMessage {
   content: string | Array<{ type: 'text' | 'image_url'; text?: string; image_url?: { url: string } }>;
 }
 
+export interface UsageData {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+}
+
+// Together.ai image generation costs (fixed per image)
+export const togetherImageCosts: Record<string, number> = {
+  'black-forest-labs/FLUX.1-schnell': 0.003,
+  'black-forest-labs/FLUX.1-dev': 0.025,
+  'stabilityai/stable-diffusion-xl-base-1.0': 0.004,
+};
+
+export function calculateOpenRouterCost(modelId: string, usage: UsageData): number {
+  const model = openRouterModels.find(m => m.id === modelId);
+  if (!model) return 0;
+
+  const inputCost = (usage.prompt_tokens / 1000) * model.inputCostPer1kTokens;
+  const outputCost = (usage.completion_tokens / 1000) * model.outputCostPer1kTokens;
+  
+  return inputCost + outputCost;
+}
+
+export function calculateTogetherImageCost(modelId: string): number {
+  return togetherImageCosts[modelId] || 0.003; // Default to FLUX.1-schnell cost
+}
+
 export async function sendMessageToOpenRouter(
   messages: OpenRouterMessage[],
   model: string = 'mistralai/mistral-7b-instruct',
   onUpdate?: (content: string) => void,
-  onComplete?: () => void
+  onComplete?: (usage?: UsageData) => void
 ): Promise<void> {
   if (!OPENROUTER_API_KEY) {
     throw new Error('OpenRouter API key not configured. Please add VITE_OPENROUTER_API_KEY to your .env file and restart the development server.');
@@ -207,6 +260,7 @@ export async function sendMessageToOpenRouter(
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
+    let finalUsage: UsageData | undefined;
 
     try {
       while (true) {
@@ -223,13 +277,18 @@ export async function sendMessageToOpenRouter(
             const data = line.slice(6);
             
             if (data === '[DONE]') {
-              onComplete?.();
+              onComplete?.(finalUsage);
               return;
             }
             
             try {
               const parsed = JSON.parse(data);
               const content = parsed.choices?.[0]?.delta?.content;
+              
+              // Capture usage data when available
+              if (parsed.usage) {
+                finalUsage = parsed.usage;
+              }
               
               if (content) {
                 onUpdate?.(content);
@@ -242,7 +301,7 @@ export async function sendMessageToOpenRouter(
         }
       }
       
-      onComplete?.();
+      onComplete?.(finalUsage);
     } catch (error) {
       console.error('Error reading stream:', error);
       throw error;

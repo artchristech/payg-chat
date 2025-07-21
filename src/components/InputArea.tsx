@@ -15,9 +15,10 @@ interface InputAreaProps {
   maxTokens: number;
   onMaxTokensChange: (value: number) => void;
   resetHistoryNavigation?: () => void;
+  conversationCost: number;
 }
 
-export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation }: InputAreaProps) {
+export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost }: InputAreaProps) {
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
@@ -338,6 +339,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                 onModelChange={onModelChange}
                 onSelectionComplete={focusMessageInput}
                 compact={true}
+                conversationCost={conversationCost}
               />
               
               <button
