@@ -30,7 +30,7 @@ const IconComponent = ({ name }: { name: string }) => {
   return <Icon className="w-5 h-5" />;
 };
 
-export function PresetButtons({ onPresetClick }: PresetButtonsProps) {
+function PresetButtons({ onPresetClick }: PresetButtonsProps) {
   const agentButton = presetOptions[0];
   const exploreButton = presetOptions[1];
 
@@ -53,5 +53,3 @@ export function PresetButtons({ onPresetClick }: PresetButtonsProps) {
     </div>
   );
 }
-
-export default React.memo(PresetButtons);
