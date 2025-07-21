@@ -12,10 +12,6 @@ export function ChatInterface() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
-    conversationCost,
-    isCompletionOnlyMode,
-    setIsCompletionOnlyMode,
-    revealMessageContent,
   const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError, maxTokens, setMaxTokens, conversationCost } = useChat(scrollToBottom);
 
   const handlePresetClick = (prompt: string) => {
