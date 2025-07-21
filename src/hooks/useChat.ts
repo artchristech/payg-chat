@@ -11,6 +11,7 @@ export function useChat(onScrollToBottom?: () => void) {
     maxTokens: 150,
     conversationCost: 0,
   });
+  const [isCompletionOnlyMode, setIsCompletionOnlyMode] = useState(false);
 
   const addMessage = useCallback((message: Omit<Message, 'id' | 'timestamp'>) => {
     const newMessage: Message = {
@@ -129,6 +130,8 @@ export function useChat(onScrollToBottom?: () => void) {
         content: '',
         type: 'text',
         isLoading: true,
+        isHidden: isCompletionOnlyMode,
+        isHidden: isCompletionOnlyMode,
         timestamp: new Date(),
       };
 
@@ -218,6 +221,15 @@ export function useChat(onScrollToBottom?: () => void) {
     setChatState(prev => ({ ...prev, error: null }));
   }, []);
 
+  const revealMessageContent = useCallback((messageId: string) => {
+    setChatState(prev => ({
+      ...prev,
+      messages: prev.messages.map(msg =>
+        msg.id === messageId ? { ...msg, isHidden: false } : msg
+      ),
+    }));
+  }, []);
+
   // Memoize derived state to prevent unnecessary recalculations
   const memoizedState = useMemo(() => ({
     messages: chatState.messages,
@@ -235,5 +247,8 @@ export function useChat(onScrollToBottom?: () => void) {
     setSelectedModel,
     setMaxTokens,
     clearError,
+    isCompletionOnlyMode,
+    setIsCompletionOnlyMode,
+    revealMessageContent,
   };
 }

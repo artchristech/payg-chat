@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ArrowUp, Loader2, X, Wand2 } from 'lucide-react';
+import { ArrowUp, Loader2, X, Wand2, Eye, EyeOff } from 'lucide-react';
 import { AttachmentMenu } from './AttachmentMenu';
 import { ModelSelector } from './ModelSelector';
 import { ResponseLengthSlider } from './ResponseLengthSlider';
@@ -16,9 +16,11 @@ interface InputAreaProps {
   onMaxTokensChange: (value: number) => void;
   resetHistoryNavigation?: () => void;
   conversationCost: number;
+  isCompletionOnlyMode: boolean;
+  setIsCompletionOnlyMode: (value: boolean) => void;
 }
 
-export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost }: InputAreaProps) {
+export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost, isCompletionOnlyMode, setIsCompletionOnlyMode }: InputAreaProps) {
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
@@ -326,6 +328,22 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                   onAudioRecordingComplete={handleAudioRecording}
                   onGenerateImageClick={handleGenerateImageClick}
                 />
+                <button
+                  type="button"
+                  onClick={() => setIsCompletionOnlyMode(!isCompletionOnlyMode)}
+                  className={`w-8 h-8 rounded-full hover:scale-105 transition-all duration-200 flex items-center justify-center ${
+                    isCompletionOnlyMode 
+                      ? 'bg-blue-500 text-white shadow-lg' 
+                      : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-400 dark:hover:bg-gray-500'
+                  }`}
+                  title={isCompletionOnlyMode ? "Disable Completion-Only Mode" : "Enable Completion-Only Mode"}
+                >
+                  {isCompletionOnlyMode ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
                 <ResponseLengthSlider
                   maxTokens={maxTokens}
                   onValueChange={onMaxTokensChange}
