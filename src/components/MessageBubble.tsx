@@ -1,15 +1,36 @@
 import React from 'react';
 import { Message } from '../types/chat';
-import { Volume2 } from 'lucide-react';
+import { Volume2, Eye } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 interface MessageBubbleProps {
   message: Message;
+  onReveal: (messageId: string) => void;
 }
 
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
+
+  // If this is a hidden assistant message, render placeholder
+  if (!isUser && message.isHidden) {
+    return (
+      <div className="flex justify-start">
+        <div className="max-w-[70%] bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-2xl px-4 py-3">
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-sm font-medium">Response Hidden</span>
+            <button
+              onClick={() => onReveal(message.id)}
+              className="flex items-center gap-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors"
+            >
+              <Eye className="w-3 h-3" />
+              Show
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>

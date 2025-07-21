@@ -75,7 +75,7 @@ export function ChatInterface() {
           ) : (
             <div className="space-y-6">
               {messages.map((message) => (
-                <MessageBubble key={message.id} message={message} />
+                <MessageBubble key={message.id} message={message} onReveal={revealMessageContent} />
               ))}
               <div ref={messagesEndRef} />
             </div>
@@ -97,6 +97,8 @@ export function ChatInterface() {
             onMaxTokensChange={setMaxTokens}
             resetHistoryNavigation={clearError}
             conversationCost={conversationCost}
+            isCompletionOnlyMode={isCompletionOnlyMode}
+            setIsCompletionOnlyMode={setIsCompletionOnlyMode}
           />
         </div>
       </div>

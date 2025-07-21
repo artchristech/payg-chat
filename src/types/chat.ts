@@ -7,6 +7,7 @@ export interface Message {
   imageUrl?: string;
   audioUrl?: string;
   isLoading?: boolean;
+  isHidden?: boolean;
 }
 
 export interface ChatState {
