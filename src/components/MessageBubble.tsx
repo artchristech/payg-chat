@@ -66,3 +66,5 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     </div>
   );
 }
+
+export default React.memo(MessageBubble);

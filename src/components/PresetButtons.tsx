@@ -53,3 +53,5 @@ export function PresetButtons({ onPresetClick }: PresetButtonsProps) {
     </div>
   );
 }
+
+export default React.memo(PresetButtons);
