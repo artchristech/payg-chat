@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ArrowUp, Loader2, X, Wand2, Eye, EyeOff } from 'lucide-react';
+import { ArrowUp, Loader2, X, Wand2, MessageSquareText, BrainCircuit } from 'lucide-react';
 import { AttachmentMenu } from './AttachmentMenu';
 import { ModelSelector } from './ModelSelector';
 import { ResponseLengthSlider } from './ResponseLengthSlider';
@@ -333,15 +333,15 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                   onClick={() => setIsCompletionOnlyMode(!isCompletionOnlyMode)}
                   className={`w-8 h-8 rounded-full hover:scale-105 transition-all duration-200 flex items-center justify-center ${
                     isCompletionOnlyMode 
-                      ? 'bg-blue-500 text-white shadow-lg' 
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg' 
                       : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-400 dark:hover:bg-gray-500'
                   }`}
-                  title={isCompletionOnlyMode ? "Disable Completion-Only Mode" : "Enable Completion-Only Mode"}
+                  title={isCompletionOnlyMode ? "Disable Thinking Mode" : "Enable Thinking Mode"}
                 >
                   {isCompletionOnlyMode ? (
-                    <EyeOff className="w-4 h-4" />
+                    <BrainCircuit className="w-4 h-4" />
                   ) : (
-                    <Eye className="w-4 h-4" />
+                    <MessageSquareText className="w-4 h-4" />
                   )}
                 </button>
                 <ResponseLengthSlider

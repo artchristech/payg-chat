@@ -1,8 +1,9 @@
 import React from 'react';
 import { Message } from '../types/chat';
-import { Volume2, EyeOff } from 'lucide-react';
+import { Volume2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { ThinkingBubble } from './ThinkingBubble';
 
 interface MessageBubbleProps {
   message: Message;
@@ -14,22 +15,7 @@ export function MessageBubble({ message, onReveal }: MessageBubbleProps) {
 
   // If this is a hidden assistant message, show placeholder
   if (message.role === 'assistant' && message.isHidden) {
-    return (
-      <div className="flex justify-start">
-        <div className="max-w-[70%] bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-2xl px-4 py-3">
-          <div className="flex items-center gap-3">
-            <EyeOff className="w-4 h-4 text-gray-500" />
-            <span className="text-sm">AI response is hidden</span>
-            <button
-              onClick={() => onReveal(message.id)}
-              className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-full transition-colors"
-            >
-              Show
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+    return <ThinkingBubble messageId={message.id} onReveal={onReveal} />;
   }
 
   return (
