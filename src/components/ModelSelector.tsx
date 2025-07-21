@@ -7,6 +7,7 @@ interface ModelSelectorProps {
   selectedModel: string;
   onModelChange: (model: string) => void;
   onSelectionComplete?: () => void;
+  onSelectionComplete?: () => void;
   compact?: boolean;
   conversationCost: number;
 }
@@ -91,6 +92,7 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
                 onClick={() => {
                   onModelChange(model.id);
                   setIsOpen(false);
+                  onSelectionComplete?.();
                   onSelectionComplete?.();
                 }}
                 className={`

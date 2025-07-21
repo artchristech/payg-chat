@@ -201,6 +201,13 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
     onSendMessage('Audio message', 'audio', undefined, audioUrl, maxTokens);
   }, [onSendMessage, maxTokens]);
 
+  const focusMessageInput = useCallback(() => {
+    // Small delay to ensure the dropdown has closed
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 100);
+  }, []);
+
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -355,6 +362,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               <ModelSelector
                 selectedModel={selectedModel}
                 onModelChange={onModelChange}
+                onSelectionComplete={focusMessageInput}
                 onSelectionComplete={focusMessageInput}
                 compact={true}
                 conversationCost={conversationCost}
