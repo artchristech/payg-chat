@@ -12,6 +12,7 @@ export function ChatInterface() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
   const { messages, isLoading, error, selectedModel, sendMessage, clearChat, setSelectedModel, clearError, maxTokens, setMaxTokens, conversationCost } = useChat(scrollToBottom);
 
   const handlePresetClick = (prompt: string) => {
@@ -96,8 +97,6 @@ export function ChatInterface() {
             onMaxTokensChange={setMaxTokens}
             resetHistoryNavigation={clearError}
             conversationCost={conversationCost}
-            isCompletionOnlyMode={isCompletionOnlyMode}
-            setIsCompletionOnlyMode={setIsCompletionOnlyMode}
             isCompletionOnlyMode={isCompletionOnlyMode}
             setIsCompletionOnlyMode={setIsCompletionOnlyMode}
           />
