@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Message, ChatState } from '../types/chat';
-import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat, generateImageWithTogetherAI, togetherImageModels, calculateOpenRouterCost, calculateTogetherImageCost, UsageData } from '../utils/api';
+import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat, generateImageWithTogetherAI, togetherImageModels } from '../utils/api';
 
 export function useChat(onScrollToBottom?: () => void) {
   const [chatState, setChatState] = useState<ChatState>({
@@ -9,7 +9,6 @@ export function useChat(onScrollToBottom?: () => void) {
     error: null,
     selectedModel: 'moonshotai/kimi-k2',
     maxTokens: 150,
-    conversationCost: 0,
   });
 
   const addMessage = useCallback((message: Omit<Message, 'id' | 'timestamp'>) => {
@@ -80,9 +79,6 @@ export function useChat(onScrollToBottom?: () => void) {
         // Generate image using Together.ai
         const defaultModel = togetherImageModels[0].id;
         const generatedImageUrl = await generateImageWithTogetherAI(content, defaultModel);
-        
-        // Calculate and add image generation cost
-        const imageCost = calculateTogetherImageCost(defaultModel);
 
         // Update assistant message with generated image
         setChatState(prev => ({
@@ -98,7 +94,6 @@ export function useChat(onScrollToBottom?: () => void) {
               : msg
           ),
           isLoading: false,
-          conversationCost: prev.conversationCost + imageCost,
         }));
 
         setTimeout(() => onScrollToBottom?.(), 100);
@@ -156,13 +151,7 @@ export function useChat(onScrollToBottom?: () => void) {
           }));
         },
         // onComplete callback - mark as finished
-        (usage?: UsageData) => {
-          // Calculate cost if usage data is available
-          let messageCost = 0;
-          if (usage) {
-            messageCost = calculateOpenRouterCost(chatState.selectedModel, usage);
-          }
-          
+        () => {
           setChatState(prev => ({
             ...prev,
             messages: prev.messages.map(msg =>
@@ -171,7 +160,6 @@ export function useChat(onScrollToBottom?: () => void) {
                 : msg
             ),
             isLoading: false,
-            conversationCost: prev.conversationCost + messageCost,
           }));
           // Scroll to bottom when AI response is complete
           setTimeout(() => onScrollToBottom?.(), 100);
@@ -199,7 +187,6 @@ export function useChat(onScrollToBottom?: () => void) {
       ...prev,
       messages: [],
       error: null,
-      conversationCost: 0,
     }));
   }, []);
 
@@ -221,7 +208,6 @@ export function useChat(onScrollToBottom?: () => void) {
     error: chatState.error,
     selectedModel: chatState.selectedModel,
     maxTokens: chatState.maxTokens,
-    conversationCost: chatState.conversationCost,
   }), [chatState]);
 
   return {
