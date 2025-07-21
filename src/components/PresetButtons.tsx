@@ -52,3 +52,5 @@ export const PresetButtons = React.memo(function PresetButtons({ onPresetClick }
       </button>
     </div>
   );
+}
+)
