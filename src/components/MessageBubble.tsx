@@ -65,3 +65,4 @@ export const MessageBubble = React.memo(function MessageBubble({ message }: Mess
       </div>
     </div>
   );
+});

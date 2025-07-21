@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { MessageBubble } from './MessageBubble';
-import { MessageBubble } from './MessageBubble';
 import { PresetButtons } from './PresetButtons';
 import { ThemeSelector } from './ThemeSelector';
 import { useChat } from '../hooks/useChat';
