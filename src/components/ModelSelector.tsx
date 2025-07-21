@@ -8,9 +8,11 @@ interface ModelSelectorProps {
   onModelChange: (model: string) => void;
   onSelectionComplete?: () => void;
   compact?: boolean;
+  conversationCost: number;
 }
 
 export function ModelSelector({ selectedModel, onModelChange, onSelectionComplete, compact = false }: ModelSelectorProps) {
+export function ModelSelector({ selectedModel, onModelChange, onSelectionComplete, compact = false, conversationCost }: ModelSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -63,9 +65,14 @@ export function ModelSelector({ selectedModel, onModelChange, onSelectionComplet
         <div className={`absolute ${compact ? 'bottom-full right-0' : 'bottom-full left-0'} mb-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600/50 rounded-xl shadow-2xl backdrop-blur-sm z-50`}>
           {/* Header with Explore Button */}
           <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Featured Models
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Featured Models
+              </span>
+              <span className="text-xs font-mono bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 px-2 py-1 rounded-full">
+                ${conversationCost.toFixed(4)}
+              </span>
+            </div>
             <button
               type="button"
               onClick={handleOpenModal}

@@ -42,6 +42,46 @@ export const togetherImageModels: TogetherImageModel[] = [
   },
 ];
 
+// Pricing information for OpenRouter models (per 1M tokens)
+export const openRouterPricing: Record<string, { input: number; output: number }> = {
+  'x-ai/grok-4': { input: 5.0, output: 15.0 },
+  'moonshotai/kimi-k2': { input: 0.3, output: 1.2 },
+  'google/gemini-2.5-pro': { input: 1.25, output: 5.0 },
+  'anthropic/claude-3.5-sonnet': { input: 3.0, output: 15.0 },
+  'openai/gpt-4o': { input: 2.5, output: 10.0 },
+  'openai/gpt-4o-mini': { input: 0.15, output: 0.6 },
+  'meta-llama/llama-3.1-70b-instruct': { input: 0.35, output: 0.4 },
+  'meta-llama/llama-3.1-8b-instruct': { input: 0.055, output: 0.055 },
+  'mistralai/mistral-7b-instruct': { input: 0.055, output: 0.055 },
+  'google/gemini-pro-1.5': { input: 1.25, output: 5.0 },
+  'perplexity/llama-3.1-sonar-large-128k-online': { input: 1.0, output: 1.0 },
+  'anthropic/claude-3-haiku': { input: 0.25, output: 1.25 },
+  'cohere/command-r-plus': { input: 3.0, output: 15.0 },
+};
+
+// Pricing for Together.ai image models (per image)
+export const togetherImagePricing: Record<string, number> = {
+  'black-forest-labs/FLUX.1-schnell': 0.003,
+  'black-forest-labs/FLUX.1-dev': 0.025,
+  'stabilityai/stable-diffusion-xl-base-1.0': 0.04,
+};
+
+// Helper function to calculate OpenRouter cost
+export function calculateOpenRouterCost(modelId: string, promptTokens: number, completionTokens: number): number {
+  const pricing = openRouterPricing[modelId];
+  if (!pricing) return 0;
+  
+  const inputCost = (promptTokens / 1000000) * pricing.input;
+  const outputCost = (completionTokens / 1000000) * pricing.output;
+  
+  return inputCost + outputCost;
+}
+
+// Helper function to calculate Together.ai image cost
+export function calculateTogetherImageCost(modelId: string): number {
+  return togetherImagePricing[modelId] || 0;
+}
+
 export const openRouterModels: OpenRouterModel[] = [
   {
     id: 'x-ai/grok-4',
@@ -158,7 +198,7 @@ export async function sendMessageToOpenRouter(
   messages: OpenRouterMessage[],
   model: string = 'mistralai/mistral-7b-instruct',
   onUpdate?: (content: string) => void,
-  onComplete?: () => void
+  onComplete?: (usage?: { prompt_tokens: number; completion_tokens: number }) => void
 ): Promise<void> {
   if (!OPENROUTER_API_KEY) {
     throw new Error('OpenRouter API key not configured. Please add VITE_OPENROUTER_API_KEY to your .env file and restart the development server.');
@@ -207,6 +247,7 @@ export async function sendMessageToOpenRouter(
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
+    let usage: { prompt_tokens: number; completion_tokens: number } | undefined;
 
     try {
       while (true) {
@@ -223,13 +264,21 @@ export async function sendMessageToOpenRouter(
             const data = line.slice(6);
             
             if (data === '[DONE]') {
-              onComplete?.();
+              onComplete?.(usage);
               return;
             }
             
             try {
               const parsed = JSON.parse(data);
               const content = parsed.choices?.[0]?.delta?.content;
+              
+              // Capture usage data when available
+              if (parsed.usage) {
+                usage = {
+                  prompt_tokens: parsed.usage.prompt_tokens || 0,
+                  completion_tokens: parsed.usage.completion_tokens || 0,
+                };
+              }
               
               if (content) {
                 onUpdate?.(content);
@@ -242,7 +291,7 @@ export async function sendMessageToOpenRouter(
         }
       }
       
-      onComplete?.();
+      onComplete?.(usage);
     } catch (error) {
       console.error('Error reading stream:', error);
       throw error;
