@@ -296,6 +296,18 @@ export async function sendMessageToOpenRouter(
       onComplete?.(usage);
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
+        throw error; // Re-throw abort errors to be handled by the caller
+      }
+      
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        throw new Error('Network error: Unable to connect to OpenRouter API. Please check your internet connection and ensure no firewall or ad-blocker is blocking the request.');
+      }
+      
+      console.error('Error calling OpenRouter API:', error);
+      throw error instanceof Error ? error : new Error('Unknown error occurred while calling OpenRouter API');
+    }
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
       }
       throw error; // Re-throw abort errors to be handled by the caller
     }
@@ -311,7 +323,6 @@ export async function sendMessageToOpenRouter(
     console.error('Error calling OpenRouter API:', error);
     throw error instanceof Error ? error : new Error('Unknown error occurred while calling OpenRouter API');
   }
-}
 
 export function convertMessagesToOpenRouterFormat(messages: Message[], selectedModelId: string, desiredResponseTokens?: number): OpenRouterMessage[] {
   // Find the selected model to check if it supports multimodal input
