@@ -29,7 +29,7 @@ export function ChatInterface() {
     conversationCost,
     isCompletionOnlyMode,
     setIsCompletionOnlyMode,
-    revealMessageContent
+    revealMessageContent,
     currentLeafId,
     setCurrentLeaf,
   } = useChat(scrollToBottom);
