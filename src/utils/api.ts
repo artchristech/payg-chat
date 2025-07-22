@@ -296,10 +296,6 @@ export async function sendMessageToOpenRouter(
       onComplete?.(usage);
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
-        throw error; // Re-throw abort errors to be handled by the caller
-      }
-      
-      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
         throw new Error('Network error: Unable to connect to OpenRouter API. Please check your internet connection and ensure no firewall or ad-blocker is blocking the request.');
       }
       
@@ -308,14 +304,6 @@ export async function sendMessageToOpenRouter(
     }
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      }
-      throw error; // Re-throw abort errors to be handled by the caller
-    }
-    
-    if (error instanceof DOMException && error.name === 'AbortError') {
-      throw error; // Re-throw abort errors to be handled by the caller
-    }
-    
     if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
       throw new Error('Network error: Unable to connect to OpenRouter API. Please check your internet connection and ensure no firewall or ad-blocker is blocking the request.');
     }

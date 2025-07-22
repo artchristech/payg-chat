@@ -43,6 +43,8 @@ export function useChat(onScrollToBottom?: () => void) {
 
     let assistantMessage: Message;
 
+    let assistantMessage: Message;
+
     // Create user message
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -114,19 +116,13 @@ export function useChat(onScrollToBottom?: () => void) {
 
         setTimeout(() => onScrollToBottom?.(), 100);
       } catch (error) {
-        console.error('Error generating image:', error);
-        
-        // Handle abort error specifically
         if (error instanceof DOMException && error.name === 'AbortError') {
-          setChatState(prev => ({
-            ...prev,
-            messages: Object.fromEntries(
-              Object.entries(prev.messages).filter(([id]) => id !== assistantMessage.id)
-            ),
-            isLoading: false,
-          }));
+          console.log("Request successfully aborted.");
           return;
         }
+
+        console.error('Error generating image:', error);
+        
 
         let errorMessage = 'Failed to generate image';
         if (error instanceof Error) {
@@ -220,19 +216,13 @@ export function useChat(onScrollToBottom?: () => void) {
         abortControllerRef.current.signal
       );
     } catch (error) {
-      console.error('Error sending message:', error);
-      
-      // Handle abort error specifically
-      if (error && typeof error === 'object' && (error.name === 'AbortError' || (error.message && error.message.includes('signal is aborted')))) {
-        setChatState(prev => ({
-          ...prev,
-          messages: Object.fromEntries(
-            Object.entries(prev.messages).filter(([id]) => id !== assistantMessage.id)
-          ),
-          isLoading: false,
-        }));
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        console.log("Request successfully aborted.");
         return;
       }
+
+      console.error('Error sending message:', error);
+      
 
       let errorMessage = 'Failed to send message';
       if (error instanceof Error) {
