@@ -148,14 +148,7 @@ export function AttachmentMenu({ onAudioRecordingComplete, onFileSelect }: Attac
         <div className="absolute bottom-full left-0 mb-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50 min-w-[120px]">
           <div className="p-1">
             <button
-              onClick={handleImageClick}
-              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors"
-            >
-              <Image className="w-4 h-4" />
-              Image
-            </button>
-            <button
-              onClick={handleGenericFileClick}
+              onClick={handleFileClick}
               className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors"
             >
               <FileText className="w-4 h-4" />
@@ -175,14 +168,7 @@ export function AttachmentMenu({ onAudioRecordingComplete, onFileSelect }: Attac
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
         onChange={handleFileSelect}
-        className="hidden"
-      />
-      <input
-        ref={genericFileInputRef}
-        type="file"
-        onChange={handleGenericFileSelect}
         className="hidden"
       />
     </div>
