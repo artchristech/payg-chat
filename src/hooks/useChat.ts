@@ -1,8 +1,10 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import { Message, ChatState } from '../types/chat';
 import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat, generateImageWithTogetherAI, togetherImageModels, calculateOpenRouterCost, calculateTogetherImageCost } from '../utils/api';
 
 export function useChat(onScrollToBottom?: () => void) {
+  const abortControllerRef = useRef<AbortController | null>(null);
+  
   const [chatState, setChatState] = useState<ChatState>({
     messages: {},
     isLoading: false,
@@ -39,6 +41,9 @@ export function useChat(onScrollToBottom?: () => void) {
     if (!content.trim()) return;
 
     setChatState(prev => ({ ...prev, error: null }));
+    
+    // Create new AbortController for this request
+    abortControllerRef.current = new AbortController();
 
     // Create user message
     const userMessage: Message = {
@@ -85,7 +90,13 @@ export function useChat(onScrollToBottom?: () => void) {
 
         // Generate image using Together.ai
         const defaultModel = togetherImageModels[0].id;
-        const generatedImageUrl = await generateImageWithTogetherAI(content, defaultModel);
+        const generatedImageUrl = await generateImageWithTogetherAI(
+          content, 
+          defaultModel, 
+          1024, 
+          1024, 
+          abortControllerRef.current?.signal
+        );
         
         // Calculate and add image generation cost
         const imageCost = calculateTogetherImageCost(defaultModel);
@@ -108,6 +119,18 @@ export function useChat(onScrollToBottom?: () => void) {
 
         setTimeout(() => onScrollToBottom?.(), 100);
       } catch (error) {
+        // Handle aborted requests
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          setChatState(prev => ({
+            ...prev,
+            messages: Object.fromEntries(
+              Object.entries(prev.messages).filter(([id]) => id !== assistantMessage.id)
+            ),
+            isLoading: false,
+          }));
+          return;
+        }
+        
         console.error('Error generating image:', error);
         
         let errorMessage = 'Failed to generate image';
@@ -123,6 +146,8 @@ export function useChat(onScrollToBottom?: () => void) {
           isLoading: false,
           error: errorMessage,
         }));
+      } finally {
+        abortControllerRef.current = null;
       }
       return;
     }
@@ -194,9 +219,22 @@ export function useChat(onScrollToBottom?: () => void) {
           }));
           // Scroll to bottom when AI response is complete
           setTimeout(() => onScrollToBottom?.(), 100);
-        }
+        },
+        abortControllerRef.current?.signal
       );
     } catch (error) {
+      // Handle aborted requests
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        setChatState(prev => ({
+          ...prev,
+          messages: Object.fromEntries(
+            Object.entries(prev.messages).filter(([id]) => id !== assistantMessage.id)
+          ),
+          isLoading: false,
+        }));
+        return;
+      }
+      
       console.error('Error sending message:', error);
       
       let errorMessage = 'Failed to send message';
@@ -212,10 +250,42 @@ export function useChat(onScrollToBottom?: () => void) {
         isLoading: false,
         error: errorMessage,
       }));
+    } finally {
+      abortControllerRef.current = null;
     }
   }, [chatState.messages, chatState.selectedModel, chatState.maxTokens, onScrollToBottom]);
 
+  const cancelRequest = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      
+      // Find and remove the loading assistant message
+      const loadingMessageId = Object.keys(chatState.messages).find(id => 
+        chatState.messages[id].role === 'assistant' && chatState.messages[id].isLoading
+      );
+      
+      setChatState(prev => ({
+        ...prev,
+        messages: loadingMessageId 
+          ? Object.fromEntries(
+              Object.entries(prev.messages).filter(([id]) => id !== loadingMessageId)
+            )
+          : prev.messages,
+        isLoading: false,
+        error: null,
+      }));
+      
+      abortControllerRef.current = null;
+    }
+  }, [chatState.messages]);
+
   const clearChat = useCallback(() => {
+    // Cancel any ongoing request when clearing chat
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    
     setChatState(prev => ({
       ...prev,
       messages: {},
@@ -278,5 +348,6 @@ export function useChat(onScrollToBottom?: () => void) {
     setIsCompletionOnlyMode,
     revealMessageContent,
     setCurrentLeaf,
+    cancelRequest,
   };
 }
