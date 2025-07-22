@@ -4,10 +4,9 @@ import { Paperclip, Image, Mic, Square, X, Sparkles } from 'lucide-react';
 interface AttachmentMenuProps {
   onImageSelect: (file: File, preview: string) => void;
   onAudioRecordingComplete: (audioBlob: Blob, audioUrl: string) => void;
-  onGenerateImageClick: () => void;
 }
 
-export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete, onGenerateImageClick }: AttachmentMenuProps) {
+export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete }: AttachmentMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -101,11 +100,6 @@ export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete, onGene
     startRecording();
   };
 
-  const handleGenerateImageClick = () => {
-    onGenerateImageClick();
-    setIsMenuOpen(false);
-  };
-
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -157,13 +151,6 @@ export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete, onGene
             >
               <Mic className="w-4 h-4" />
               Audio
-            </button>
-            <button
-              onClick={handleGenerateImageClick}
-              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors"
-            >
-              <Sparkles className="w-4 h-4" />
-              Generate Image
             </button>
           </div>
         </div>

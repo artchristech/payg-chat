@@ -338,7 +338,6 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                 <AttachmentMenu
                   onImageSelect={handleImageSelect}
                   onAudioRecordingComplete={handleAudioRecording}
-                  onGenerateImageClick={handleGenerateImageClick}
                 />
                 <button
                   type="button"
