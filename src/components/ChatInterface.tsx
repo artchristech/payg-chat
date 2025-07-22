@@ -46,6 +46,12 @@ export function ChatInterface() {
 
   const isEmpty = Object.keys(messages).length === 0;
 
+  // Debug logging for graph view
+  console.log('ChatInterface - viewMode:', viewMode);
+  console.log('ChatInterface - messages:', messages);
+  console.log('ChatInterface - isEmpty:', isEmpty);
+  console.log('ChatInterface - currentLeafId:', currentLeafId);
+
   return (
     <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 relative">
       {/* Header */}

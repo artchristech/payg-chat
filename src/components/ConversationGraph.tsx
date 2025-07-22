@@ -30,12 +30,20 @@ function FitViewUpdater({ nodes }: { nodes: Node[] }) {
 }
 
 export function ConversationGraph({ messages, currentLeafId, onNodeClick }: ConversationGraphProps) {
+  // Debug logging
+  console.log('ConversationGraph - messages prop:', messages);
+  console.log('ConversationGraph - currentLeafId:', currentLeafId);
+  console.log('ConversationGraph - Object.keys(messages).length:', Object.keys(messages).length);
+
   const { nodes, edges } = useMemo(() => {
+    console.log('ConversationGraph - useMemo executing...');
     const messageArray = Object.values(messages);
+    console.log('ConversationGraph - messageArray:', messageArray);
     const nodes: Node[] = [];
     const edges: Edge[] = [];
     
     if (messageArray.length === 0) {
+      console.log('ConversationGraph - No messages, returning empty nodes/edges');
       return { nodes, edges };
     }
 
@@ -148,11 +156,20 @@ export function ConversationGraph({ messages, currentLeafId, onNodeClick }: Conv
       }
     });
 
+    console.log('ConversationGraph - Generated nodes:', nodes);
+    console.log('ConversationGraph - Generated edges:', edges);
+    console.log('ConversationGraph - Nodes count:', nodes.length);
+    console.log('ConversationGraph - Edges count:', edges.length);
+
     return { nodes, edges };
   }, [messages, currentLeafId, onNodeClick]);
 
+  console.log('ConversationGraph - Final nodes for ReactFlow:', nodes);
+  console.log('ConversationGraph - Final edges for ReactFlow:', edges);
+
   return (
     <div className="w-full h-full bg-gray-50 dark:bg-gray-900">
+      {console.log('ConversationGraph - Rendering ReactFlow with nodes:', nodes.length, 'edges:', edges.length)}
       <ReactFlow
         nodes={nodes}
         edges={edges}
