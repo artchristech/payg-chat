@@ -13,9 +13,6 @@ export default defineConfig({
       brotliSize: true,
     }),
   ],
-  optimizeDeps: {
-    exclude: ['lucide-react'],
-  },
   build: {
     rollupOptions: {
       output: {
