@@ -369,7 +369,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               onChange={handleMessageChange}
               onKeyDown={handleKeyDown}
               placeholder={getPlaceholder()}
-              rows={1}
+              rows={2}
               disabled={isLoading}
               className="w-full resize-none border-none bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none"
             />
