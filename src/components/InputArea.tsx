@@ -19,7 +19,6 @@ interface InputAreaProps {
   isCompletionOnlyMode: boolean;
   setIsCompletionOnlyMode: (value: boolean) => void;
   onCancelRequest: () => void;
-  onCancelRequest: () => void;
 }
 
 export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost, isCompletionOnlyMode, setIsCompletionOnlyMode, onCancelRequest }: InputAreaProps) {
@@ -266,13 +265,24 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                   {detectedCommand ? `${detectedCommand.toUpperCase()} - Image Generation` : 'Image Generation Mode'}
                 </span>
               </div>
-              <button
-                type="button"
-                onClick={handleCancelImageGeneration}
-                className="w-6 h-6 bg-purple-200 dark:bg-purple-800 text-purple-600 dark:text-purple-300 rounded-full flex items-center justify-center hover:bg-purple-300 dark:hover:bg-purple-700 transition-colors"
-              >
-                <X className="w-3 h-3" />
-              </button>
+              {isLoading ? (
+                <button
+                  type="button"
+                  onClick={onCancelRequest}
+                  className="w-10 h-10 bg-red-500 hover:bg-red-600 text-white rounded-full hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center shadow-md"
+                  title="Stop generation"
+                >
+                  <Square className="w-4 h-4" />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={!message.trim() && !selectedImage}
+                  className="w-10 h-10 bg-gray-400 dark:bg-gray-500/85 text-white rounded-full hover:bg-gray-500 dark:hover:bg-gray-600/85 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center shadow-md"
+                >
+                  <ArrowUp className="w-5 h-5" />
+                </button>
+              )}
             </div>
           )}
 
