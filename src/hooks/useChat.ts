@@ -201,8 +201,6 @@ export function useChat(onScrollToBottom?: () => void) {
       await sendMessageToOpenRouter(
         openRouterMessages, 
         chatState.selectedModel,
-        abortControllerRef.current.signal,
-        abortControllerRef.current.signal,
         // onUpdate callback - append content as it streams
         (content: string) => {
           setChatState(prev => ({
@@ -242,7 +240,8 @@ export function useChat(onScrollToBottom?: () => void) {
           }));
           // Scroll to bottom when AI response is complete
           setTimeout(() => onScrollToBottom?.(), 100);
-        }
+        },
+        abortControllerRef.current.signal
       );
     } catch (error) {
       console.error('Error sending message:', error);

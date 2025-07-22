@@ -196,11 +196,10 @@ export interface OpenRouterMessage {
 
 export async function sendMessageToOpenRouter(
   messages: OpenRouterMessage[],
-  model: string = 'mistralai/mistral-7b-instruct',
-  signal?: AbortSignal,
-  signal?: AbortSignal,
+  model: string = 'mistralai/mist-7b-instruct',
   onUpdate?: (content: string) => void,
-  onComplete?: (usage?: { prompt_tokens: number; completion_tokens: number }) => void
+  onComplete?: (usage?: { prompt_tokens: number; completion_tokens: number }) => void,
+  signal?: AbortSignal
 ): Promise<void> {
   if (!OPENROUTER_API_KEY) {
     throw new Error('OpenRouter API key not configured. Please add VITE_OPENROUTER_API_KEY to your .env file and restart the development server.');
@@ -215,7 +214,6 @@ export async function sendMessageToOpenRouter(
         'HTTP-Referer': window.location.origin,
         'X-Title': 'payg-chat',
       },
-      signal,
       signal,
       body: JSON.stringify({
         model,
@@ -297,11 +295,7 @@ export async function sendMessageToOpenRouter(
       
       onComplete?.(usage);
     } catch (error) {
-      console.error('Error reading stream:', error);
-      throw error;
-    }
-  } catch (error) {
-    if (error instanceof DOMException && error.name === 'AbortError') {
+      if (error instanceof DOMException && error.name === 'AbortError') {
       throw error; // Re-throw abort errors to be handled by the caller
     }
     
