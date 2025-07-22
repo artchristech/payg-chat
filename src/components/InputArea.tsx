@@ -186,7 +186,19 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   }, []);
 
   const handleFileSelect = useCallback((file: File) => {
-    setSelectedFile(file);
+    if (file.type.startsWith('image/')) {
+      // Handle image files
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const preview = e.target?.result as string;
+        setSelectedImage(preview);
+        setSelectedImageFile(file);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // Handle non-image files
+      setSelectedFile(file);
+    }
   }, []);
 
   const handleFileRemove = useCallback(() => {
@@ -357,7 +369,6 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               onChange={handleMessageChange}
               onKeyDown={handleKeyDown}
               placeholder={getPlaceholder()}
-              className="w-full resize-none bg-transparent focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100"
               rows={1}
               disabled={isLoading}
             />
