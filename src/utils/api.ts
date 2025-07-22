@@ -320,10 +320,25 @@ export async function sendMessageToOpenRouter(
   }
 }
 
-export function convertMessagesToOpenRouterFormat(messages: Message[], selectedModelId: string, desiredResponseTokens?: number): OpenRouterMessage[] {
+export function convertMessagesToOpenRouterFormat(messages: Message[], selectedModelId: string, contextBlocks: Record<string, any> = {}, desiredResponseTokens?: number): OpenRouterMessage[] {
   // Find the selected model to check if it supports multimodal input
   const selectedModel = openRouterModels.find(model => model.id === selectedModelId);
   const isMultiModal = selectedModel?.multiModal || false;
+
+  // Collect all unique context IDs from the message chain
+  const allContextIds = new Set<string>();
+  messages.forEach(message => {
+    if (message.wiredContextIds) {
+      message.wiredContextIds.forEach(contextId => allContextIds.add(contextId));
+    }
+  });
+
+  // Build context content from collected IDs
+  const contextContent = Array.from(allContextIds)
+    .map(contextId => contextBlocks[contextId])
+    .filter(Boolean)
+    .map(context => `## ${context.title}\n${context.content}`)
+    .join('\n\n');
 
   const convertedMessages = messages
     .filter(msg => msg.role !== 'assistant' || !msg.isLoading)
@@ -354,6 +369,15 @@ export function convertMessagesToOpenRouterFormat(messages: Message[], selectedM
       };
     });
 
+  // Add context as system message if we have any
+  if (contextContent) {
+    const contextSystemMessage: OpenRouterMessage = {
+      role: 'system',
+      content: `You have access to the following context information. Use it to provide more informed and relevant responses:\n\n${contextContent}`
+    };
+    convertedMessages.unshift(contextSystemMessage);
+  }
+
   // Add system message for response length if specified
   if (desiredResponseTokens && desiredResponseTokens > 0) {
     const approximateWords = Math.round(desiredResponseTokens * 0.75);
@@ -362,8 +386,9 @@ export function convertMessagesToOpenRouterFormat(messages: Message[], selectedM
       content: `Please aim for approximately ${approximateWords} words in your response. This is a guideline to help provide an appropriately sized answer.`
     };
     
-    // Prepend the system message to ensure it guides the entire conversation
-    return [lengthInstruction, ...convertedMessages];
+    // Add length instruction (after context if present)
+    const contextMessageCount = contextContent ? 1 : 0;
+    convertedMessages.splice(contextMessageCount, 0, lengthInstruction);
   }
 
   return convertedMessages;

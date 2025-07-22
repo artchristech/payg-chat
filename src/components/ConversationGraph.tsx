@@ -8,12 +8,15 @@ import ReactFlow, {
   useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { Message } from '../types/chat';
+import { Message, ContextBlock } from '../types/chat';
 
 interface ConversationGraphProps {
   messages: Record<string, Message>;
   currentLeafId: string | null;
   onNodeClick: (messageId: string) => void;
+  contextBlocks: Record<string, ContextBlock>;
+  onWireContext: (messageId: string, contextId: string) => void;
+  onUnwireContext: (messageId: string, contextId: string) => void;
 }
 
 const nodeWidth = 200;
@@ -29,11 +32,29 @@ function FitViewUpdater({ nodes }: { nodes: Node[] }) {
   return null;
 }
 
-export function ConversationGraph({ messages, currentLeafId, onNodeClick }: ConversationGraphProps) {
+export function ConversationGraph({ messages, currentLeafId, onNodeClick, contextBlocks, onWireContext, onUnwireContext }: ConversationGraphProps) {
   // Debug logging
   console.log('ConversationGraph - messages prop:', messages);
   console.log('ConversationGraph - currentLeafId:', currentLeafId);
   console.log('ConversationGraph - Object.keys(messages).length:', Object.keys(messages).length);
+
+  const handleDrop = useCallback((event: React.DragEvent, messageId: string) => {
+    event.preventDefault();
+    const contextData = event.dataTransfer.getData('application/context-block');
+    if (contextData) {
+      try {
+        const { id: contextId } = JSON.parse(contextData);
+        onWireContext(messageId, contextId);
+      } catch (error) {
+        console.error('Error parsing dropped context data:', error);
+      }
+    }
+  }, [onWireContext]);
+
+  const handleDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+  }, []);
 
   const { nodes, edges } = useMemo(() => {
     console.log('ConversationGraph - useMemo executing...');
@@ -91,6 +112,7 @@ export function ConversationGraph({ messages, currentLeafId, onNodeClick }: Conv
       const position = positionMap.get(message.id) || { x: 0, y: 0, level: 0 };
       const isCurrentLeaf = message.id === currentLeafId;
       const isUser = message.role === 'user';
+      const hasWiredContext = message.wiredContextIds && message.wiredContextIds.length > 0;
       
       // Truncate content for display
       const displayContent = message.content.length > 50 
@@ -109,14 +131,28 @@ export function ConversationGraph({ messages, currentLeafId, onNodeClick }: Conv
                   ? 'bg-blue-500 text-white' 
                   : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
               } ${
+                hasWiredContext 
+                  ? 'ring-2 ring-green-400 ring-offset-2' 
+                  : ''
+              }`}
                 isCurrentLeaf 
                   ? 'ring-2 ring-yellow-400 shadow-lg' 
                   : 'hover:shadow-md'
               }`}
               onClick={() => onNodeClick(message.id)}
+              onDrop={(e) => handleDrop(e, message.id)}
+              onDragOver={handleDragOver}
             >
               <div className="text-xs font-medium mb-1">
-                {isUser ? 'You' : 'AI'}
+                <div className="flex items-center justify-between">
+                  <span>{isUser ? 'You' : 'AI'}</span>
+                  {hasWiredContext && (
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span className="text-xs">{message.wiredContextIds!.length}</span>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="text-xs">
                 {displayContent}
@@ -124,6 +160,20 @@ export function ConversationGraph({ messages, currentLeafId, onNodeClick }: Conv
               {message.isHidden && (
                 <div className="text-xs mt-1 opacity-70">
                   (Hidden)
+                </div>
+              )}
+              {hasWiredContext && (
+                <div className="text-xs mt-1 opacity-70">
+                  <div className="flex flex-wrap gap-1">
+                    {message.wiredContextIds!.map(contextId => {
+                      const context = contextBlocks[contextId];
+                      return context ? (
+                        <span key={contextId} className="px-1 py-0.5 bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 rounded text-xs">
+                          {context.title.length > 10 ? `${context.title.substring(0, 10)}...` : context.title}
+                        </span>
+                      ) : null;
+                    })}
+                  </div>
                 </div>
               )}
             </div>
@@ -162,7 +212,7 @@ export function ConversationGraph({ messages, currentLeafId, onNodeClick }: Conv
     console.log('ConversationGraph - Edges count:', edges.length);
 
     return { nodes, edges };
-  }, [messages, currentLeafId, onNodeClick]);
+  }, [messages, currentLeafId, onNodeClick, contextBlocks, handleDrop, handleDragOver]);
 
   console.log('ConversationGraph - Final nodes for ReactFlow:', nodes);
   console.log('ConversationGraph - Final edges for ReactFlow:', edges);

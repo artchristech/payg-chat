@@ -4,6 +4,7 @@ import { InputArea } from './InputArea';
 import { PresetButtons } from './PresetButtons';
 import { ThemeSelector } from './ThemeSelector';
 import { ConversationGraph } from './ConversationGraph';
+import { ContextCanvas } from './ContextCanvas';
 import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen, Network } from 'lucide-react';
 
@@ -33,6 +34,11 @@ export function ChatInterface() {
     currentLeafId,
     setCurrentLeaf,
     cancelRequest,
+    contextBlocks,
+    addContextBlock,
+    removeContextBlock,
+    wireContextToMessage,
+    unwireContextFromMessage,
   } = useChat(scrollToBottom);
 
   const handlePresetClick = (prompt: string) => {
@@ -122,11 +128,21 @@ export function ChatInterface() {
               <div ref={messagesEndRef} />
             </div>
           ) : (
-            <div className="h-full min-h-[60vh]">
-              <ConversationGraph 
-                messages={messages}
-                currentLeafId={currentLeafId}
-                onNodeClick={setCurrentLeaf}
+            <div className="h-full min-h-[60vh] flex">
+              <div className="flex-1">
+                <ConversationGraph 
+                  messages={messages}
+                  currentLeafId={currentLeafId}
+                  onNodeClick={setCurrentLeaf}
+                  contextBlocks={contextBlocks}
+                  onWireContext={wireContextToMessage}
+                  onUnwireContext={unwireContextFromMessage}
+                />
+              </div>
+              <ContextCanvas
+                contextBlocks={contextBlocks}
+                onAddContextBlock={addContextBlock}
+                onRemoveContextBlock={removeContextBlock}
               />
             </div>
           )}

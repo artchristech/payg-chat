@@ -9,6 +9,15 @@ export interface Message {
   isLoading?: boolean;
   isHidden?: boolean;
   parentId: string | null;
+  wiredContextIds?: string[];
+}
+
+export interface ContextBlock {
+  id: string;
+  type: 'file' | 'text';
+  title: string;
+  content: string;
+  createdAt: Date;
 }
 
 export interface ChatState {
@@ -19,6 +28,7 @@ export interface ChatState {
   maxTokens: number;
   conversationCost: number;
   currentLeafId: string | null;
+  contextBlocks: Record<string, ContextBlock>;
 }
 
 export interface OpenRouterModel {

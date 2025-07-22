@@ -11,6 +11,7 @@ export function useChat(onScrollToBottom?: () => void) {
     maxTokens: 150,
     conversationCost: 0,
     currentLeafId: null,
+    contextBlocks: {},
   });
   const [isCompletionOnlyMode, setIsCompletionOnlyMode] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -145,7 +146,7 @@ export function useChat(onScrollToBottom?: () => void) {
         // Prepare messages for API (including the new user message).
         // Filter out any loading messages from previous turns to ensure clean history for API.
         const messagesForAPI = [...Object.values(chatState.messages).filter(msg => !msg.isLoading), userMessage];
-        const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel, maxTokens || chatState.maxTokens);
+        const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel, chatState.contextBlocks, maxTokens || chatState.maxTokens);
         
         await sendMessageToOpenRouter(
           openRouterMessages, 
@@ -278,6 +279,78 @@ export function useChat(onScrollToBottom?: () => void) {
     }));
   }, []);
 
+  const addContextBlock = useCallback((block: Omit<ContextBlock, 'id' | 'createdAt'>) => {
+    const newBlock: ContextBlock = {
+      ...block,
+      id: Date.now().toString(),
+      createdAt: new Date(),
+    };
+
+    setChatState(prev => ({
+      ...prev,
+      contextBlocks: { ...prev.contextBlocks, [newBlock.id]: newBlock },
+    }));
+
+    return newBlock;
+  }, []);
+
+  const removeContextBlock = useCallback((blockId: string) => {
+    setChatState(prev => {
+      const newContextBlocks = { ...prev.contextBlocks };
+      delete newContextBlocks[blockId];
+      
+      // Also remove this context block from any wired messages
+      const newMessages = { ...prev.messages };
+      Object.values(newMessages).forEach(message => {
+        if (message.wiredContextIds?.includes(blockId)) {
+          newMessages[message.id] = {
+            ...message,
+            wiredContextIds: message.wiredContextIds.filter(id => id !== blockId),
+          };
+        }
+      });
+      
+      return { ...prev, contextBlocks: newContextBlocks, messages: newMessages };
+    });
+  }, []);
+
+  const wireContextToMessage = useCallback((messageId: string, contextId: string) => {
+    setChatState(prev => {
+      const message = prev.messages[messageId];
+      if (!message) return prev;
+      
+      const currentWiredIds = message.wiredContextIds || [];
+      if (currentWiredIds.includes(contextId)) return prev; // Already wired
+      
+      const newMessages = {
+        ...prev.messages,
+        [messageId]: {
+          ...message,
+          wiredContextIds: [...currentWiredIds, contextId],
+        },
+      };
+      
+      return { ...prev, messages: newMessages };
+    });
+  }, []);
+
+  const unwireContextFromMessage = useCallback((messageId: string, contextId: string) => {
+    setChatState(prev => {
+      const message = prev.messages[messageId];
+      if (!message || !message.wiredContextIds) return prev;
+      
+      const newMessages = {
+        ...prev.messages,
+        [messageId]: {
+          ...message,
+          wiredContextIds: message.wiredContextIds.filter(id => id !== contextId),
+        },
+      };
+      
+      return { ...prev, messages: newMessages };
+    });
+  }, []);
+
   // Memoize derived state to prevent unnecessary recalculations
   const memoizedState = useMemo(() => ({
     messages: chatState.messages,
@@ -287,6 +360,7 @@ export function useChat(onScrollToBottom?: () => void) {
     maxTokens: chatState.maxTokens,
     conversationCost: chatState.conversationCost,
     currentLeafId: chatState.currentLeafId,
+    contextBlocks: chatState.contextBlocks,
   }), [chatState]);
 
   return {
@@ -301,5 +375,9 @@ export function useChat(onScrollToBottom?: () => void) {
     revealMessageContent,
     setCurrentLeaf,
     cancelRequest,
+    addContextBlock,
+    removeContextBlock,
+    wireContextToMessage,
+    unwireContextFromMessage,
   };
 }
