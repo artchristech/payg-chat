@@ -272,7 +272,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                   className="w-10 h-10 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 rounded-full hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center shadow-md border border-gray-300 dark:border-gray-600"
                   title="Stop generation"
                 >
-                  <span className="text-xs font-medium">Stop</span>
+                  <Square className="w-5 h-5" />
                 </button>
               ) : (
                 <button
@@ -379,7 +379,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                   className="w-10 h-10 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 rounded-full hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center shadow-md border border-gray-300 dark:border-gray-600"
                   title="Stop generation"
                 >
-                  <span className="text-xs font-medium">Stop</span>
+                  <Square className="w-5 h-5" />
                 </button>
               ) : (
                 <button
