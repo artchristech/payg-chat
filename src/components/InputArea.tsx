@@ -16,9 +16,11 @@ interface InputAreaProps {
   onMaxTokensChange: (value: number) => void;
   resetHistoryNavigation?: () => void;
   conversationCost: number;
+}
+
 export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost }: InputAreaProps) {
   const [message, setMessage] = useState('');
-export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost }: InputAreaProps) {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [isImageGenerationMode, setIsImageGenerationMode] = useState(false);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
@@ -31,6 +33,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   useEffect(() => {
     console.log('Autocomplete state:', { showAutocomplete, autocompleteOptions, autocompleteQuery });
   }, [showAutocomplete, autocompleteOptions, autocompleteQuery]);
+  
   // Command detection
   const detectCommand = useCallback((text: string) => {
     const trimmedText = text.trim().toLowerCase();
@@ -267,7 +270,6 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               >
                 <X className="w-3 h-3" />
               </button>
-              </div>
             </div>
           )}
 
@@ -285,16 +287,16 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
             
             {/* Text Input Area */}
             <div className="relative">
-            <textarea
-              ref={textareaRef}
-              value={message}
-              onChange={handleMessageChange}
-              onKeyDown={handleKeyDown}
-              placeholder={getPlaceholder()}
-              className="w-full resize-none bg-transparent focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100"
-              rows={1}
-              disabled={isLoading}
-            />
+              <textarea
+                ref={textareaRef}
+                value={message}
+                onChange={handleMessageChange}
+                onKeyDown={handleKeyDown}
+                placeholder={getPlaceholder()}
+                className="w-full resize-none bg-transparent focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100"
+                rows={1}
+                disabled={isLoading}
+              />
             </div>
 
             {/* Attachment and Model Section */}
@@ -314,26 +316,25 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               
               {/* Right side - Model Selector and Send Button */}
               <div className="flex items-center gap-2">
-              <ModelSelector
-                selectedModel={selectedModel}
-                onModelChange={onModelChange}
-                onSelectionComplete={focusMessageInput}
-                onSelectionComplete={focusMessageInput}
-                compact={true}
-                conversationCost={conversationCost}
-              />
-              
-              <button
-                type="submit"
-                disabled={isLoading || (!message.trim() && !selectedImage)}
-                className="w-10 h-10 bg-gray-400 dark:bg-gray-500/85 text-white rounded-full hover:bg-gray-500 dark:hover:bg-gray-600/85 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center shadow-md"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <ArrowUp className="w-5 h-5" />
-                )}
-              </button>
+                <ModelSelector
+                  selectedModel={selectedModel}
+                  onModelChange={onModelChange}
+                  onSelectionComplete={focusMessageInput}
+                  compact={true}
+                  conversationCost={conversationCost}
+                />
+                
+                <button
+                  type="submit"
+                  disabled={isLoading || (!message.trim() && !selectedImage)}
+                  className="w-10 h-10 bg-gray-400 dark:bg-gray-500/85 text-white rounded-full hover:bg-gray-500 dark:hover:bg-gray-600/85 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center shadow-md"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <ArrowUp className="w-5 h-5" />
+                  )}
+                </button>
               </div>
             </div>
           </div>
