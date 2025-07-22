@@ -296,6 +296,7 @@ export async function sendMessageToOpenRouter(
       onComplete?.(usage);
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
+      }
       throw error; // Re-throw abort errors to be handled by the caller
     }
     
