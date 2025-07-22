@@ -197,6 +197,7 @@ export interface OpenRouterMessage {
 export async function sendMessageToOpenRouter(
   messages: OpenRouterMessage[],
   model: string = 'mistralai/mistral-7b-instruct',
+  signal?: AbortSignal,
   onUpdate?: (content: string) => void,
   onComplete?: (usage?: { prompt_tokens: number; completion_tokens: number }) => void
 ): Promise<void> {
@@ -213,6 +214,7 @@ export async function sendMessageToOpenRouter(
         'HTTP-Referer': window.location.origin,
         'X-Title': 'payg-chat',
       },
+      signal,
       body: JSON.stringify({
         model,
         messages,
@@ -297,6 +299,10 @@ export async function sendMessageToOpenRouter(
       throw error;
     }
   } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw error; // Re-throw abort errors to be handled by the caller
+    }
+    
     if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
       throw new Error('Network error: Unable to connect to OpenRouter API. Please check your internet connection and ensure no firewall or ad-blocker is blocking the request.');
     }
@@ -359,7 +365,8 @@ export async function generateImageWithTogetherAI(
   prompt: string,
   model: string = 'black-forest-labs/FLUX.1-schnell',
   width: number = 1024,
-  height: number = 1024
+  height: number = 1024,
+  signal?: AbortSignal
 ): Promise<string> {
   if (!TOGETHER_API_KEY) {
     throw new Error('Together.ai API key not configured. Please add VITE_TOGETHER_API_KEY to your .env file and restart the development server.');
@@ -372,6 +379,7 @@ export async function generateImageWithTogetherAI(
         'Authorization': `Bearer ${TOGETHER_API_KEY}`,
         'Content-Type': 'application/json',
       },
+      signal,
       body: JSON.stringify({
         model,
         prompt,
@@ -408,6 +416,10 @@ export async function generateImageWithTogetherAI(
 
     return data.data[0].url;
   } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw error; // Re-throw abort errors to be handled by the caller
+    }
+    
     if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
       throw new Error('Network error: Unable to connect to Together.ai API. Please check your internet connection.');
     }

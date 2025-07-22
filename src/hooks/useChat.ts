@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import { Message, ChatState } from '../types/chat';
 import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat, generateImageWithTogetherAI, togetherImageModels, calculateOpenRouterCost, calculateTogetherImageCost } from '../utils/api';
 
@@ -13,6 +13,7 @@ export function useChat(onScrollToBottom?: () => void) {
     currentLeafId: null,
   });
   const [isCompletionOnlyMode, setIsCompletionOnlyMode] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const addMessage = useCallback((message: Omit<Message, 'id' | 'timestamp'>) => {
     const newMessage: Message = {
@@ -66,6 +67,9 @@ export function useChat(onScrollToBottom?: () => void) {
     // Handle image generation requests
     if (type === 'image_generation_request') {
       try {
+        // Create abort controller for image generation
+        abortControllerRef.current = new AbortController();
+        
         // Create loading assistant message for image generation
         const assistantMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -85,7 +89,7 @@ export function useChat(onScrollToBottom?: () => void) {
 
         // Generate image using Together.ai
         const defaultModel = togetherImageModels[0].id;
-        const generatedImageUrl = await generateImageWithTogetherAI(content, defaultModel);
+        const generatedImageUrl = await generateImageWithTogetherAI(content, defaultModel, 1024, 1024, abortControllerRef.current.signal);
         
         // Calculate and add image generation cost
         const imageCost = calculateTogetherImageCost(defaultModel);
@@ -110,6 +114,18 @@ export function useChat(onScrollToBottom?: () => void) {
       } catch (error) {
         console.error('Error generating image:', error);
         
+        // Handle abort error specifically
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          setChatState(prev => ({
+            ...prev,
+            messages: Object.fromEntries(
+              Object.entries(prev.messages).filter(([id]) => id !== assistantMessage.id)
+            ),
+            isLoading: false,
+          }));
+          return;
+        }
+        
         let errorMessage = 'Failed to generate image';
         if (error instanceof Error) {
           errorMessage = error.message;
@@ -123,12 +139,17 @@ export function useChat(onScrollToBottom?: () => void) {
           isLoading: false,
           error: errorMessage,
         }));
+      } finally {
+        abortControllerRef.current = null;
       }
       return;
     }
 
     // Handle regular text/image/audio messages with OpenRouter
     try {
+      // Create abort controller for text/image/audio messages
+      abortControllerRef.current = new AbortController();
+      
       // Create loading assistant message
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -155,6 +176,7 @@ export function useChat(onScrollToBottom?: () => void) {
       await sendMessageToOpenRouter(
         openRouterMessages, 
         chatState.selectedModel,
+        abortControllerRef.current.signal,
         // onUpdate callback - append content as it streams
         (content: string) => {
           setChatState(prev => ({
@@ -199,6 +221,18 @@ export function useChat(onScrollToBottom?: () => void) {
     } catch (error) {
       console.error('Error sending message:', error);
       
+      // Handle abort error specifically
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        setChatState(prev => ({
+          ...prev,
+          messages: Object.fromEntries(
+            Object.entries(prev.messages).filter(([id]) => id !== assistantMessage.id)
+          ),
+          isLoading: false,
+        }));
+        return;
+      }
+      
       let errorMessage = 'Failed to send message';
       if (error instanceof Error) {
         errorMessage = error.message;
@@ -212,6 +246,8 @@ export function useChat(onScrollToBottom?: () => void) {
         isLoading: false,
         error: errorMessage,
       }));
+    } finally {
+      abortControllerRef.current = null;
     }
   }, [chatState.messages, chatState.selectedModel, chatState.maxTokens, onScrollToBottom]);
 
@@ -256,6 +292,12 @@ export function useChat(onScrollToBottom?: () => void) {
     }));
   }, []);
 
+  const cancelRequest = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+  }, []);
   // Memoize derived state to prevent unnecessary recalculations
   const memoizedState = useMemo(() => ({
     messages: chatState.messages,
@@ -278,5 +320,6 @@ export function useChat(onScrollToBottom?: () => void) {
     setIsCompletionOnlyMode,
     revealMessageContent,
     setCurrentLeaf,
+    cancelRequest,
   };
 }
