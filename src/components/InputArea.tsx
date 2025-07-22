@@ -273,6 +273,25 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
             </div>
           )}
 
+          {/* Image Preview */}
+          {selectedImage && (
+            <div className="flex justify-start">
+              <div className="relative inline-block">
+                <img
+                  src={selectedImage}
+                  alt="Selected"
+                  className="max-w-32 max-h-32 rounded-xl object-cover"
+                />
+                <button
+                  onClick={handleImageRemove}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 hover:scale-110 transition-all duration-200 shadow-lg"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Main Input Container */}
           <div className={`bg-white dark:bg-gray-800 rounded-3xl transition-all duration-200 p-4 ${centered ? 'shadow-2xl border border-gray-200 dark:border-gray-700' : 'border border-gray-200 dark:border-gray-700'}`}>
             {/* Autocomplete Menu */}
