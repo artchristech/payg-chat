@@ -32,6 +32,7 @@ export function ChatInterface() {
     revealMessageContent,
     currentLeafId,
     setCurrentLeaf,
+    cancelRequest,
   } = useChat(scrollToBottom);
 
   const handlePresetClick = (prompt: string) => {
@@ -142,6 +143,7 @@ export function ChatInterface() {
             conversationCost={conversationCost}
             isCompletionOnlyMode={isCompletionOnlyMode}
             setIsCompletionOnlyMode={setIsCompletionOnlyMode}
+            onCancelRequest={cancelRequest}
           />
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ArrowUp, Loader2, X, Wand2, Eye, EyeOff } from 'lucide-react';
+import { ArrowUp, Square, X, Wand2, Eye, EyeOff } from 'lucide-react';
 import { AttachmentMenu } from './AttachmentMenu';
 import { ModelSelector } from './ModelSelector';
 import { ResponseLengthSlider } from './ResponseLengthSlider';
@@ -18,9 +18,10 @@ interface InputAreaProps {
   conversationCost: number;
   isCompletionOnlyMode: boolean;
   setIsCompletionOnlyMode: (value: boolean) => void;
+  onCancelRequest: () => void;
 }
 
-export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost, isCompletionOnlyMode, setIsCompletionOnlyMode }: InputAreaProps) {
+export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost, isCompletionOnlyMode, setIsCompletionOnlyMode, onCancelRequest }: InputAreaProps) {
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
@@ -361,12 +362,17 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               />
               
               <button
-                type="submit"
-                disabled={isLoading || (!message.trim() && !selectedImage)}
-                className="w-10 h-10 bg-gray-400 dark:bg-gray-500/85 text-white rounded-full hover:bg-gray-500 dark:hover:bg-gray-600/85 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center shadow-md"
+                type={isLoading ? "button" : "submit"}
+                disabled={!isLoading && (!message.trim() && !selectedImage)}
+                onClick={isLoading ? onCancelRequest : undefined}
+                className={`w-10 h-10 text-white rounded-full hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center shadow-md ${
+                  isLoading 
+                    ? 'bg-red-500 hover:bg-red-600' 
+                    : 'bg-gray-400 dark:bg-gray-500/85 hover:bg-gray-500 dark:hover:bg-gray-600/85'
+                }`}
               >
                 {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Square className="w-4 h-4" />
                 ) : (
                   <ArrowUp className="w-5 h-5" />
                 )}
