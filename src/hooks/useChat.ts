@@ -223,7 +223,7 @@ export function useChat(onScrollToBottom?: () => void) {
       console.error('Error sending message:', error);
       
       // Handle abort error specifically
-      if (error instanceof DOMException && error.name === 'AbortError') {
+      if (error && typeof error === 'object' && error.name === 'AbortError') {
         setChatState(prev => ({
           ...prev,
           messages: Object.fromEntries(
