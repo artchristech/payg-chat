@@ -12,7 +12,6 @@ export function useChat(onScrollToBottom?: () => void) {
     conversationCost: 0,
     currentLeafId: null,
   });
-
   const addMessage = useCallback((message: Omit<Message, 'id' | 'timestamp'>) => {
     const newMessage: Message = {
       ...message,
@@ -139,7 +138,7 @@ export function useChat(onScrollToBottom?: () => void) {
         isLoading: true,
         timestamp: new Date(),
         parentId: userMessage.id,
-        isHidden: isGraphMode || false,
+        isHidden: shouldHideResponse || false,
       };
 
       setChatState(prev => ({
@@ -149,8 +148,8 @@ export function useChat(onScrollToBottom?: () => void) {
       }));
 
       // Prepare messages for API (including the new user message)
-      const messagesForAPI = Object.values({ ...chatState.messages, [userMessage.id]: userMessage });
-      const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel, maxTokens || chatState.maxTokens);
+        const messagesForAPI = Object.values({ ...chatState.messages, [userMessage.id]: userMessage });
+        const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel, maxTokens || chatState.maxTokens);
       
       await sendMessageToOpenRouter(
         openRouterMessages, 
@@ -274,7 +273,5 @@ export function useChat(onScrollToBottom?: () => void) {
     setSelectedModel,
     setMaxTokens,
     clearError,
-    revealMessageContent,
-    setCurrentLeaf,
   };
 }

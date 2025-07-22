@@ -28,8 +28,6 @@ export function ChatInterface() {
     setMaxTokens, 
     conversationCost,
     revealMessageContent,
-    currentLeafId,
-    setCurrentLeaf,
   } = useChat(scrollToBottom);
 
   const handlePresetClick = (prompt: string) => {
@@ -142,8 +140,6 @@ export function ChatInterface() {
             centered={false}
             maxTokens={maxTokens}
             onMaxTokensChange={setMaxTokens}
-            resetHistoryNavigation={clearError}
-            conversationCost={conversationCost}
           />
         </div>
       </div>

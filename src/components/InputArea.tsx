@@ -6,7 +6,7 @@ import { ResponseLengthSlider } from './ResponseLengthSlider';
 import { AutocompleteMenu, autocompleteCommands, type AutocompleteOption } from './AutocompleteMenu';
 
 interface InputAreaProps {
-  onSendMessage: (content: string, type?: 'text' | 'image' | 'audio', imageUrl?: string, audioUrl?: string, maxTokens?: number) => void;
+  onSendMessage: (content: string, type?: 'text' | 'image' | 'audio' | 'image_generation_request', imageUrl?: string, audioUrl?: string, maxTokens?: number) => void;
   isLoading: boolean;
   placeholder?: string;
   selectedModel: string;
@@ -16,11 +16,9 @@ interface InputAreaProps {
   onMaxTokensChange: (value: number) => void;
   resetHistoryNavigation?: () => void;
   conversationCost: number;
-}
-
 export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost }: InputAreaProps) {
   const [message, setMessage] = useState('');
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost }: InputAreaProps) {
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [isImageGenerationMode, setIsImageGenerationMode] = useState(false);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
@@ -269,24 +267,6 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               >
                 <X className="w-3 h-3" />
               </button>
-            </div>
-          )}
-
-          {/* Image Preview */}
-          {selectedImage && (
-            <div className="flex justify-start">
-              <div className="relative inline-block">
-                <img
-                  src={selectedImage}
-                  alt="Selected"
-                  className="max-w-32 max-h-32 rounded-xl object-cover"
-                />
-                <button
-                  onClick={handleImageRemove}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 hover:scale-110 transition-all duration-200 shadow-lg"
-                >
-                  <X className="w-3 h-3" />
-                </button>
               </div>
             </div>
           )}
