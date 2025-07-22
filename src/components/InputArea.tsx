@@ -269,10 +269,10 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                 <button
                   type="button"
                   onClick={onCancelRequest}
-                  className="w-10 h-10 bg-red-500 hover:bg-red-600 text-white rounded-full hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center shadow-md"
+                  className="w-10 h-10 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 rounded-full hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center shadow-md border border-gray-300 dark:border-gray-600"
                   title="Stop generation"
                 >
-                  <Square className="w-4 h-4" />
+                  <span className="text-xs font-medium">Stop</span>
                 </button>
               ) : (
                 <button
@@ -376,10 +376,10 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                 <button
                   type="button"
                   onClick={onCancelRequest}
-                  className="w-10 h-10 bg-red-500 hover:bg-red-600 text-white rounded-full hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center shadow-md"
+                  className="w-10 h-10 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 rounded-full hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center shadow-md border border-gray-300 dark:border-gray-600"
                   title="Stop generation"
                 >
-                  <Square className="w-4 h-4" />
+                  <span className="text-xs font-medium">Stop</span>
                 </button>
               ) : (
                 <button
