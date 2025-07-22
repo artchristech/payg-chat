@@ -30,6 +30,14 @@ export function useChat(onScrollToBottom?: () => void) {
     return newMessage;
   }, []);
 
+  const cancelRequest = useCallback(() => {
+    if (abortControllerRef.current) {
+      console.log('Aborting current request...'); // Log for debugging
+      abortControllerRef.current.abort();
+      // The finally block in sendMessage will handle isLoading and nulling abortControllerRef.current
+    }
+  }, []);
+
   const sendMessage = useCallback(async (
     content: string,
     type: 'text' | 'image' | 'audio' | 'image_generation_request' = 'text',
@@ -39,9 +47,8 @@ export function useChat(onScrollToBottom?: () => void) {
   ) => {
     if (!content.trim()) return;
 
-    setChatState(prev => ({ ...prev, error: null }));
-
-    let assistantMessage: Message;
+    // Clear previous error and set loading state at the very beginning
+    setChatState(prev => ({ ...prev, error: null, isLoading: true }));
 
     // Create user message
     const userMessage: Message = {
@@ -59,19 +66,22 @@ export function useChat(onScrollToBottom?: () => void) {
     setChatState(prev => ({
       ...prev,
       messages: { ...prev.messages, [userMessage.id]: userMessage },
-      isLoading: true,
       currentLeafId: userMessage.id,
     }));
 
     // Scroll to bottom after adding user message and starting AI response
     setTimeout(() => onScrollToBottom?.(), 100);
 
-    // Handle image generation requests
-    if (type === 'image_generation_request') {
-      try {
-        // Create abort controller for image generation
-        abortControllerRef.current = new AbortController();
+    // Initialize AbortController for the new request.
+    // Store it in a local variable (`controller`) to ensure we're always referencing the controller for *this* specific request.
+    // This helps prevent race conditions if multiple sendMessage calls happen rapidly.
+    const controller = new AbortController();
+    abortControllerRef.current = controller; // Update ref to the latest controller
 
+    let assistantMessage: Message | null = null; // Initialize assistantMessage here, outside the try block
+
+    try {
+      if (type === 'image_generation_request') {
         // Create loading assistant message for image generation
         assistantMessage = {
           id: (Date.now() + 1).toString(),
@@ -85,13 +95,13 @@ export function useChat(onScrollToBottom?: () => void) {
 
         setChatState(prev => ({
           ...prev,
-          messages: { ...prev.messages, [assistantMessage.id]: assistantMessage },
-          currentLeafId: assistantMessage.id,
+          messages: { ...prev.messages, [assistantMessage!.id]: assistantMessage },
+          currentLeafId: assistantMessage!.id,
         }));
 
         // Generate image using Together.ai
         const defaultModel = togetherImageModels[0].id;
-        const generatedImageUrl = await generateImageWithTogetherAI(content, defaultModel, 1024, 1024, abortControllerRef.current.signal);
+        const generatedImageUrl = await generateImageWithTogetherAI(content, defaultModel, 1024, 1024, controller.signal); // Use local controller signal
         
         // Calculate and add image generation cost
         const imageCost = calculateTogetherImageCost(defaultModel);
@@ -101,156 +111,130 @@ export function useChat(onScrollToBottom?: () => void) {
           ...prev,
           messages: {
             ...prev.messages,
-            [assistantMessage.id]: {
-              ...prev.messages[assistantMessage.id],
+            [assistantMessage!.id]: {
+              ...prev.messages[assistantMessage!.id],
               content: `Generated image for: "${content}"`,
               imageUrl: generatedImageUrl,
               isLoading: false
             }
           },
-          isLoading: false,
           conversationCost: prev.conversationCost + imageCost,
         }));
 
         setTimeout(() => onScrollToBottom?.(), 100);
-      } catch (error) {
-        console.error('Error generating image:', error);
-        
-        // Handle abort error specifically
-        if (error instanceof DOMException && error.name === 'AbortError') {
-          setChatState(prev => ({
-            ...prev,
-            messages: Object.fromEntries(
-              Object.entries(prev.messages).filter(([id]) => id !== assistantMessage.id)
-            ),
-            isLoading: false,
-          }));
-          return;
-        }
 
-        let errorMessage = 'Failed to generate image';
+      } else { // Handle regular text/image/audio messages with OpenRouter
+        // Create loading assistant message
+        assistantMessage = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: '',
+          type: 'text',
+          isLoading: true,
+          isHidden: isCompletionOnlyMode,
+          timestamp: new Date(),
+          parentId: userMessage.id,
+        };
+
+        setChatState(prev => ({
+          ...prev,
+          messages: { ...prev.messages, [assistantMessage!.id]: assistantMessage },
+          currentLeafId: assistantMessage!.id,
+        }));
+
+        // Prepare messages for API (including the new user message).
+        // Filter out any loading messages from previous turns to ensure clean history for API.
+        const messagesForAPI = [...Object.values(chatState.messages).filter(msg => !msg.isLoading), userMessage];
+        const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel, maxTokens || chatState.maxTokens);
+        
+        await sendMessageToOpenRouter(
+          openRouterMessages, 
+          chatState.selectedModel,
+          // onUpdate callback - append content as it streams
+          (chunkContent: string) => {
+            setChatState(prev => ({
+              ...prev,
+              messages: {
+                ...prev.messages,
+                [assistantMessage!.id]: {
+                  ...prev.messages[assistantMessage!.id],
+                  content: prev.messages[assistantMessage!.id].content + chunkContent
+                }
+              },
+            }));
+          },
+          // onComplete callback - mark as finished
+          (usage) => {
+            // Calculate cost based on token usage
+            let messageCost = 0;
+            if (usage) {
+              messageCost = calculateOpenRouterCost(
+                chatState.selectedModel,
+                usage.prompt_tokens,
+                usage.completion_tokens
+              );
+            }
+            
+            setChatState(prev => ({
+              ...prev,
+              messages: {
+                ...prev.messages,
+                [assistantMessage!.id]: {
+                  ...prev.messages[assistantMessage!.id],
+                  isLoading: false // Mark as not loading when complete
+                }
+              },
+              conversationCost: prev.conversationCost + messageCost,
+            }));
+            // Scroll to bottom when AI response is complete
+            setTimeout(() => onScrollToBottom?.(), 100);
+          },
+          controller.signal // Use local controller signal
+        );
+      }
+    } catch (error) {
+      // Check if the error is due to an intentional abort or implicit browser abort
+      const isAborted = controller.signal.aborted || 
+                         (error instanceof DOMException && error.name === 'AbortError') || 
+                         (error instanceof TypeError && error.message.includes('BodyStreamBuffer was aborted'));
+
+      if (isAborted) {
+        console.log('Request aborted:', error);
+        // If aborted, remove the assistant's loading message from the chat state
+        if (assistantMessage) {
+          setChatState(prev => {
+            const newMessages = { ...prev.messages };
+            delete newMessages[assistantMessage!.id]; // Remove the loading message
+            return { ...prev, messages: newMessages };
+          });
+        }
+      } else {
+        // It's a genuine error, display it to the user
+        let errorMessage = 'Failed to send message';
         if (error instanceof Error) {
           errorMessage = error.message;
         }
-        
-        setChatState(prev => ({
-          ...prev,
-          messages: Object.fromEntries(
-            Object.entries(prev.messages).filter(([id]) => id !== assistantMessage.id)
-          ),
-          isLoading: false,
-          error: errorMessage,
-        }));
-      } finally {
+        console.error('Error sending message:', error);
+        // If an error occurred, remove the assistant's loading message and set the error state
+        if (assistantMessage) {
+          setChatState(prev => {
+            const newMessages = { ...prev.messages };
+            delete newMessages[assistantMessage!.id];
+            return { ...prev, messages: newMessages, error: errorMessage };
+          });
+        } else {
+          setChatState(prev => ({ ...prev, error: errorMessage }));
+        }
+      }
+    } finally {
+      // This finally block ensures isLoading is always reset and abortControllerRef is cleared
+      // only if it's still pointing to the controller for *this* request.
+      if (abortControllerRef.current === controller) {
         abortControllerRef.current = null;
       }
-      return;
+      setChatState(prev => ({ ...prev, isLoading: false }));
     }
-
-    // Handle regular text/image/audio messages with OpenRouter
-    try {
-      // Create abort controller for text/image/audio messages
-      abortControllerRef.current = new AbortController();
-
-      // Create loading assistant message
-      assistantMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: '',
-        type: 'text',
-        isLoading: true,
-        isHidden: isCompletionOnlyMode,
-        timestamp: new Date(),
-        parentId: userMessage.id,
-      };
-
-      setChatState(prev => ({
-        ...prev,
-        messages: { ...prev.messages, [assistantMessage.id]: assistantMessage },
-        currentLeafId: assistantMessage.id,
-      }));
-
-      // Prepare messages for API (including the new user message)
-      const messagesForAPI = [...Object.values(chatState.messages), userMessage];
-      const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel, maxTokens || chatState.maxTokens);
-      
-      await sendMessageToOpenRouter(
-        openRouterMessages, 
-        chatState.selectedModel,
-        // onUpdate callback - append content as it streams
-        (content: string) => {
-          setChatState(prev => ({
-            ...prev,
-            messages: {
-              ...prev.messages,
-              [assistantMessage.id]: {
-                ...prev.messages[assistantMessage.id],
-                content: prev.messages[assistantMessage.id].content + content
-              }
-            },
-          }));
-        },
-        // onComplete callback - mark as finished
-        (usage) => {
-          // Calculate cost based on token usage
-          let messageCost = 0;
-          if (usage) {
-            messageCost = calculateOpenRouterCost(
-              chatState.selectedModel,
-              usage.prompt_tokens,
-              usage.completion_tokens
-            );
-          }
-          
-          setChatState(prev => ({
-            ...prev,
-            messages: {
-              ...prev.messages,
-              [assistantMessage.id]: {
-                ...prev.messages[assistantMessage.id],
-                isLoading: false
-              }
-            },
-            isLoading: false,
-            conversationCost: prev.conversationCost + messageCost,
-          }));
-          // Scroll to bottom when AI response is complete
-          setTimeout(() => onScrollToBottom?.(), 100);
-        },
-        abortControllerRef.current.signal
-      );
-    } catch (error) {
-      console.error('Error sending message:', error);
-      
-      // Handle abort error specifically
-      if (error && typeof error === 'object' && (error.name === 'AbortError' || (error.message && (error.message.includes('signal is aborted') || error.message.includes('aborted') || error.message.includes('BodyStreamBuffer was aborted'))))) {
-        setChatState(prev => ({
-          ...prev,
-          messages: Object.fromEntries(
-            Object.entries(prev.messages).filter(([id]) => id !== assistantMessage.id)
-          ),
-          isLoading: false,
-        }));
-        return;
-      }
-
-      let errorMessage = 'Failed to send message';
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      
-      setChatState(prev => ({
-        ...prev,
-        messages: Object.fromEntries(
-          Object.entries(prev.messages).filter(([id]) => id !== assistantMessage.id)
-        ),
-        isLoading: false,
-        error: errorMessage,
-      }));
-    } finally {
-      abortControllerRef.current = null;
-    }
-  }, [chatState.messages, chatState.selectedModel, chatState.maxTokens, onScrollToBottom]);
+  }, [chatState.messages, chatState.selectedModel, chatState.maxTokens, isCompletionOnlyMode, onScrollToBottom]);
 
   const clearChat = useCallback(() => {
     setChatState(prev => ({
@@ -269,6 +253,7 @@ export function useChat(onScrollToBottom?: () => void) {
   const setMaxTokens = useCallback((maxTokens: number) => {
     setChatState(prev => ({ ...prev, maxTokens }));
   }, []);
+
   const clearError = useCallback(() => {
     setChatState(prev => ({ ...prev, error: null }));
   }, []);
@@ -291,13 +276,6 @@ export function useChat(onScrollToBottom?: () => void) {
       ...prev,
       currentLeafId: messageId,
     }));
-  }, []);
-
-  const cancelRequest = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
-    }
   }, []);
 
   // Memoize derived state to prevent unnecessary recalculations
