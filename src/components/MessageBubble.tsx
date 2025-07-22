@@ -1,6 +1,6 @@
 import React from 'react';
 import { Message } from '../types/chat';
-import { Volume2, EyeOff } from 'lucide-react';
+import { Volume2, EyeOff, FileText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -58,6 +58,20 @@ export function MessageBubble({ message, onReveal }: MessageBubbleProps) {
               <source src={message.audioUrl} type="audio/webm" />
               Your browser does not support the audio element.
             </audio>
+          </div>
+        )}
+        
+        {message.file && (
+          <div className="mb-2 flex items-center gap-2 bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg">
+            <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                {message.file.name}
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {message.file.type || 'unknown type'}
+              </span>
+            </div>
           </div>
         )}
         

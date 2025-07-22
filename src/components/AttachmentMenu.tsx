@@ -1,18 +1,20 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Paperclip, Image, Mic, Square, X, Sparkles } from 'lucide-react';
+import { Paperclip, Image, Mic, Square, X, FileText } from 'lucide-react';
 
 interface AttachmentMenuProps {
   onImageSelect: (file: File, preview: string) => void;
   onAudioRecordingComplete: (audioBlob: Blob, audioUrl: string) => void;
+  onFileSelect: (file: File) => void;
 }
 
-export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete }: AttachmentMenuProps) {
+export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete, onFileSelect }: AttachmentMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const genericFileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -46,6 +48,17 @@ export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete }: Atta
     }
   };
 
+  const handleGenericFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      onFileSelect(file);
+    }
+  };
+
+  const handleGenericFileClick = () => {
+    genericFileInputRef.current?.click();
+    setIsMenuOpen(false);
+  };
   const startRecording = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -146,6 +159,13 @@ export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete }: Atta
               Image
             </button>
             <button
+              onClick={handleGenericFileClick}
+              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors"
+            >
+              <FileText className="w-4 h-4" />
+              File
+            </button>
+            <button
               onClick={handleAudioClick}
               className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors"
             >
@@ -161,6 +181,12 @@ export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete }: Atta
         type="file"
         accept="image/*"
         onChange={handleFileSelect}
+        className="hidden"
+      />
+      <input
+        ref={genericFileInputRef}
+        type="file"
+        onChange={handleGenericFileSelect}
         className="hidden"
       />
     </div>

@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ArrowUp, Loader2, X, Wand2, Eye, EyeOff, Square } from 'lucide-react';
+import { ArrowUp, Loader2, X, Wand2, Eye, EyeOff, Square, FileText } from 'lucide-react';
 import { AttachmentMenu } from './AttachmentMenu';
 import { ModelSelector } from './ModelSelector';
 import { ResponseLengthSlider } from './ResponseLengthSlider';
 import { AutocompleteMenu, autocompleteCommands, type AutocompleteOption } from './AutocompleteMenu';
 
 interface InputAreaProps {
-  onSendMessage: (content: string, type?: 'text' | 'image' | 'audio', imageUrl?: string, audioUrl?: string, maxTokens?: number) => void;
+  onSendMessage: (content: string, type?: 'text' | 'image' | 'audio', imageUrl?: string, audioUrl?: string, maxTokens?: number, file?: File) => void;
   isLoading: boolean;
   placeholder?: string;
   selectedModel: string;
@@ -25,6 +25,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isImageGenerationMode, setIsImageGenerationMode] = useState(false);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [autocompleteOptions, setAutocompleteOptions] = useState<AutocompleteOption[]>([]);
@@ -137,7 +138,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    if (message.trim() || selectedImage) {
+    if (message.trim() || selectedImage || selectedFile) {
       let finalMessage = message.trim();
       let messageType: 'text' | 'image' | 'audio' | 'image_generation_request' = 'text';
 
@@ -158,19 +159,21 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
         messageType,
         selectedImage || undefined,
         undefined,
-        maxTokens
+        maxTokens,
+        selectedFile || undefined
       );
       
       setMessage('');
       setSelectedImage(null);
       setSelectedImageFile(null);
+      setSelectedFile(null);
       setIsImageGenerationMode(false);
       setDetectedCommand(null);
       setShowAutocomplete(false);
       setAutocompleteOptions([]);
       setAutocompleteQuery('');
     }
-  }, [message, selectedImage, isImageGenerationMode, detectedCommand, onSendMessage, maxTokens]);
+  }, [message, selectedImage, selectedFile, isImageGenerationMode, detectedCommand, onSendMessage, maxTokens]);
 
   const handleImageSelect = useCallback((file: File, preview: string) => {
     setSelectedImage(preview);
@@ -180,6 +183,14 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   const handleImageRemove = useCallback(() => {
     setSelectedImage(null);
     setSelectedImageFile(null);
+  }, []);
+
+  const handleFileSelect = useCallback((file: File) => {
+    setSelectedFile(file);
+  }, []);
+
+  const handleFileRemove = useCallback(() => {
+    setSelectedFile(null);
   }, []);
 
   const handleGenerateImageClick = useCallback(() => {
@@ -199,7 +210,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   }, []);
 
   const handleAudioRecording = useCallback((audioBlob: Blob, audioUrl: string) => {
-    onSendMessage('Audio message', 'audio', undefined, audioUrl, maxTokens);
+    onSendMessage('Audio message', 'audio', undefined, audioUrl, maxTokens, undefined);
   }, [onSendMessage, maxTokens]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -305,6 +316,27 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
             </div>
           )}
 
+          {/* File Preview */}
+          {selectedFile && (
+            <div className="flex justify-start">
+              <div className="relative inline-flex items-center gap-2 bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg">
+                <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <span className="text-sm text-gray-800 dark:text-gray-200 max-w-48 truncate">
+                  {selectedFile.name}
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  ({selectedFile.type || 'unknown'})
+                </span>
+                <button
+                  onClick={handleFileRemove}
+                  className="w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 hover:scale-110 transition-all duration-200 shadow-sm ml-2"
+                >
+                  <X className="w-2 h-2" />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Main Input Container */}
           <div className={`bg-white dark:bg-gray-800 rounded-3xl transition-all duration-200 p-4 ${centered ? 'shadow-2xl border border-gray-200 dark:border-gray-700' : 'border border-gray-200 dark:border-gray-700'}`}>
             {/* Autocomplete Menu */}
@@ -338,6 +370,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                 <AttachmentMenu
                   onImageSelect={handleImageSelect}
                   onAudioRecordingComplete={handleAudioRecording}
+                  onFileSelect={handleFileSelect}
                 />
                 <button
                   type="button"
@@ -383,7 +416,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               ) : (
                 <button
                   type="submit"
-                  disabled={!message.trim() && !selectedImage}
+                  disabled={!message.trim() && !selectedImage && !selectedFile}
                   className="w-10 h-10 bg-gray-400 dark:bg-gray-500/85 text-white rounded-full hover:bg-gray-500 dark:hover:bg-gray-600/85 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center shadow-md"
                 >
                   <ArrowUp className="w-5 h-5" />

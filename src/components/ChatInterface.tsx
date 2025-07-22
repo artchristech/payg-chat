@@ -166,7 +166,6 @@ export function ChatInterface() {
             isCompletionOnlyMode={isCompletionOnlyMode}
             setIsCompletionOnlyMode={setIsCompletionOnlyMode}
             onCancelRequest={cancelRequest}
-            onCancelRequest={cancelRequest}
           />
         </div>
       </div>

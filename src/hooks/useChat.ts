@@ -44,7 +44,8 @@ export function useChat(onScrollToBottom?: () => void) {
     type: 'text' | 'image' | 'audio' | 'image_generation_request' = 'text',
     imageUrl?: string,
     audioUrl?: string,
-    maxTokens?: number
+    maxTokens?: number,
+    file?: File
   ) => {
     if (!content.trim()) return;
 
@@ -59,6 +60,7 @@ export function useChat(onScrollToBottom?: () => void) {
       type,
       imageUrl,
       audioUrl,
+      file: file ? { name: file.name, type: file.type } : undefined,
       timestamp: new Date(),
       parentId: chatState.currentLeafId,
     };
