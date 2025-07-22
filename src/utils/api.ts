@@ -307,6 +307,7 @@ export async function sendMessageToOpenRouter(
       throw error instanceof Error ? error : new Error('Unknown error occurred while calling OpenRouter API');
     }
   }
+}
 
 export function convertMessagesToOpenRouterFormat(messages: Message[], selectedModelId: string, desiredResponseTokens?: number): OpenRouterMessage[] {
   // Find the selected model to check if it supports multimodal input
