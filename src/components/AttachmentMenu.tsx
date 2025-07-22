@@ -2,19 +2,17 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Paperclip, Image, Mic, Square, X, FileText } from 'lucide-react';
 
 interface AttachmentMenuProps {
-  onImageSelect: (file: File, preview: string) => void;
   onAudioRecordingComplete: (audioBlob: Blob, audioUrl: string) => void;
-  onFileSelect: (file: File) => void;
+  onFileSelect: (file: File, preview?: string) => void;
 }
 
-export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete, onFileSelect }: AttachmentMenuProps) {
+export function AttachmentMenu({ onAudioRecordingComplete, onFileSelect }: AttachmentMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   
   const menuRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const genericFileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -31,33 +29,31 @@ export function AttachmentMenu({ onImageSelect, onAudioRecordingComplete, onFile
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleImageClick = () => {
+  const handleFileClick = () => {
     fileInputRef.current?.click();
     setIsMenuOpen(false);
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const preview = e.target?.result as string;
-        onImageSelect(file, preview);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleGenericFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
     if (file) {
-      onFileSelect(file);
+      if (file.type.startsWith('image/')) {
+        // Handle image files with preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const preview = e.target?.result as string;
+          onFileSelect(file, preview);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        // Handle non-image files
+        onFileSelect(file);
+      }
     }
-  };
-
-  const handleGenericFileClick = () => {
-    genericFileInputRef.current?.click();
-    setIsMenuOpen(false);
+    // Reset the input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
   const startRecording = useCallback(async () => {
     try {
