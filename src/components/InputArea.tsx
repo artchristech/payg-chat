@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ArrowUp, Loader2, X, Wand2 } from 'lucide-react';
+import { ArrowUp, Loader2, X, Wand2, Eye, EyeOff } from 'lucide-react';
 import { AttachmentMenu } from './AttachmentMenu';
 import { ModelSelector } from './ModelSelector';
 import { ResponseLengthSlider } from './ResponseLengthSlider';
 import { AutocompleteMenu, autocompleteCommands, type AutocompleteOption } from './AutocompleteMenu';
 
 interface InputAreaProps {
-  onSendMessage: (content: string, type?: 'text' | 'image' | 'audio' | 'image_generation_request', imageUrl?: string, audioUrl?: string, maxTokens?: number) => void;
+  onSendMessage: (content: string, type?: 'text' | 'image' | 'audio', imageUrl?: string, audioUrl?: string, maxTokens?: number) => void;
   isLoading: boolean;
   placeholder?: string;
   selectedModel: string;
@@ -16,9 +16,11 @@ interface InputAreaProps {
   onMaxTokensChange: (value: number) => void;
   resetHistoryNavigation?: () => void;
   conversationCost: number;
+  isCompletionOnlyMode: boolean;
+  setIsCompletionOnlyMode: (value: boolean) => void;
 }
 
-export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost }: InputAreaProps) {
+export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost, isCompletionOnlyMode, setIsCompletionOnlyMode }: InputAreaProps) {
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
@@ -33,7 +35,6 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   useEffect(() => {
     console.log('Autocomplete state:', { showAutocomplete, autocompleteOptions, autocompleteQuery });
   }, [showAutocomplete, autocompleteOptions, autocompleteQuery]);
-  
   // Command detection
   const detectCommand = useCallback((text: string) => {
     const trimmedText = text.trim().toLowerCase();
@@ -306,16 +307,16 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
             
             {/* Text Input Area */}
             <div className="relative">
-              <textarea
-                ref={textareaRef}
-                value={message}
-                onChange={handleMessageChange}
-                onKeyDown={handleKeyDown}
-                placeholder={getPlaceholder()}
-                className="w-full resize-none bg-transparent focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100"
-                rows={1}
-                disabled={isLoading}
-              />
+            <textarea
+              ref={textareaRef}
+              value={message}
+              onChange={handleMessageChange}
+              onKeyDown={handleKeyDown}
+              placeholder={getPlaceholder()}
+              className="w-full resize-none bg-transparent focus:outline-none min-h-[48px] max-h-32 placeholder-gray-400 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100"
+              rows={1}
+              disabled={isLoading}
+            />
             </div>
 
             {/* Attachment and Model Section */}
@@ -327,6 +328,22 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                   onAudioRecordingComplete={handleAudioRecording}
                   onGenerateImageClick={handleGenerateImageClick}
                 />
+                <button
+                  type="button"
+                  onClick={() => setIsCompletionOnlyMode(!isCompletionOnlyMode)}
+                  className={`w-8 h-8 rounded-full hover:scale-105 transition-all duration-200 flex items-center justify-center ${
+                    isCompletionOnlyMode 
+                      ? 'bg-blue-500 text-white shadow-lg' 
+                      : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-400 dark:hover:bg-gray-500'
+                  }`}
+                  title={isCompletionOnlyMode ? "Disable Completion-Only Mode" : "Enable Completion-Only Mode"}
+                >
+                  {isCompletionOnlyMode ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
                 <ResponseLengthSlider
                   maxTokens={maxTokens}
                   onValueChange={onMaxTokensChange}
@@ -335,25 +352,25 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
               
               {/* Right side - Model Selector and Send Button */}
               <div className="flex items-center gap-2">
-                <ModelSelector
-                  selectedModel={selectedModel}
-                  onModelChange={onModelChange}
-                  onSelectionComplete={focusMessageInput}
-                  compact={true}
-                  conversationCost={conversationCost}
-                />
-                
-                <button
-                  type="submit"
-                  disabled={isLoading || (!message.trim() && !selectedImage)}
-                  className="w-10 h-10 bg-gray-400 dark:bg-gray-500/85 text-white rounded-full hover:bg-gray-500 dark:hover:bg-gray-600/85 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center shadow-md"
-                >
-                  {isLoading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <ArrowUp className="w-5 h-5" />
-                  )}
-                </button>
+              <ModelSelector
+                selectedModel={selectedModel}
+                onModelChange={onModelChange}
+                onSelectionComplete={focusMessageInput}
+                compact={true}
+                conversationCost={conversationCost}
+              />
+              
+              <button
+                type="submit"
+                disabled={isLoading || (!message.trim() && !selectedImage)}
+                className="w-10 h-10 bg-gray-400 dark:bg-gray-500/85 text-white rounded-full hover:bg-gray-500 dark:hover:bg-gray-600/85 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 flex items-center justify-center shadow-md"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <ArrowUp className="w-5 h-5" />
+                )}
+              </button>
               </div>
             </div>
           </div>

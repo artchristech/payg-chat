@@ -4,14 +4,15 @@ import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat, generateIma
 
 export function useChat(onScrollToBottom?: () => void) {
   const [chatState, setChatState] = useState<ChatState>({
-    messages: {},
+    messages: [],
     isLoading: false,
     error: null,
     selectedModel: 'moonshotai/kimi-k2',
     maxTokens: 150,
     conversationCost: 0,
-    currentLeafId: null,
   });
+  const [isCompletionOnlyMode, setIsCompletionOnlyMode] = useState(false);
+
   const addMessage = useCallback((message: Omit<Message, 'id' | 'timestamp'>) => {
     const newMessage: Message = {
       ...message,
@@ -21,8 +22,7 @@ export function useChat(onScrollToBottom?: () => void) {
 
     setChatState(prev => ({
       ...prev,
-      messages: { ...prev.messages, [newMessage.id]: newMessage },
-      currentLeafId: newMessage.id,
+      messages: [...prev.messages, newMessage],
     }));
 
     return newMessage;
@@ -33,8 +33,7 @@ export function useChat(onScrollToBottom?: () => void) {
     type: 'text' | 'image' | 'audio' | 'image_generation_request' = 'text',
     imageUrl?: string,
     audioUrl?: string,
-    maxTokens?: number,
-    isGraphMode?: boolean
+    maxTokens?: number
   ) => {
     if (!content.trim()) return;
 
@@ -49,15 +48,13 @@ export function useChat(onScrollToBottom?: () => void) {
       imageUrl,
       audioUrl,
       timestamp: new Date(),
-      parentId: chatState.currentLeafId,
     };
 
     // Add user message first
     setChatState(prev => ({
       ...prev,
-      messages: { ...prev.messages, [userMessage.id]: userMessage },
+      messages: [...prev.messages, userMessage],
       isLoading: true,
-      currentLeafId: userMessage.id,
     }));
 
     // Scroll to bottom after adding user message and starting AI response
@@ -74,13 +71,11 @@ export function useChat(onScrollToBottom?: () => void) {
           type: 'generated_image',
           isLoading: true,
           timestamp: new Date(),
-          parentId: userMessage.id,
         };
 
         setChatState(prev => ({
           ...prev,
-          messages: { ...prev.messages, [assistantMessage.id]: assistantMessage },
-          currentLeafId: assistantMessage.id,
+          messages: [...prev.messages, assistantMessage],
         }));
 
         // Generate image using Together.ai
@@ -93,15 +88,16 @@ export function useChat(onScrollToBottom?: () => void) {
         // Update assistant message with generated image
         setChatState(prev => ({
           ...prev,
-          messages: {
-            ...prev.messages,
-            [assistantMessage.id]: {
-              ...prev.messages[assistantMessage.id],
-              content: `Generated image for: "${content}"`,
-              imageUrl: generatedImageUrl,
-              isLoading: false,
-            }
-          },
+          messages: prev.messages.map(msg =>
+            msg.id === assistantMessage.id
+              ? { 
+                  ...msg, 
+                  content: `Generated image for: "${content}"`,
+                  imageUrl: generatedImageUrl,
+                  isLoading: false 
+                }
+              : msg
+          ),
           isLoading: false,
           conversationCost: prev.conversationCost + imageCost,
         }));
@@ -117,9 +113,7 @@ export function useChat(onScrollToBottom?: () => void) {
         
         setChatState(prev => ({
           ...prev,
-          messages: Object.fromEntries(
-            Object.entries(prev.messages).filter(([id]) => id !== assistantMessage.id)
-          ),
+          messages: prev.messages.slice(0, -1), // Remove the loading message
           isLoading: false,
           error: errorMessage,
         }));
@@ -136,20 +130,19 @@ export function useChat(onScrollToBottom?: () => void) {
         content: '',
         type: 'text',
         isLoading: true,
+        isHidden: isCompletionOnlyMode,
+        isHidden: isCompletionOnlyMode,
         timestamp: new Date(),
-        parentId: userMessage.id,
-        isHidden: shouldHideResponse || false,
       };
 
       setChatState(prev => ({
         ...prev,
-        messages: { ...prev.messages, [assistantMessage.id]: assistantMessage },
-        currentLeafId: assistantMessage.id,
+        messages: [...prev.messages, assistantMessage],
       }));
 
       // Prepare messages for API (including the new user message)
-        const messagesForAPI = Object.values({ ...chatState.messages, [userMessage.id]: userMessage });
-        const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel, maxTokens || chatState.maxTokens);
+      const messagesForAPI = [...chatState.messages, userMessage];
+      const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel, maxTokens || chatState.maxTokens);
       
       await sendMessageToOpenRouter(
         openRouterMessages, 
@@ -158,13 +151,11 @@ export function useChat(onScrollToBottom?: () => void) {
         (content: string) => {
           setChatState(prev => ({
             ...prev,
-            messages: {
-              ...prev.messages,
-              [assistantMessage.id]: {
-                ...prev.messages[assistantMessage.id],
-                content: prev.messages[assistantMessage.id].content + content,
-              }
-            },
+            messages: prev.messages.map(msg =>
+              msg.id === assistantMessage.id
+                ? { ...msg, content: msg.content + content }
+                : msg
+            ),
           }));
         },
         // onComplete callback - mark as finished
@@ -181,13 +172,11 @@ export function useChat(onScrollToBottom?: () => void) {
           
           setChatState(prev => ({
             ...prev,
-            messages: {
-              ...prev.messages,
-              [assistantMessage.id]: {
-                ...prev.messages[assistantMessage.id],
-                isLoading: false,
-              }
-            },
+            messages: prev.messages.map(msg =>
+              msg.id === assistantMessage.id
+                ? { ...msg, isLoading: false }
+                : msg
+            ),
             isLoading: false,
             conversationCost: prev.conversationCost + messageCost,
           }));
@@ -205,22 +194,19 @@ export function useChat(onScrollToBottom?: () => void) {
       
       setChatState(prev => ({
         ...prev,
-        messages: Object.fromEntries(
-          Object.entries(prev.messages).filter(([id]) => id !== assistantMessage.id)
-        ),
+        messages: prev.messages.slice(0, -1), // Remove the loading message
         isLoading: false,
         error: errorMessage,
       }));
     }
-  }, [chatState.messages, chatState.selectedModel, chatState.maxTokens, chatState.currentLeafId, onScrollToBottom]);
+  }, [chatState.messages, chatState.selectedModel, chatState.maxTokens, onScrollToBottom]);
 
   const clearChat = useCallback(() => {
     setChatState(prev => ({
       ...prev,
-      messages: {},
+      messages: [],
       error: null,
       conversationCost: 0,
-      currentLeafId: null,
     }));
   }, []);
 
@@ -238,20 +224,9 @@ export function useChat(onScrollToBottom?: () => void) {
   const revealMessageContent = useCallback((messageId: string) => {
     setChatState(prev => ({
       ...prev,
-      messages: {
-        ...prev.messages,
-        [messageId]: {
-          ...prev.messages[messageId],
-          isHidden: false,
-        }
-      },
-    }));
-  }, []);
-
-  const setCurrentLeaf = useCallback((messageId: string) => {
-    setChatState(prev => ({
-      ...prev,
-      currentLeafId: messageId,
+      messages: prev.messages.map(msg =>
+        msg.id === messageId ? { ...msg, isHidden: false } : msg
+      ),
     }));
   }, []);
 
@@ -263,7 +238,6 @@ export function useChat(onScrollToBottom?: () => void) {
     selectedModel: chatState.selectedModel,
     maxTokens: chatState.maxTokens,
     conversationCost: chatState.conversationCost,
-    currentLeafId: chatState.currentLeafId,
   }), [chatState]);
 
   return {
@@ -273,5 +247,8 @@ export function useChat(onScrollToBottom?: () => void) {
     setSelectedModel,
     setMaxTokens,
     clearError,
+    isCompletionOnlyMode,
+    setIsCompletionOnlyMode,
+    revealMessageContent,
   };
 }

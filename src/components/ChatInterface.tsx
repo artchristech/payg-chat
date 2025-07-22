@@ -3,13 +3,11 @@ import { MessageBubble } from './MessageBubble';
 import { InputArea } from './InputArea';
 import { PresetButtons } from './PresetButtons';
 import { ThemeSelector } from './ThemeSelector';
-import { ConversationGraph } from './ConversationGraph';
 import { useChat } from '../hooks/useChat';
-import { AlertCircle, SquarePen, Network, MessageSquare } from 'lucide-react';
+import { AlertCircle, SquarePen } from 'lucide-react';
 
 export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [viewMode, setViewMode] = React.useState<'chat' | 'graph'>('chat');
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -27,7 +25,9 @@ export function ChatInterface() {
     maxTokens, 
     setMaxTokens, 
     conversationCost,
-    revealMessageContent,
+    isCompletionOnlyMode,
+    setIsCompletionOnlyMode,
+    revealMessageContent
   } = useChat(scrollToBottom);
 
   const handlePresetClick = (prompt: string) => {
@@ -38,17 +38,7 @@ export function ChatInterface() {
     clearChat();
   };
 
-  const isEmpty = Object.keys(messages).length === 0;
-  
-  const handleSendMessage = (
-    content: string,
-    type?: 'text' | 'image' | 'audio' | 'image_generation_request',
-    imageUrl?: string,
-    audioUrl?: string,
-    maxTokens?: number
-  ) => {
-    sendMessage(content, type, imageUrl, audioUrl, maxTokens, viewMode === 'graph');
-  };
+  const isEmpty = messages.length === 0;
 
   return (
     <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 relative">
@@ -58,15 +48,6 @@ export function ChatInterface() {
           <div className="w-32 h-1 bg-gradient-to-r from-blue-500/30 via-purple-500/40 to-blue-500/30 rounded-full"></div>
           
           <div className="absolute right-0 flex items-center gap-2">
-            {!isEmpty && (
-              <button
-                onClick={() => setViewMode(viewMode === 'chat' ? 'graph' : 'chat')}
-                className="w-10 h-10 flex items-center justify-center text-gray-400 hover:bg-gray-700 dark:hover:bg-gray-600 hover:text-gray-200 rounded-lg transition-colors"
-                title={viewMode === 'chat' ? 'Switch to Graph View' : 'Switch to Chat View'}
-              >
-                {viewMode === 'chat' ? <Network className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
-              </button>
-            )}
             {!isEmpty && (
               <button
                 onClick={handleClearChat}
@@ -106,23 +87,12 @@ export function ChatInterface() {
                 <PresetButtons onPresetClick={handlePresetClick} />
               </div>
             </div>
-          ) : viewMode === 'chat' ? (
+          ) : (
             <div className="space-y-6">
-              {Object.values(messages)
-                .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
-                .map((message) => (
+              {messages.map((message) => (
                 <MessageBubble key={message.id} message={message} onReveal={revealMessageContent} />
               ))}
               <div ref={messagesEndRef} />
-            </div>
-          ) : (
-            <div className="h-[60vh]">
-              <ConversationGraph
-                messages={messages}
-                currentLeafId={currentLeafId}
-                onNodeClick={setCurrentLeaf}
-                onReveal={revealMessageContent}
-              />
             </div>
           )}
         </div>
@@ -132,7 +102,7 @@ export function ChatInterface() {
       <div className="bg-gray-100 dark:bg-gray-900 p-4">
         <div className="mx-auto max-w-4xl">
           <InputArea
-            onSendMessage={handleSendMessage}
+            onSendMessage={sendMessage}
             isLoading={isLoading}
             placeholder={isEmpty ? "Ask me anything..." : "Continue the conversation..."}
             selectedModel={selectedModel}
@@ -140,6 +110,10 @@ export function ChatInterface() {
             centered={false}
             maxTokens={maxTokens}
             onMaxTokensChange={setMaxTokens}
+            resetHistoryNavigation={clearError}
+            conversationCost={conversationCost}
+            isCompletionOnlyMode={isCompletionOnlyMode}
+            setIsCompletionOnlyMode={setIsCompletionOnlyMode}
           />
         </div>
       </div>
