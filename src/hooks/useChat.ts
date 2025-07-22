@@ -52,6 +52,32 @@ export function useChat(onScrollToBottom?: () => void) {
     // Clear previous error and set loading state at the very beginning
     setChatState(prev => ({ ...prev, error: null, isLoading: true }));
 
+    // Handle file upload to backend if file is attached
+    if (file) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        console.log('Uploading file to backend:', file.name);
+        
+        const uploadResponse = await fetch('http://localhost:3001/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!uploadResponse.ok) {
+          throw new Error(`Upload failed: ${uploadResponse.statusText}`);
+        }
+        
+        const uploadResult = await uploadResponse.json();
+        console.log('File upload successful:', uploadResult);
+      } catch (error) {
+        console.error('Error uploading file to backend:', error);
+        // Continue with the chat message even if upload fails
+        // In the future, you might want to handle this differently
+      }
+    }
+
     // Create user message
     const userMessage: Message = {
       id: Date.now().toString(),
