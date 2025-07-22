@@ -196,7 +196,7 @@ export interface OpenRouterMessage {
 
 export async function sendMessageToOpenRouter(
   messages: OpenRouterMessage[],
-  model: string = 'mistralai/mist-7b-instruct',
+  model: string = 'mistralai/mistral-7b-instruct',
   onUpdate?: (content: string) => void,
   onComplete?: (usage?: { prompt_tokens: number; completion_tokens: number }) => void,
   signal?: AbortSignal
@@ -272,7 +272,7 @@ export async function sendMessageToOpenRouter(
             
             try {
               const parsed = JSON.parse(data);
-              const content = parsed.choices?.[0]?.delta?.content;
+              const content = parsed.choices?.?.delta?.content;
               
               // Capture usage data when available
               if (parsed.usage) {
@@ -418,11 +418,11 @@ export async function generateImageWithTogetherAI(
 
     const data = await response.json();
     
-    if (!data.data || !data.data[0] || !data.data[0].url) {
+    if (!data.data || !data.data || !data.data.url) {
       throw new Error('Invalid response format from Together.ai API');
     }
 
-    return data.data[0].url;
+    return data.data.url;
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
       throw error; // Re-throw abort errors to be handled by the caller
