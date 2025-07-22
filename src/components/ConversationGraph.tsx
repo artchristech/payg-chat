@@ -4,6 +4,8 @@ import ReactFlow, {
   Edge, 
   Controls, 
   Background, 
+  useNodesState, 
+  useEdgesState,
   Position
 } from 'reactflow';
 import 'reactflow/dist/style.css';
@@ -141,11 +143,16 @@ export function ConversationGraph({ messages, currentLeafId, onNodeClick }: Conv
     return { nodes, edges };
   }, [messages, currentLeafId, onNodeClick]);
 
+  const [nodesState, , onNodesChange] = useNodesState(nodes);
+  const [edgesState, , onEdgesChange] = useEdgesState(edges);
+
   return (
     <div className="w-full h-full bg-gray-50 dark:bg-gray-900">
       <ReactFlow
-        nodes={nodes}
-        edges={edges}
+        nodes={nodesState}
+        edges={edgesState}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
         fitView
         fitViewOptions={{ padding: 0.2 }}
       >
