@@ -19,6 +19,7 @@ interface InputAreaProps {
   isCompletionOnlyMode: boolean;
   setIsCompletionOnlyMode: (value: boolean) => void;
   onCancelRequest: () => void;
+  onCancelRequest: () => void;
 }
 
 export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost, isCompletionOnlyMode, setIsCompletionOnlyMode, onCancelRequest }: InputAreaProps) {
