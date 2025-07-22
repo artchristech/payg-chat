@@ -198,8 +198,7 @@ export async function sendMessageToOpenRouter(
   messages: OpenRouterMessage[],
   model: string = 'mistralai/mistral-7b-instruct',
   onUpdate?: (content: string) => void,
-  onComplete?: (usage?: { prompt_tokens: number; completion_tokens: number }) => void,
-  signal?: AbortSignal
+  onComplete?: (usage?: { prompt_tokens: number; completion_tokens: number }) => void
 ): Promise<void> {
   if (!OPENROUTER_API_KEY) {
     throw new Error('OpenRouter API key not configured. Please add VITE_OPENROUTER_API_KEY to your .env file and restart the development server.');
@@ -214,7 +213,6 @@ export async function sendMessageToOpenRouter(
         'HTTP-Referer': window.location.origin,
         'X-Title': 'payg-chat',
       },
-      signal,
       body: JSON.stringify({
         model,
         messages,
@@ -299,11 +297,6 @@ export async function sendMessageToOpenRouter(
       throw error;
     }
   } catch (error) {
-    // Handle aborted requests gracefully
-    if (error instanceof DOMException && error.name === 'AbortError') {
-      return; // Request was cancelled, don't throw an error
-    }
-    
     if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
       throw new Error('Network error: Unable to connect to OpenRouter API. Please check your internet connection and ensure no firewall or ad-blocker is blocking the request.');
     }
@@ -366,8 +359,7 @@ export async function generateImageWithTogetherAI(
   prompt: string,
   model: string = 'black-forest-labs/FLUX.1-schnell',
   width: number = 1024,
-  height: number = 1024,
-  signal?: AbortSignal
+  height: number = 1024
 ): Promise<string> {
   if (!TOGETHER_API_KEY) {
     throw new Error('Together.ai API key not configured. Please add VITE_TOGETHER_API_KEY to your .env file and restart the development server.');
@@ -380,7 +372,6 @@ export async function generateImageWithTogetherAI(
         'Authorization': `Bearer ${TOGETHER_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      signal,
       body: JSON.stringify({
         model,
         prompt,
@@ -417,11 +408,6 @@ export async function generateImageWithTogetherAI(
 
     return data.data[0].url;
   } catch (error) {
-    // Handle aborted requests gracefully
-    if (error instanceof DOMException && error.name === 'AbortError') {
-      throw error; // Re-throw abort errors so they can be handled upstream
-    }
-    
     if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
       throw new Error('Network error: Unable to connect to Together.ai API. Please check your internet connection.');
     }
