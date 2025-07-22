@@ -4,9 +4,8 @@ import ReactFlow, {
   Edge, 
   Controls, 
   Background, 
-  useNodesState, 
-  useEdgesState,
-  Position
+  Position,
+  useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Message } from '../types/chat';
@@ -20,6 +19,15 @@ interface ConversationGraphProps {
 const nodeWidth = 200;
 const nodeHeight = 80;
 const levelHeight = 120;
+
+// A helper component to fit the view when nodes change
+function FitViewUpdater({ nodes }: { nodes: Node[] }) {
+  const { fitView } = useReactFlow();
+  React.useEffect(() => {
+    fitView({ padding: 0.2 });
+  }, [nodes, fitView]);
+  return null;
+}
 
 export function ConversationGraph({ messages, currentLeafId, onNodeClick }: ConversationGraphProps) {
   const { nodes, edges } = useMemo(() => {
@@ -143,19 +151,15 @@ export function ConversationGraph({ messages, currentLeafId, onNodeClick }: Conv
     return { nodes, edges };
   }, [messages, currentLeafId, onNodeClick]);
 
-  const [nodesState, , onNodesChange] = useNodesState(nodes);
-  const [edgesState, , onEdgesChange] = useEdgesState(edges);
-
   return (
     <div className="w-full h-full bg-gray-50 dark:bg-gray-900">
       <ReactFlow
-        nodes={nodesState}
-        edges={edgesState}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
+        nodes={nodes}
+        edges={edges}
         fitView
         fitViewOptions={{ padding: 0.2 }}
       >
+        <FitViewUpdater nodes={nodes} />
         <Controls />
         <Background color="#aaa" gap={16} />
       </ReactFlow>
