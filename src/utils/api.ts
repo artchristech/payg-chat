@@ -198,6 +198,7 @@ export async function sendMessageToOpenRouter(
   messages: OpenRouterMessage[],
   model: string = 'mistralai/mistral-7b-instruct',
   signal?: AbortSignal,
+  signal?: AbortSignal,
   onUpdate?: (content: string) => void,
   onComplete?: (usage?: { prompt_tokens: number; completion_tokens: number }) => void
 ): Promise<void> {
@@ -214,6 +215,7 @@ export async function sendMessageToOpenRouter(
         'HTTP-Referer': window.location.origin,
         'X-Title': 'payg-chat',
       },
+      signal,
       signal,
       body: JSON.stringify({
         model,
@@ -299,6 +301,10 @@ export async function sendMessageToOpenRouter(
       throw error;
     }
   } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw error; // Re-throw abort errors to be handled by the caller
+    }
+    
     if (error instanceof DOMException && error.name === 'AbortError') {
       throw error; // Re-throw abort errors to be handled by the caller
     }
