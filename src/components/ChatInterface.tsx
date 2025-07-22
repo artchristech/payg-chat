@@ -3,11 +3,13 @@ import { MessageBubble } from './MessageBubble';
 import { InputArea } from './InputArea';
 import { PresetButtons } from './PresetButtons';
 import { ThemeSelector } from './ThemeSelector';
+import { ConversationGraph } from './ConversationGraph';
 import { useChat } from '../hooks/useChat';
-import { AlertCircle, SquarePen } from 'lucide-react';
+import { AlertCircle, SquarePen, Network } from 'lucide-react';
 
 export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [viewMode, setViewMode] = useState<'chat' | 'graph'>('chat');
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -28,6 +30,8 @@ export function ChatInterface() {
     isCompletionOnlyMode,
     setIsCompletionOnlyMode,
     revealMessageContent
+    currentLeafId,
+    setCurrentLeaf,
   } = useChat(scrollToBottom);
 
   const handlePresetClick = (prompt: string) => {
@@ -36,9 +40,10 @@ export function ChatInterface() {
 
   const handleClearChat = () => {
     clearChat();
+    setViewMode('chat'); // Reset to chat view when clearing
   };
 
-  const isEmpty = messages.length === 0;
+  const isEmpty = Object.keys(messages).length === 0;
 
   return (
     <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 relative">
@@ -49,6 +54,18 @@ export function ChatInterface() {
           
           <div className="absolute right-0 flex items-center gap-2">
             {!isEmpty && (
+              <>
+                <button
+                  onClick={() => setViewMode(viewMode === 'chat' ? 'graph' : 'chat')}
+                  className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
+                    viewMode === 'graph' 
+                      ? 'bg-blue-500 text-white' 
+                      : 'text-gray-400 hover:bg-gray-700 dark:hover:bg-gray-600 hover:text-gray-200'
+                  }`}
+                  title={viewMode === 'chat' ? 'Switch to Graph View' : 'Switch to Chat View'}
+                >
+                  <Network className="w-4 h-4" />
+                </button>
               <button
                 onClick={handleClearChat}
                 className="w-10 h-10 flex items-center justify-center text-gray-400 hover:bg-gray-700 dark:hover:bg-gray-600 hover:text-gray-200 rounded-lg transition-colors"
@@ -56,6 +73,7 @@ export function ChatInterface() {
               >
                 <SquarePen className="w-4 h-4" />
               </button>
+              </>
             )}
             <ThemeSelector />
           </div>
@@ -87,12 +105,22 @@ export function ChatInterface() {
                 <PresetButtons onPresetClick={handlePresetClick} />
               </div>
             </div>
-          ) : (
+          ) : viewMode === 'chat' ? (
             <div className="space-y-6">
-              {messages.map((message) => (
+              {Object.values(messages)
+                .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+                .map((message) => (
                 <MessageBubble key={message.id} message={message} onReveal={revealMessageContent} />
               ))}
               <div ref={messagesEndRef} />
+            </div>
+          ) : (
+            <div className="h-full min-h-[60vh]">
+              <ConversationGraph 
+                messages={messages}
+                currentLeafId={currentLeafId}
+                onNodeClick={setCurrentLeaf}
+              />
             </div>
           )}
         </div>

@@ -8,15 +8,17 @@ export interface Message {
   audioUrl?: string;
   isLoading?: boolean;
   isHidden?: boolean;
+  parentId: string | null;
 }
 
 export interface ChatState {
-  messages: Message[];
+  messages: Record<string, Message>;
   isLoading: boolean;
   error: string | null;
   selectedModel: string;
   maxTokens: number;
   conversationCost: number;
+  currentLeafId: string | null;
 }
 
 export interface OpenRouterModel {
