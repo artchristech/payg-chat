@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MessageBubble } from './MessageBubble';
 import { InputArea } from './InputArea';
-import { PresetButtons } from './PresetButtons';
 import { ThemeSelector } from './ThemeSelector';
 import { ConversationGraph } from './ConversationGraph';
 import { ContextCanvas } from './ContextCanvas';
 import { useChat } from '../hooks/useChat';
-import { AlertCircle, SquarePen, Network } from 'lucide-react';
+import { AlertCircle, SquarePen, Network, LogOut } from 'lucide-react';
+import { supabase } from '../utils/supabaseClient';
 
 export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -50,6 +50,14 @@ export function ChatInterface() {
     setViewMode('chat'); // Reset to chat view when clearing
   };
 
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   const isEmpty = Object.keys(messages).length === 0;
 
   // Debug logging for graph view
@@ -88,6 +96,13 @@ export function ChatInterface() {
               </button>
               </>
             )}
+            <button
+              onClick={handleLogout}
+              className="w-10 h-10 flex items-center justify-center text-gray-400 hover:bg-gray-700 dark:hover:bg-gray-600 hover:text-gray-200 rounded-lg transition-colors"
+              title="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
             <ThemeSelector />
           </div>
         </div>
