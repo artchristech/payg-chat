@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { MessageBubble } from './MessageBubble';
 import { InputArea } from './InputArea';
 import { ThemeSelector } from './ThemeSelector';
+import { PresetButtons } from './PresetButtons';
 import { ConversationGraph } from './ConversationGraph';
 import { ContextCanvas } from './ContextCanvas';
 import { useChat } from '../hooks/useChat';
