@@ -81,9 +81,9 @@ export function ChatInterface() {
       {/* Main Content */}
       <div className={`flex flex-col h-screen transition-all duration-300 ease-in-out ${
         isSidebarExpanded ? 'ml-64' : 'ml-16'
-      } bg-gray-100 dark:bg-gray-900`}>
+      }`}>
         {/* Header */}
-        <div className="px-4 py-3">
+        <div className="bg-gray-100 dark:bg-gray-900 px-4 py-3">
           <div className="max-w-4xl mx-auto flex items-center justify-center relative">
             <div className="w-32 h-1 bg-gradient-to-r from-blue-500/30 via-purple-500/40 to-blue-500/30 rounded-full"></div>
             
@@ -162,7 +162,7 @@ export function ChatInterface() {
         </div>
 
         {/* Bottom Section - Always present */}
-        <div className="p-4">
+        <div className="bg-gray-100 dark:bg-gray-900 p-4">
           <div className="mx-auto max-w-4xl">
             <InputArea
               onSendMessage={sendMessage}
