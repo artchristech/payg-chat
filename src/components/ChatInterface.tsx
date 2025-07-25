@@ -12,7 +12,6 @@ import { supabase } from '../utils/supabaseClient';
 export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'chat' | 'graph'>('chat');
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -69,39 +68,16 @@ export function ChatInterface() {
   console.log('ChatInterface - currentLeafId:', currentLeafId);
 
   return (
-    <div className="h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       {/* Sidebar */}
-      <Sidebar 
-        onNewChat={handleClearChat} 
-        onLogout={handleLogout}
-        isExpanded={isSidebarExpanded}
-        onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
-      />
+      <Sidebar onNewChat={handleClearChat} onLogout={handleLogout} />
       
       {/* Main Content */}
-      <div className={`flex flex-col h-screen transition-all duration-300 ease-in-out ${
-        isSidebarExpanded ? 'ml-64' : 'ml-16'
-      }`}>
+      <div className="flex-1 flex flex-col">
         {/* Header */}
         <div className="bg-gray-100 dark:bg-gray-900 px-4 py-3">
           <div className="max-w-4xl mx-auto flex items-center justify-center relative">
             <div className="w-32 h-1 bg-gradient-to-r from-blue-500/30 via-purple-500/40 to-blue-500/30 rounded-full"></div>
-            
-            <div className="absolute right-0 flex items-center gap-2">
-              {!isEmpty && (
-                <button
-                  onClick={() => setViewMode(viewMode === 'chat' ? 'graph' : 'chat')}
-                  className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
-                    viewMode === 'graph' 
-                      ? 'bg-blue-500 text-white' 
-                      : 'text-gray-400 hover:bg-gray-700 dark:hover:bg-gray-600 hover:text-gray-200'
-                  }`}
-                  title={viewMode === 'chat' ? 'Switch to Graph View' : 'Switch to Chat View'}
-                >
-                  <Network className="w-4 h-4" />
-                </button>
-              )}
-            </div>
             
             <div className="absolute right-0 flex items-center gap-2">
               {!isEmpty && (
