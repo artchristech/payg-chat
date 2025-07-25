@@ -13,7 +13,6 @@ export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'chat' | 'graph'>('chat');
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
