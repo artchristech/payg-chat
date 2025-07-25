@@ -102,6 +102,22 @@ export function ChatInterface() {
                 </button>
               )}
             </div>
+            
+            <div className="absolute right-0 flex items-center gap-2">
+              {!isEmpty && (
+                <button
+                  onClick={() => setViewMode(viewMode === 'chat' ? 'graph' : 'chat')}
+                  className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
+                    viewMode === 'graph' 
+                      ? 'bg-blue-500 text-white' 
+                      : 'text-gray-400 hover:bg-gray-700 dark:hover:bg-gray-600 hover:text-gray-200'
+                  }`}
+                  title={viewMode === 'chat' ? 'Switch to Graph View' : 'Switch to Chat View'}
+                >
+                  <Network className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
