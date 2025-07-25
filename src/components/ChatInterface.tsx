@@ -84,8 +84,6 @@ export function ChatInterface() {
       <div className={`flex flex-col h-screen transition-all duration-300 ease-in-out ${
         isSidebarExpanded ? 'ml-64' : 'ml-16'
       }`}>
-        isSidebarExpanded ? 'ml-64' : 'ml-16'
-      }`}>
         {/* Header */}
         <div className="bg-gray-100 dark:bg-gray-900 px-4 py-3">
           <div className="max-w-4xl mx-auto flex items-center justify-center relative">
