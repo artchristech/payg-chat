@@ -65,86 +65,89 @@ export function Sidebar({ onNewChat, onLogout }: SidebarProps) {
 
   return (
     <div className={`
-      bg-gray-800 dark:bg-gray-900 text-white flex flex-col h-full transition-all duration-300 ease-in-out
+      bg-gray-800 dark:bg-gray-900 text-white h-screen flex flex-col justify-between transition-all duration-300 ease-in-out
       ${isExpanded ? 'w-64' : 'w-16'}
     `}>
-      {/* Header */}
-      <div className="p-4 border-b border-gray-700 dark:border-gray-800">
-        <div className="flex items-center justify-between">
-          {isExpanded ? (
-            <>
-              <div className="flex items-center gap-2">
-                <Bot className="w-6 h-6 text-blue-400" />
-                <span className="font-semibold text-lg">payg-chat</span>
-              </div>
-              <button
-                onClick={() => setIsExpanded(false)}
-                className="p-1 hover:bg-gray-700 dark:hover:bg-gray-800 rounded transition-colors"
-                title="Collapse sidebar"
-              >
-                <ChevronsLeft className="w-5 h-5" />
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => setIsExpanded(true)}
-              className="p-1 hover:bg-gray-700 dark:hover:bg-gray-800 rounded transition-colors mx-auto"
-              title="Expand sidebar"
-            >
-              <ChevronsRight className="w-5 h-5" />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Primary Actions */}
-      <div className="p-4 space-y-2">
-        {primaryActions.map((action) => {
-          const IconComponent = action.icon;
-          return (
-            <button
-              key={action.id}
-              onClick={action.onClick}
-              className={`
-                w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-800 transition-colors group relative
-                ${!isExpanded ? 'justify-center' : ''}
-              `}
-              title={!isExpanded ? action.label : undefined}
-            >
-              <IconComponent className="w-5 h-5 flex-shrink-0" />
-              {isExpanded && (
-                <span className="text-sm font-medium">{action.label}</span>
-              )}
-              {!isExpanded && (
-                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                  {action.label}
+      {/* Top Section */}
+      <div>
+        {/* Header */}
+        <div className="p-4 border-b border-gray-700 dark:border-gray-800">
+          <div className="flex items-center justify-between">
+            {isExpanded ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <Bot className="w-6 h-6 text-blue-400" />
+                  <span className="font-semibold text-lg">payg-chat</span>
                 </div>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Recents Section */}
-      {isExpanded && (
-        <div className="flex-1 px-4 pb-4 overflow-hidden">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-            Recents
-          </h3>
-          <div className="space-y-1 overflow-y-auto max-h-full">
-            {recentChats.map((chat, index) => (
+                <button
+                  onClick={() => setIsExpanded(false)}
+                  className="p-1 hover:bg-gray-700 dark:hover:bg-gray-800 rounded transition-colors"
+                  title="Collapse sidebar"
+                >
+                  <ChevronsLeft className="w-5 h-5" />
+                </button>
+              </>
+            ) : (
               <button
-                key={index}
-                className="w-full text-left p-2 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-800 transition-colors group"
+                onClick={() => setIsExpanded(true)}
+                className="p-1 hover:bg-gray-700 dark:hover:bg-gray-800 rounded transition-colors mx-auto"
+                title="Expand sidebar"
               >
-                <span className="text-sm text-gray-300 group-hover:text-white truncate block">
-                  {chat}
-                </span>
+                <ChevronsRight className="w-5 h-5" />
               </button>
-            ))}
+            )}
           </div>
         </div>
-      )}
+
+        {/* Primary Actions */}
+        <div className="p-4 space-y-2">
+          {primaryActions.map((action) => {
+            const IconComponent = action.icon;
+            return (
+              <button
+                key={action.id}
+                onClick={action.onClick}
+                className={`
+                  w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-800 transition-colors group relative
+                  ${!isExpanded ? 'justify-center' : ''}
+                `}
+                title={!isExpanded ? action.label : undefined}
+              >
+                <IconComponent className="w-5 h-5 flex-shrink-0" />
+                {isExpanded && (
+                  <span className="text-sm font-medium">{action.label}</span>
+                )}
+                {!isExpanded && (
+                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                    {action.label}
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Recents Section */}
+        {isExpanded && (
+          <div className="px-4 pb-4 overflow-hidden">
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+              Recents
+            </h3>
+            <div className="space-y-1 overflow-y-auto max-h-96">
+              {recentChats.map((chat, index) => (
+                <button
+                  key={index}
+                  className="w-full text-left p-2 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-800 transition-colors group"
+                >
+                  <span className="text-sm text-gray-300 group-hover:text-white truncate block">
+                    {chat}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* User Profile */}
       <div className="p-4 border-t border-gray-700 dark:border-gray-800">
