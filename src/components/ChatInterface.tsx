@@ -12,6 +12,7 @@ import { supabase } from '../utils/supabaseClient';
 export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'chat' | 'graph'>('chat');
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
 
   const scrollToBottom = () => {
@@ -76,10 +77,14 @@ export function ChatInterface() {
         onLogout={handleLogout}
         isExpanded={isSidebarExpanded}
         onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
+        isExpanded={isSidebarExpanded}
+        onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
       />
       
       {/* Main Content */}
       <div className={`flex flex-col h-screen transition-all duration-300 ease-in-out ${
+        isSidebarExpanded ? 'ml-64' : 'ml-16'
+      }`}>
         isSidebarExpanded ? 'ml-64' : 'ml-16'
       }`}>
         {/* Header */}
