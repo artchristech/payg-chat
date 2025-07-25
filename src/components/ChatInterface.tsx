@@ -3,6 +3,7 @@ import { MessageBubble } from './MessageBubble';
 import { InputArea } from './InputArea';
 import { ThemeSelector } from './ThemeSelector';
 import { PresetButtons } from './PresetButtons';
+import { Sidebar } from './Sidebar';
 import { ConversationGraph } from './ConversationGraph';
 import { ContextCanvas } from './ContextCanvas';
 import { useChat } from '../hooks/useChat';
@@ -68,7 +69,12 @@ export function ChatInterface() {
   console.log('ChatInterface - currentLeafId:', currentLeafId);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 relative">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+      {/* Sidebar */}
+      <Sidebar />
+      
+      {/* Main Content */}
+      <div className="flex flex-col flex-1 relative">
       {/* Header */}
       <div className="bg-gray-100 dark:bg-gray-900 px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-center relative">
@@ -184,6 +190,7 @@ export function ChatInterface() {
             onCancelRequest={cancelRequest}
           />
         </div>
+      </div>
       </div>
     </div>
   );
