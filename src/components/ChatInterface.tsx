@@ -12,6 +12,7 @@ import { supabase } from '../utils/supabaseClient';
 export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'chat' | 'graph'>('chat');
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -68,12 +69,19 @@ export function ChatInterface() {
   console.log('ChatInterface - currentLeafId:', currentLeafId);
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="h-screen bg-gray-100 dark:bg-gray-900">
       {/* Sidebar */}
-      <Sidebar onNewChat={handleClearChat} onLogout={handleLogout} />
+      <Sidebar 
+        onNewChat={handleClearChat} 
+        onLogout={handleLogout}
+        isExpanded={isSidebarExpanded}
+        onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
+      />
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className={`flex flex-col h-screen transition-all duration-300 ease-in-out ${
+        isSidebarExpanded ? 'ml-64' : 'ml-16'
+      }`}>
         {/* Header */}
         <div className="bg-gray-100 dark:bg-gray-900 px-4 py-3">
           <div className="max-w-4xl mx-auto flex items-center justify-center relative">

@@ -14,10 +14,11 @@ import { supabase } from '../utils/supabaseClient';
 interface SidebarProps {
   onNewChat: () => void;
   onLogout: () => void;
+  isExpanded: boolean;
+  onToggle: () => void;
 }
 
-export function Sidebar({ onNewChat, onLogout }: SidebarProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+export function Sidebar({ onNewChat, onLogout, isExpanded, onToggle }: SidebarProps) {
   const [userEmail, setUserEmail] = useState<string>('');
   const [userInitial, setUserInitial] = useState<string>('U');
 
@@ -65,7 +66,7 @@ export function Sidebar({ onNewChat, onLogout }: SidebarProps) {
 
   return (
     <div className={`
-      bg-gray-800 dark:bg-gray-900 text-white h-screen flex flex-col justify-between transition-all duration-300 ease-in-out
+      fixed top-0 left-0 bg-gray-800 dark:bg-gray-900 text-white h-full flex flex-col justify-between transition-all duration-300 ease-in-out z-40
       ${isExpanded ? 'w-64' : 'w-16'}
     `}>
       {/* Top Section */}
@@ -80,7 +81,7 @@ export function Sidebar({ onNewChat, onLogout }: SidebarProps) {
                   <span className="font-semibold text-lg">payg-chat</span>
                 </div>
                 <button
-                  onClick={() => setIsExpanded(false)}
+                  onClick={onToggle}
                   className="p-1 hover:bg-gray-700 dark:hover:bg-gray-800 rounded transition-colors"
                   title="Collapse sidebar"
                 >
@@ -89,7 +90,7 @@ export function Sidebar({ onNewChat, onLogout }: SidebarProps) {
               </>
             ) : (
               <button
-                onClick={() => setIsExpanded(true)}
+                onClick={onToggle}
                 className="p-1 hover:bg-gray-700 dark:hover:bg-gray-800 rounded transition-colors mx-auto"
                 title="Expand sidebar"
               >
