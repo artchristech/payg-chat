@@ -16,12 +16,11 @@ interface SidebarProps {
   onLogout: () => void;
   isExpanded: boolean;
   onToggle: () => void;
-  isExpanded: boolean;
-  onToggle: () => void;
 }
 
 export function Sidebar({ onNewChat, onLogout, isExpanded, onToggle }: SidebarProps) {
   const [userEmail, setUserEmail] = useState<string>('');
+  const [userInitial, setUserInitial] = useState<string>('U');
 
   // Get user info on mount
   useEffect(() => {
