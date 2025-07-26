@@ -16,10 +16,10 @@ export function Sidebar({ isExpanded, onToggle, onNewChat, onLogout }: SidebarPr
       {/* Top/Middle Section */}
       <div>
         {/* Header */}
-        <div className="h-[68px] p-4 flex items-center border-b border-gray-700">
+        <div className="h-[68px] p-4 flex items-center">
           {isExpanded ? (
             <>
-              <div className="flex items-center gap-3 flex-1">
+              <div className="flex items-center gap-3">
                 <Bot className="w-6 h-6 text-blue-400" />
                 <span className="text-white font-semibold">payg-chat</span>
               </div>
@@ -78,7 +78,7 @@ export function Sidebar({ isExpanded, onToggle, onNewChat, onLogout }: SidebarPr
       </div>
 
       {/* User Profile Section */}
-      <div className="p-4 border-t border-gray-700">
+      <div className="p-4">
         <div className={`flex items-center ${isExpanded ? 'gap-3' : 'justify-center'}`}>
           <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
             <User className="w-4 h-4 text-white" />
