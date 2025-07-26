@@ -81,9 +81,9 @@ export function ChatInterface() {
         onNewChat={handleClearChat}
         onLogout={handleLogout}
       />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden pl-16">
         {/* Header */}
-        <div className="bg-gray-100 dark:bg-gray-900 px-4 py-3 flex-shrink-0">
+        <div className="bg-gray-100 dark:bg-gray-900 px-4 py-3">
           <div className="max-w-4xl mx-auto flex items-center justify-center relative">
             <div className="w-32 h-1 bg-gradient-to-r from-blue-500/30 via-purple-500/40 to-blue-500/30 rounded-full"></div>
             
@@ -179,7 +179,7 @@ export function ChatInterface() {
         </div>
 
         {/* Bottom Section - Always present */}
-        <div className="bg-gray-100 dark:bg-gray-900 p-4 flex-shrink-0">
+        <div className="bg-gray-100 dark:bg-gray-900 p-4">
           <div className="mx-auto max-w-4xl">
             <InputArea
               onSendMessage={sendMessage}
