@@ -52,50 +52,44 @@ export function Sidebar({ isExpanded, onToggle, onNewChat, onLogout }: SidebarPr
         <div className="p-4 space-y-2">
           <button
             onClick={onNewChat}
-            className="w-full flex items-center justify-center p-4 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0"
+            className={`w-full flex rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0 ${
+              isExpanded ? 'items-center justify-start p-4 gap-3' : 'items-center justify-center p-4'
+            }`}
             title={!isExpanded ? 'New Chat' : undefined}
           >
-            {isExpanded ? (
-              <>
-                <Plus className="w-5 h-5 flex-shrink-0" />
-                <div className="flex-1 text-left ml-3 whitespace-nowrap transition-opacity duration-200 opacity-100 delay-150">
-                  <span>New Chat</span>
-                </div>
-              </>
-            ) : (
-              <Plus className="w-5 h-5" />
+            <Plus className="w-5 h-5 flex-shrink-0" />
+            {isExpanded && (
+              <div className="flex-1 text-left whitespace-nowrap transition-opacity duration-200 opacity-100 delay-150">
+                <span>New Chat</span>
+              </div>
             )}
           </button>
 
           <button
-            className="w-full flex items-center justify-center p-4 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0"
+            className={`w-full flex rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0 ${
+              isExpanded ? 'items-center justify-start p-4 gap-3' : 'items-center justify-center p-4'
+            }`}
             title={!isExpanded ? 'Chat History' : undefined}
           >
-            {isExpanded ? (
-              <>
-                <MessageSquare className="w-5 h-5 flex-shrink-0" />
-                <div className="flex-1 text-left ml-3 whitespace-nowrap transition-opacity duration-200 opacity-100 delay-150">
-                  <span>Chat History</span>
-                </div>
-              </>
-            ) : (
-              <MessageSquare className="w-5 h-5" />
+            <MessageSquare className="w-5 h-5 flex-shrink-0" />
+            {isExpanded && (
+              <div className="flex-1 text-left whitespace-nowrap transition-opacity duration-200 opacity-100 delay-150">
+                <span>Chat History</span>
+              </div>
             )}
           </button>
 
           <button
-            className="w-full flex items-center justify-center p-4 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0"
+            className={`w-full flex rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0 ${
+              isExpanded ? 'items-center justify-start p-4 gap-3' : 'items-center justify-center p-4'
+            }`}
             title={!isExpanded ? 'Agents' : undefined}
           >
-            {isExpanded ? (
-              <>
-                <Users className="w-5 h-5 flex-shrink-0" />
-                <div className="flex-1 text-left ml-3 whitespace-nowrap transition-opacity duration-200 opacity-100 delay-150">
-                  <span>Agents</span>
-                </div>
-              </>
-            ) : (
-              <Users className="w-5 h-5" />
+            <Users className="w-5 h-5 flex-shrink-0" />
+            {isExpanded && (
+              <div className="flex-1 text-left whitespace-nowrap transition-opacity duration-200 opacity-100 delay-150">
+                <span>Agents</span>
+              </div>
             )}
           </button>
         </div>
