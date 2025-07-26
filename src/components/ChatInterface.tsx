@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MessageBubble } from './MessageBubble';
 import { InputArea } from './InputArea';
+import { Sidebar } from './Sidebar';
 import { ThemeSelector } from './ThemeSelector';
 import { PresetButtons } from './PresetButtons';
 import { ConversationGraph } from './ConversationGraph';
@@ -9,13 +10,10 @@ import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen, Network, LogOut } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 
-interface ChatInterfaceProps {
-  isSidebarExpanded: boolean;
-}
-
-export function ChatInterface({ isSidebarExpanded }: ChatInterfaceProps) {
+export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'chat' | 'graph'>('chat');
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -63,6 +61,10 @@ export function ChatInterface({ isSidebarExpanded }: ChatInterfaceProps) {
     }
   };
 
+  const handleToggleSidebar = () => {
+    setIsSidebarExpanded(!isSidebarExpanded);
+  };
+
   const isEmpty = Object.keys(messages).length === 0;
 
   // Debug logging for graph view
@@ -72,9 +74,16 @@ export function ChatInterface({ isSidebarExpanded }: ChatInterfaceProps) {
   console.log('ChatInterface - currentLeafId:', currentLeafId);
 
   return (
-    <div className="flex-1 flex flex-col pl-16 bg-gray-100 dark:bg-gray-900">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+      <Sidebar
+        isExpanded={isSidebarExpanded}
+        onToggle={handleToggleSidebar}
+        onNewChat={handleClearChat}
+        onLogout={handleLogout}
+      />
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="bg-gray-100 dark:bg-gray-900 px-4 py-3">
+        <div className="bg-gray-100 dark:bg-gray-900 px-4 py-3 flex-shrink-0">
           <div className="max-w-4xl mx-auto flex items-center justify-center relative">
             <div className="w-32 h-1 bg-gradient-to-r from-blue-500/30 via-purple-500/40 to-blue-500/30 rounded-full"></div>
             
@@ -170,7 +179,7 @@ export function ChatInterface({ isSidebarExpanded }: ChatInterfaceProps) {
         </div>
 
         {/* Bottom Section - Always present */}
-        <div className="bg-gray-100 dark:bg-gray-900 p-4">
+        <div className="bg-gray-100 dark:bg-gray-900 p-4 flex-shrink-0">
           <div className="mx-auto max-w-4xl">
             <InputArea
               onSendMessage={sendMessage}
@@ -190,5 +199,6 @@ export function ChatInterface({ isSidebarExpanded }: ChatInterfaceProps) {
           </div>
         </div>
       </div>
+    </div>
   );
 }

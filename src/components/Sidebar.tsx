@@ -10,13 +10,13 @@ interface SidebarProps {
 
 export function Sidebar({ isExpanded, onToggle, onNewChat, onLogout }: SidebarProps) {
   return (
-    <div className={`fixed top-0 left-0 h-full z-40 bg-gray-800 dark:bg-gray-900 flex flex-col justify-between w-64 transition-transform duration-300 ease-in-out ${
-      isExpanded ? 'translate-x-0' : '-translate-x-[calc(100%-4rem)]'
+    <div className={`flex flex-col justify-between bg-gray-800 dark:bg-gray-900 text-white transition-all duration-300 ease-in-out overflow-hidden ${
+      isExpanded ? 'w-64' : 'w-16'
     }`}>
       {/* Top/Middle Section */}
       <div>
         {/* Header */}
-        <div className="h-[68px] p-4 flex items-center">
+        <div className="h-[68px] p-4 flex items-center justify-between">
           {isExpanded ? (
             <>
               <div className="flex items-center gap-3">
@@ -34,7 +34,7 @@ export function Sidebar({ isExpanded, onToggle, onNewChat, onLogout }: SidebarPr
           ) : (
             <button
               onClick={onToggle}
-              className="p-1 text-gray-400 hover:text-white transition-colors w-full flex justify-center"
+              className="p-1 text-gray-400 hover:text-white transition-colors"
               title="Expand sidebar"
             >
               <ChevronsRight className="w-5 h-5 flex-shrink-0" />
@@ -79,7 +79,7 @@ export function Sidebar({ isExpanded, onToggle, onNewChat, onLogout }: SidebarPr
 
       {/* User Profile Section */}
       <div className="p-4">
-        <div className={`flex items-center ${isExpanded ? 'gap-3' : 'justify-center'}`}>
+        <div className={`flex items-center ${isExpanded ? 'gap-3' : 'justify-center'} min-h-[2rem]`}>
           <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
             <User className="w-4 h-4 text-white" />
           </div>
