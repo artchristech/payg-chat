@@ -5,10 +5,10 @@ import { ThemeSelector } from './ThemeSelector';
 import { PresetButtons } from './PresetButtons';
 import { ConversationGraph } from './ConversationGraph';
 import { ContextCanvas } from './ContextCanvas';
-import { Sidebar } from './Sidebar';
 import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen, Network, LogOut } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
+import { Sidebar } from './Sidebar';
 
 export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
