@@ -52,7 +52,7 @@ export function Sidebar({ isExpanded, onToggle, onNewChat, onLogout }: SidebarPr
         <div className="p-4 space-y-2">
           <button
             onClick={onNewChat}
-            className="w-full flex items-center justify-center p-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0"
+            className="w-full flex items-center justify-center p-4 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0"
             title={!isExpanded ? 'New Chat' : undefined}
           >
             {isExpanded ? (
@@ -68,7 +68,7 @@ export function Sidebar({ isExpanded, onToggle, onNewChat, onLogout }: SidebarPr
           </button>
 
           <button
-            className="w-full flex items-center justify-center p-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0"
+            className="w-full flex items-center justify-center p-4 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0"
             title={!isExpanded ? 'Chat History' : undefined}
           >
             {isExpanded ? (
@@ -84,7 +84,7 @@ export function Sidebar({ isExpanded, onToggle, onNewChat, onLogout }: SidebarPr
           </button>
 
           <button
-            className="w-full flex items-center justify-center p-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0"
+            className="w-full flex items-center justify-center p-4 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0"
             title={!isExpanded ? 'Agents' : undefined}
           >
             {isExpanded ? (
