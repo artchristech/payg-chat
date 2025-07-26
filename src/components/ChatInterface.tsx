@@ -6,7 +6,6 @@ import { ThemeSelector } from './ThemeSelector';
 import { PresetButtons } from './PresetButtons';
 import { ConversationGraph } from './ConversationGraph';
 import { ContextCanvas } from './ContextCanvas';
-import { ConfirmationModal } from './ConfirmationModal';
 import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen, Network, LogOut } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
@@ -19,8 +18,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'chat' | 'graph'>('chat');
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-  const [conversationToDeleteId, setConversationToDeleteId] = useState<string | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -76,24 +73,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
     setIsSidebarExpanded(!isSidebarExpanded);
   };
 
-  const handleShowDeleteConfirm = (conversationId: string) => {
-    setConversationToDeleteId(conversationId);
-    setShowDeleteConfirmModal(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (conversationToDeleteId) {
-      deleteConversation(conversationToDeleteId);
-    }
-    setShowDeleteConfirmModal(false);
-    setConversationToDeleteId(null);
-  };
-
-  const handleCancelDelete = () => {
-    setShowDeleteConfirmModal(false);
-    setConversationToDeleteId(null);
-  };
-
   const isEmpty = Object.keys(messages).length === 0;
 
   // Debug logging for graph view
@@ -113,7 +92,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
         conversations={conversations}
         onLoadConversation={loadConversation}
         onDeleteConversation={deleteConversation}
-        onShowDeleteConfirm={handleShowDeleteConfirm}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
@@ -233,15 +211,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
           </div>
         </div>
       </div>
-
-      {/* Delete Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={showDeleteConfirmModal}
-        onClose={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
-        title="Delete Conversation"
-        message="Are you sure you want to delete this conversation? This action cannot be undone."
-      />
     </div>
   );
 }
