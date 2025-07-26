@@ -11,6 +11,7 @@ interface SidebarProps {
   conversations: Record<string, Conversation>;
   onLoadConversation: (conversationId: string) => void;
   onDeleteConversation: (conversationId: string) => void;
+  onShowDeleteConfirm: (conversationId: string) => void;
 }
 
 export function Sidebar({ 
@@ -22,6 +23,7 @@ export function Sidebar({
   conversations, 
   onLoadConversation, 
   onDeleteConversation 
+  onShowDeleteConfirm 
 }: SidebarProps) {
   const [showHistory, setShowHistory] = React.useState(false);
   
@@ -31,9 +33,7 @@ export function Sidebar({
 
   const handleDeleteConversation = (e: React.MouseEvent, conversationId: string) => {
     e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this conversation?')) {
-      onDeleteConversation(conversationId);
-    }
+    onShowDeleteConfirm(conversationId);
   };
 
   return (
