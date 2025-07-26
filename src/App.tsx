@@ -64,7 +64,7 @@ function App() {
 
   // Show chat interface if authenticated
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <div className="relative flex h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <Sidebar
         isExpanded={isSidebarExpanded}
         onToggle={handleToggleSidebar}
