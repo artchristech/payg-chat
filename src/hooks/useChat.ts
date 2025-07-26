@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useCallback, useMemo, useRef } from 'react';
 import { Message, ChatState, Conversation } from '../types/chat';
 import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat, generateImageWithTogetherAI, togetherImageModels, calculateOpenRouterCost, calculateTogetherImageCost } from '../utils/api';
