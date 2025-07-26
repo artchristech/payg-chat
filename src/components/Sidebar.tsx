@@ -52,39 +52,51 @@ export function Sidebar({ isExpanded, onToggle, onNewChat, onLogout }: SidebarPr
         <div className="p-4 space-y-2">
           <button
             onClick={onNewChat}
-            className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0"
+            className="w-full flex items-center justify-center p-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0"
             title={!isExpanded ? 'New Chat' : undefined}
           >
-            <Plus className="w-5 h-5 flex-shrink-0" />
-            <div className={`whitespace-nowrap transition-opacity duration-200 ${
-              isExpanded ? 'opacity-100 delay-150' : 'opacity-0'
-            }`}>
-              <span>New Chat</span>
-            </div>
+            {isExpanded ? (
+              <>
+                <Plus className="w-5 h-5 flex-shrink-0" />
+                <div className="flex-1 text-left ml-3 whitespace-nowrap transition-opacity duration-200 opacity-100 delay-150">
+                  <span>New Chat</span>
+                </div>
+              </>
+            ) : (
+              <Plus className="w-5 h-5" />
+            )}
           </button>
 
           <button
-            className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0"
+            className="w-full flex items-center justify-center p-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0"
             title={!isExpanded ? 'Chat History' : undefined}
           >
-            <MessageSquare className="w-5 h-5 flex-shrink-0" />
-            <div className={`whitespace-nowrap transition-opacity duration-200 ${
-              isExpanded ? 'opacity-100 delay-150' : 'opacity-0'
-            }`}>
-              <span>Chat History</span>
-            </div>
+            {isExpanded ? (
+              <>
+                <MessageSquare className="w-5 h-5 flex-shrink-0" />
+                <div className="flex-1 text-left ml-3 whitespace-nowrap transition-opacity duration-200 opacity-100 delay-150">
+                  <span>Chat History</span>
+                </div>
+              </>
+            ) : (
+              <MessageSquare className="w-5 h-5" />
+            )}
           </button>
 
           <button
-            className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0"
+            className="w-full flex items-center justify-center p-3 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0"
             title={!isExpanded ? 'Agents' : undefined}
           >
-            <Users className="w-5 h-5 flex-shrink-0" />
-            <div className={`whitespace-nowrap transition-opacity duration-200 ${
-              isExpanded ? 'opacity-100 delay-150' : 'opacity-0'
-            }`}>
-              <span>Agents</span>
-            </div>
+            {isExpanded ? (
+              <>
+                <Users className="w-5 h-5 flex-shrink-0" />
+                <div className="flex-1 text-left ml-3 whitespace-nowrap transition-opacity duration-200 opacity-100 delay-150">
+                  <span>Agents</span>
+                </div>
+              </>
+            ) : (
+              <Users className="w-5 h-5" />
+            )}
           </button>
         </div>
       </div>
