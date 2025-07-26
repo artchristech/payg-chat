@@ -10,7 +10,7 @@ interface SidebarProps {
 
 export function Sidebar({ isExpanded, onToggle, onNewChat, onLogout }: SidebarProps) {
   return (
-    <div className={`h-full z-40 bg-gray-800 dark:bg-gray-900 flex flex-col justify-between w-64 transition-transform duration-300 ease-in-out ${
+    <div className={`fixed top-0 left-0 h-full z-40 bg-gray-800 dark:bg-gray-900 flex flex-col justify-between w-64 transition-transform duration-300 ease-in-out ${
       isExpanded ? 'translate-x-0' : '-translate-x-[calc(100%-4rem)]'
     }`}>
       {/* Top/Middle Section */}

@@ -72,7 +72,9 @@ export function ChatInterface({ isSidebarExpanded }: ChatInterfaceProps) {
   console.log('ChatInterface - currentLeafId:', currentLeafId);
 
   return (
-    <div className="flex-1 flex flex-col transition-all duration-300 ease-in-out bg-gray-100 dark:bg-gray-900">
+    <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out bg-gray-100 dark:bg-gray-900 ${
+        isSidebarExpanded ? 'ml-64' : 'ml-16'
+      }`}>
         {/* Header */}
         <div className="bg-gray-100 dark:bg-gray-900 px-4 py-3">
           <div className="max-w-4xl mx-auto flex items-center justify-center relative">
