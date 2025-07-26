@@ -6,14 +6,28 @@ export interface Message {
   type: 'text' | 'image' | 'audio' | 'image_generation_request' | 'generated_image';
   imageUrl?: string;
   audioUrl?: string;
-  file?: {
-    name: string;
-    type: string;
-  };
+  fileName?: string;
+  fileType?: string;
   isLoading?: boolean;
   isHidden?: boolean;
   parentId: string | null;
   wiredContextIds?: string[];
+  promptTokens?: number;
+  completionTokens?: number;
+  cost?: number;
+  modelId?: string;
+}
+
+export interface Conversation {
+  id: string;
+  userId: string;
+  title: string;
+  createdAt: Date;
+  updatedAt: Date;
+  lastMessageAt: Date;
+  modelId: string;
+  maxTokens: number;
+  cost: number;
 }
 
 export interface ContextBlock {
@@ -33,6 +47,8 @@ export interface ChatState {
   conversationCost: number;
   currentLeafId: string | null;
   contextBlocks: Record<string, ContextBlock>;
+  currentConversationId: string | null;
+  conversations: Record<string, Conversation>;
 }
 
 export interface OpenRouterModel {

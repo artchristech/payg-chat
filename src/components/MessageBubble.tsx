@@ -61,15 +61,15 @@ export function MessageBubble({ message, onReveal }: MessageBubbleProps) {
           </div>
         )}
         
-        {message.file && (
+        {(message.fileName || message.fileType) && (
           <div className="mb-2 flex items-center gap-2 bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg">
             <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             <div className="flex flex-col">
               <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                {message.file.name}
+                {message.fileName || 'Unknown file'}
               </span>
               <span className="text-xs text-gray-500 dark:text-gray-400">
-                {message.file.type || 'unknown type'}
+                {message.fileType || 'unknown type'}
               </span>
             </div>
           </div>

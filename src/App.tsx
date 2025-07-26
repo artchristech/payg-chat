@@ -64,7 +64,7 @@ function App() {
 
   // Show chat interface if authenticated
   return (
-    <ChatInterface />
+    <ChatInterface userId={session.user.id} />
   );
 }
 

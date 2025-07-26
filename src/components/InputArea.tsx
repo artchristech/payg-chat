@@ -6,7 +6,7 @@ import { ResponseLengthSlider } from './ResponseLengthSlider';
 import { AutocompleteMenu, autocompleteCommands, type AutocompleteOption } from './AutocompleteMenu';
 
 interface InputAreaProps {
-  onSendMessage: (content: string, type?: 'text' | 'image' | 'audio', imageUrl?: string, audioUrl?: string, maxTokens?: number, file?: File) => void;
+  onSendMessage: (content: string, type?: 'text' | 'image' | 'audio' | 'image_generation_request', imageUrl?: string, audioUrl?: string, maxTokens?: number, fileName?: string, fileType?: string) => void;
   isLoading: boolean;
   placeholder?: string;
   selectedModel: string;
@@ -160,7 +160,8 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
         selectedImage || undefined,
         undefined,
         maxTokens,
-        selectedFile || undefined
+        selectedFile?.name,
+        selectedFile?.type
       );
       
       setMessage('');
@@ -222,7 +223,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   }, []);
 
   const handleAudioRecording = useCallback((audioBlob: Blob, audioUrl: string) => {
-    onSendMessage('Audio message', 'audio', undefined, audioUrl, maxTokens, undefined);
+    onSendMessage('Audio message', 'audio', undefined, audioUrl, maxTokens);
   }, [onSendMessage, maxTokens]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {

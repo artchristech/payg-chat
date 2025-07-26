@@ -10,7 +10,11 @@ import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen, Network, LogOut } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 
-export function ChatInterface() {
+interface ChatInterfaceProps {
+  userId: string;
+}
+
+export function ChatInterface({ userId }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'chat' | 'graph'>('chat');
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
@@ -26,6 +30,8 @@ export function ChatInterface() {
     selectedModel, 
     sendMessage, 
     clearChat, 
+    loadConversation,
+    deleteConversation,
     setSelectedModel, 
     clearError, 
     maxTokens, 
@@ -42,7 +48,9 @@ export function ChatInterface() {
     removeContextBlock,
     wireContextToMessage,
     unwireContextFromMessage,
-  } = useChat(scrollToBottom);
+    currentConversationId,
+    conversations,
+  } = useChat(userId, scrollToBottom);
 
   const handlePresetClick = (prompt: string) => {
     sendMessage(prompt);
@@ -80,6 +88,10 @@ export function ChatInterface() {
         onToggle={handleToggleSidebar}
         onNewChat={handleClearChat}
         onLogout={handleLogout}
+        currentConversationId={currentConversationId}
+        conversations={conversations}
+        onLoadConversation={loadConversation}
+        onDeleteConversation={deleteConversation}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}

@@ -1,8 +1,18 @@
 import { useState, useCallback, useMemo, useRef } from 'react';
-import { Message, ChatState } from '../types/chat';
+import { Message, ChatState, Conversation } from '../types/chat';
 import { sendMessageToOpenRouter, convertMessagesToOpenRouterFormat, generateImageWithTogetherAI, togetherImageModels, calculateOpenRouterCost, calculateTogetherImageCost } from '../utils/api';
+import { 
+  createConversation, 
+  getConversations, 
+  getMessagesForConversation, 
+  saveMessage, 
+  updateMessage, 
+  updateConversation, 
+  deleteConversation as dbDeleteConversation,
+  generateConversationTitle 
+} from '../utils/db';
 
-export function useChat(onScrollToBottom?: () => void) {
+export function useChat(userId: string, onScrollToBottom?: () => void) {
   const [chatState, setChatState] = useState<ChatState>({
     messages: {},
     isLoading: false,
@@ -12,9 +22,80 @@ export function useChat(onScrollToBottom?: () => void) {
     conversationCost: 0,
     currentLeafId: null,
     contextBlocks: {},
+    currentConversationId: null,
+    conversations: {},
   });
   const [isCompletionOnlyMode, setIsCompletionOnlyMode] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Initialize chat - load conversations and create new one if needed
+  const initializeChat = useCallback(async () => {
+    if (!userId || isInitialized) return;
+
+    try {
+      // Load all conversations
+      const conversations = await getConversations(userId);
+      const conversationsMap = conversations.reduce((acc, conv) => {
+        acc[conv.id] = conv;
+        return acc;
+      }, {} as Record<string, Conversation>);
+
+      // Create a new conversation if none exist
+      let currentConversationId: string | null = null;
+      if (conversations.length === 0) {
+        const newConversation = await createConversation(
+          userId,
+          'New Chat',
+          chatState.selectedModel,
+          chatState.maxTokens
+        );
+        conversationsMap[newConversation.id] = newConversation;
+        currentConversationId = newConversation.id;
+      } else {
+        // Use the most recent conversation
+        currentConversationId = conversations[0].id;
+        
+        // Load messages for the current conversation
+        const messages = await getMessagesForConversation(currentConversationId);
+        const messagesMap = messages.reduce((acc, msg) => {
+          acc[msg.id] = msg;
+          return acc;
+        }, {} as Record<string, Message>);
+
+        // Find the current leaf (last message in the conversation)
+        const leafMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+        
+        setChatState(prev => ({
+          ...prev,
+          messages: messagesMap,
+          currentLeafId: leafMessage?.id || null,
+          conversationCost: conversations[0].cost,
+        }));
+      }
+
+      setChatState(prev => ({
+        ...prev,
+        conversations: conversationsMap,
+        currentConversationId,
+      }));
+
+      setIsInitialized(true);
+    } catch (error) {
+      console.error('Error initializing chat:', error);
+      setChatState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Failed to initialize chat',
+      }));
+    }
+  }, [userId, isInitialized, chatState.selectedModel, chatState.maxTokens]);
+
+  // Initialize on mount or when userId changes
+  React.useEffect(() => {
+    if (userId) {
+      initializeChat();
+    }
+  }, [userId, initializeChat]);
 
   const addMessage = useCallback((message: Omit<Message, 'id' | 'timestamp'>) => {
     const newMessage: Message = {
@@ -45,9 +126,14 @@ export function useChat(onScrollToBottom?: () => void) {
     imageUrl?: string,
     audioUrl?: string,
     maxTokens?: number,
-    file?: File
+    fileName?: string,
+    fileType?: string
   ) => {
     if (!content.trim()) return;
+    if (!chatState.currentConversationId) {
+      setChatState(prev => ({ ...prev, error: 'No active conversation' }));
+      return;
+    }
 
     // Clear previous error and set loading state at the very beginning
     setChatState(prev => ({ ...prev, error: null, isLoading: true }));
@@ -60,17 +146,44 @@ export function useChat(onScrollToBottom?: () => void) {
       type,
       imageUrl,
       audioUrl,
-      file: file ? { name: file.name, type: file.type } : undefined,
+      fileName,
+      fileType,
       timestamp: new Date(),
       parentId: chatState.currentLeafId,
     };
 
+    let savedUserMessage: Message | null = null;
+
+    try {
+      // Save user message to database
+      savedUserMessage = await saveMessage(chatState.currentConversationId, userId, {
+        role: userMessage.role,
+        content: userMessage.content,
+        type: userMessage.type,
+        imageUrl: userMessage.imageUrl,
+        audioUrl: userMessage.audioUrl,
+        fileName: userMessage.fileName,
+        fileType: userMessage.fileType,
+        parentId: userMessage.parentId,
+      });
+
+      // Update local state with the saved message
+      setChatState(prev => ({
+        ...prev,
+        messages: { ...prev.messages, [savedUserMessage!.id]: savedUserMessage! },
+        currentLeafId: savedUserMessage!.id,
+      }));
+    } catch (error) {
+      console.error('Error saving user message:', error);
+      setChatState(prev => ({ 
+        ...prev, 
+        error: 'Failed to save message',
+        isLoading: false 
+      }));
+      return;
+    }
+
     // Add user message first
-    setChatState(prev => ({
-      ...prev,
-      messages: { ...prev.messages, [userMessage.id]: userMessage },
-      currentLeafId: userMessage.id,
-    }));
 
     // Scroll to bottom after adding user message and starting AI response
     setTimeout(() => onScrollToBottom?.(), 100);
@@ -93,7 +206,7 @@ export function useChat(onScrollToBottom?: () => void) {
           type: 'generated_image',
           isLoading: true,
           timestamp: new Date(),
-          parentId: userMessage.id,
+          parentId: savedUserMessage.id,
         };
 
         setChatState(prev => ({
@@ -109,20 +222,36 @@ export function useChat(onScrollToBottom?: () => void) {
         // Calculate and add image generation cost
         const imageCost = calculateTogetherImageCost(defaultModel);
 
-        // Update assistant message with generated image
-        setChatState(prev => ({
-          ...prev,
-          messages: {
-            ...prev.messages,
-            [assistantMessage!.id]: {
-              ...prev.messages[assistantMessage!.id],
-              content: `Generated image for: "${content}"`,
-              imageUrl: generatedImageUrl,
-              isLoading: false
-            }
-          },
-          conversationCost: prev.conversationCost + imageCost,
-        }));
+        // Save assistant message to database
+        const finalAssistantMessage = await saveMessage(chatState.currentConversationId, userId, {
+          role: 'assistant',
+          content: `Generated image for: "${content}"`,
+          type: 'generated_image',
+          imageUrl: generatedImageUrl,
+          parentId: savedUserMessage.id,
+          cost: imageCost,
+          modelId: defaultModel,
+        });
+
+        // Update local state and conversation cost
+        setChatState(prev => {
+          const newConversationCost = prev.conversationCost + imageCost;
+          return {
+            ...prev,
+            messages: {
+              ...prev.messages,
+              [finalAssistantMessage.id]: finalAssistantMessage
+            },
+            conversationCost: newConversationCost,
+            currentLeafId: finalAssistantMessage.id,
+          };
+        });
+
+        // Update conversation in database
+        await updateConversation(chatState.currentConversationId, {
+          cost: chatState.conversationCost + imageCost,
+          lastMessageAt: new Date(),
+        });
 
         setTimeout(() => onScrollToBottom?.(), 100);
 
@@ -136,7 +265,7 @@ export function useChat(onScrollToBottom?: () => void) {
           isLoading: true,
           isHidden: isCompletionOnlyMode,
           timestamp: new Date(),
-          parentId: userMessage.id,
+          parentId: savedUserMessage.id,
         };
 
         setChatState(prev => ({
@@ -147,27 +276,31 @@ export function useChat(onScrollToBottom?: () => void) {
 
         // Prepare messages for API (including the new user message).
         // Filter out any loading messages from previous turns to ensure clean history for API.
-        const messagesForAPI = [...Object.values(chatState.messages).filter(msg => !msg.isLoading), userMessage];
+        const messagesForAPI = [...Object.values(chatState.messages).filter(msg => !msg.isLoading), savedUserMessage];
         const openRouterMessages = convertMessagesToOpenRouterFormat(messagesForAPI, chatState.selectedModel, chatState.contextBlocks, maxTokens || chatState.maxTokens);
+        
+        let assistantContent = '';
+        let savedAssistantMessage: Message | null = null;
         
         await sendMessageToOpenRouter(
           openRouterMessages, 
           chatState.selectedModel,
           // onUpdate callback - append content as it streams
           (chunkContent: string) => {
+            assistantContent += chunkContent;
             setChatState(prev => ({
               ...prev,
               messages: {
                 ...prev.messages,
                 [assistantMessage!.id]: {
                   ...prev.messages[assistantMessage!.id],
-                  content: prev.messages[assistantMessage!.id].content + chunkContent
+                  content: assistantContent
                 }
               },
             }));
           },
           // onComplete callback - mark as finished
-          (usage) => {
+          async (usage) => {
             // Calculate cost based on token usage
             let messageCost = 0;
             if (usage) {
@@ -178,17 +311,64 @@ export function useChat(onScrollToBottom?: () => void) {
               );
             }
             
-            setChatState(prev => ({
-              ...prev,
-              messages: {
-                ...prev.messages,
-                [assistantMessage!.id]: {
-                  ...prev.messages[assistantMessage!.id],
-                  isLoading: false // Mark as not loading when complete
-                }
-              },
-              conversationCost: prev.conversationCost + messageCost,
-            }));
+            try {
+              // Save assistant message to database
+              savedAssistantMessage = await saveMessage(chatState.currentConversationId, userId, {
+                role: 'assistant',
+                content: assistantContent,
+                type: 'text',
+                parentId: savedUserMessage.id,
+                isHidden: isCompletionOnlyMode,
+                promptTokens: usage?.prompt_tokens || 0,
+                completionTokens: usage?.completion_tokens || 0,
+                cost: messageCost,
+                modelId: chatState.selectedModel,
+              });
+
+              // Update local state
+              setChatState(prev => {
+                const newConversationCost = prev.conversationCost + messageCost;
+                return {
+                  ...prev,
+                  messages: {
+                    ...prev.messages,
+                    [savedAssistantMessage!.id]: savedAssistantMessage!
+                  },
+                  conversationCost: newConversationCost,
+                  currentLeafId: savedAssistantMessage!.id,
+                };
+              });
+
+              // Update conversation title if this is the first exchange
+              const isFirstExchange = Object.keys(chatState.messages).length === 0;
+              const conversationUpdates: any = {
+                cost: chatState.conversationCost + messageCost,
+                lastMessageAt: new Date(),
+              };
+              
+              if (isFirstExchange) {
+                conversationUpdates.title = generateConversationTitle(savedUserMessage.content);
+              }
+
+              await updateConversation(chatState.currentConversationId, conversationUpdates);
+              
+              // Update conversation title in local state if it was the first exchange
+              if (isFirstExchange) {
+                setChatState(prev => ({
+                  ...prev,
+                  conversations: {
+                    ...prev.conversations,
+                    [chatState.currentConversationId!]: {
+                      ...prev.conversations[chatState.currentConversationId!],
+                      title: conversationUpdates.title,
+                    }
+                  }
+                }));
+              }
+            } catch (error) {
+              console.error('Error saving assistant message:', error);
+            }
+            
             // Scroll to bottom when AI response is complete
             setTimeout(() => onScrollToBottom?.(), 100);
           },
@@ -237,17 +417,116 @@ export function useChat(onScrollToBottom?: () => void) {
       }
       setChatState(prev => ({ ...prev, isLoading: false }));
     }
-  }, [chatState.messages, chatState.selectedModel, chatState.maxTokens, isCompletionOnlyMode, onScrollToBottom]);
+  }, [chatState.messages, chatState.selectedModel, chatState.maxTokens, chatState.currentConversationId, chatState.conversationCost, isCompletionOnlyMode, userId, onScrollToBottom]);
 
-  const clearChat = useCallback(() => {
-    setChatState(prev => ({
-      ...prev,
-      messages: {},
-      error: null,
-      conversationCost: 0,
-      currentLeafId: null,
-    }));
-  }, []);
+  const clearChat = useCallback(async () => {
+    if (!userId) return;
+
+    try {
+      // Create a new conversation
+      const newConversation = await createConversation(
+        userId,
+        'New Chat',
+        chatState.selectedModel,
+        chatState.maxTokens
+      );
+
+      setChatState(prev => ({
+        ...prev,
+        messages: {},
+        error: null,
+        conversationCost: 0,
+        currentLeafId: null,
+        currentConversationId: newConversation.id,
+        conversations: {
+          ...prev.conversations,
+          [newConversation.id]: newConversation,
+        },
+      }));
+    } catch (error) {
+      console.error('Error creating new conversation:', error);
+      setChatState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Failed to create new conversation',
+      }));
+    }
+  }, [userId, chatState.selectedModel, chatState.maxTokens]);
+
+  const loadConversation = useCallback(async (conversationId: string) => {
+    if (!userId) return;
+
+    try {
+      setChatState(prev => ({ ...prev, isLoading: true, error: null }));
+
+      // Load messages for the conversation
+      const messages = await getMessagesForConversation(conversationId);
+      const messagesMap = messages.reduce((acc, msg) => {
+        acc[msg.id] = msg;
+        return acc;
+      }, {} as Record<string, Message>);
+
+      // Find the current leaf (last message in the conversation)
+      const leafMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+      
+      // Get conversation cost
+      const conversation = chatState.conversations[conversationId];
+      const conversationCost = conversation?.cost || 0;
+
+      setChatState(prev => ({
+        ...prev,
+        messages: messagesMap,
+        currentLeafId: leafMessage?.id || null,
+        currentConversationId: conversationId,
+        conversationCost,
+        isLoading: false,
+      }));
+    } catch (error) {
+      console.error('Error loading conversation:', error);
+      setChatState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Failed to load conversation',
+        isLoading: false,
+      }));
+    }
+  }, [userId, chatState.conversations]);
+
+  const deleteConversation = useCallback(async (conversationId: string) => {
+    if (!userId) return;
+
+    try {
+      await dbDeleteConversation(conversationId);
+
+      setChatState(prev => {
+        const newConversations = { ...prev.conversations };
+        delete newConversations[conversationId];
+
+        // If we're deleting the current conversation, clear the chat
+        const isCurrentConversation = prev.currentConversationId === conversationId;
+        
+        return {
+          ...prev,
+          conversations: newConversations,
+          ...(isCurrentConversation && {
+            messages: {},
+            currentLeafId: null,
+            currentConversationId: null,
+            conversationCost: 0,
+          }),
+        };
+      });
+
+      // If we deleted the current conversation, create a new one
+      if (chatState.currentConversationId === conversationId) {
+        await clearChat();
+      }
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      setChatState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Failed to delete conversation',
+      }));
+    }
+  }, [userId, chatState.currentConversationId, clearChat]);
 
   const setSelectedModel = useCallback((model: string) => {
     setChatState(prev => ({ ...prev, selectedModel: model }));
@@ -363,12 +642,16 @@ export function useChat(onScrollToBottom?: () => void) {
     conversationCost: chatState.conversationCost,
     currentLeafId: chatState.currentLeafId,
     contextBlocks: chatState.contextBlocks,
+    currentConversationId: chatState.currentConversationId,
+    conversations: chatState.conversations,
   }), [chatState]);
 
   return {
     ...memoizedState,
     sendMessage,
     clearChat,
+    loadConversation,
+    deleteConversation,
     setSelectedModel,
     setMaxTokens,
     clearError,
