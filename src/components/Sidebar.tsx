@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronsLeft, ChevronsRight, Plus, MessageSquare, Users, User } from 'lucide-react';
+import { Bot, ChevronsLeft, ChevronsRight, Plus, MessageSquare, Users, User } from 'lucide-react';
 
 interface SidebarProps {
   isExpanded: boolean;
@@ -19,10 +19,13 @@ export function Sidebar({ isExpanded, onToggle, onNewChat, onLogout }: SidebarPr
         <div className="h-[68px] p-4 flex items-center justify-between">
           {isExpanded ? (
             <>
-              <div className={`whitespace-nowrap transition-opacity duration-200 ${
-                isExpanded ? 'opacity-100 delay-150' : 'opacity-0'
-              }`}>
-                <span className="text-white font-semibold">payg-chat</span>
+              <div className="flex items-center gap-3 min-w-0">
+                <Bot className="w-6 h-6 text-blue-400 flex-shrink-0" />
+                <div className={`whitespace-nowrap transition-opacity duration-200 ${
+                  isExpanded ? 'opacity-100 delay-150' : 'opacity-0'
+                }`}>
+                  <span className="text-white font-semibold">payg-chat</span>
+                </div>
               </div>
               <button
                 onClick={onToggle}
@@ -37,7 +40,7 @@ export function Sidebar({ isExpanded, onToggle, onNewChat, onLogout }: SidebarPr
           ) : (
             <button
               onClick={onToggle}
-              className="w-10 h-10 flex items-center justify-center text-gray-400 hover:bg-gray-700 dark:hover:bg-gray-600 hover:text-gray-200 rounded-lg transition-colors"
+              className="p-1 text-gray-400 hover:text-white transition-colors flex-shrink-0"
               title="Expand sidebar"
             >
               <ChevronsRight className="w-5 h-5" />
