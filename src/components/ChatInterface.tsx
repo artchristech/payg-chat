@@ -5,15 +5,17 @@ import { ThemeSelector } from './ThemeSelector';
 import { PresetButtons } from './PresetButtons';
 import { ConversationGraph } from './ConversationGraph';
 import { ContextCanvas } from './ContextCanvas';
-import { Sidebar } from './Sidebar';
 import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen, Network, LogOut } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 
-export function ChatInterface() {
+interface ChatInterfaceProps {
+  isSidebarExpanded: boolean;
+}
+
+export function ChatInterface({ isSidebarExpanded }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'chat' | 'graph'>('chat');
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -53,10 +55,6 @@ export function ChatInterface() {
     setViewMode('chat'); // Reset to chat view when clearing
   };
 
-  const handleToggleSidebar = () => {
-    setIsSidebarExpanded(!isSidebarExpanded);
-  };
-
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
@@ -74,16 +72,8 @@ export function ChatInterface() {
   console.log('ChatInterface - currentLeafId:', currentLeafId);
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
-      <Sidebar
-        isExpanded={isSidebarExpanded}
-        onToggle={handleToggleSidebar}
-        onNewChat={handleClearChat}
-        onLogout={handleLogout}
-      />
-      
-      <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out bg-gray-100 dark:bg-gray-900 ${
-        'pl-16'
+    <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out bg-gray-100 dark:bg-gray-900 ${
+        isSidebarExpanded ? 'ml-64' : 'ml-16'
       }`}>
         {/* Header */}
         <div className="bg-gray-100 dark:bg-gray-900 px-4 py-3">
@@ -202,6 +192,5 @@ export function ChatInterface() {
           </div>
         </div>
       </div>
-    </div>
   );
 }
