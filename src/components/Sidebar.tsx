@@ -97,7 +97,6 @@ export function Sidebar({
             className={`w-full flex rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0 ${
               isExpanded ? 'items-center justify-start p-4 gap-3' : 'items-center justify-center p-4'
             } ${showHistory ? 'bg-gray-700' : ''}`}
-            }`}
             title={!isExpanded ? 'Chat History' : undefined}
           >
             <MessageSquare className="w-5 h-5 flex-shrink-0" />
