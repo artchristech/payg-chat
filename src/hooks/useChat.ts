@@ -494,19 +494,19 @@ export function useChat(userId: string, onScrollToBottom?: () => void) {
     if (!userId) return;
 
     try {
+      // Capture if the deleted conversation is the current one *before* state update
+      const isDeletingCurrentConversation = chatState.currentConversationId === conversationId;
+
       await dbDeleteConversation(conversationId);
 
       setChatState(prev => {
         const newConversations = { ...prev.conversations };
         delete newConversations[conversationId];
 
-        // If we're deleting the current conversation, clear the chat
-        const isCurrentConversation = prev.currentConversationId === conversationId;
-        
         return {
           ...prev,
           conversations: newConversations,
-          ...(isCurrentConversation && {
+          ...(isDeletingCurrentConversation && {
             messages: {},
             currentLeafId: null,
             currentConversationId: null,
@@ -516,7 +516,7 @@ export function useChat(userId: string, onScrollToBottom?: () => void) {
       });
 
       // If we deleted the current conversation, create a new one
-      if (chatState.currentConversationId === conversationId) {
+      if (isDeletingCurrentConversation) {
         await clearChat();
       }
     } catch (error) {
