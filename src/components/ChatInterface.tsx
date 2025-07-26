@@ -1,22 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MessageBubble } from './MessageBubble';
 import { InputArea } from './InputArea';
+import { ThemeSelector } from './ThemeSelector';
 import { PresetButtons } from './PresetButtons';
 import { ConversationGraph } from './ConversationGraph';
 import { ContextCanvas } from './ContextCanvas';
-import { Sidebar } from './Sidebar';
 import { useChat } from '../hooks/useChat';
-import { AlertCircle, Network } from 'lucide-react';
+import { AlertCircle, SquarePen, Network, LogOut } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 
 export function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'chat' | 'graph'>('chat');
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-
-  const handleToggleSidebar = () => {
-    setIsSidebarExpanded(!isSidebarExpanded);
-  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -73,19 +68,7 @@ export function ChatInterface() {
   console.log('ChatInterface - currentLeafId:', currentLeafId);
 
   return (
-    <div className="flex h-screen relative">
-      {/* Sidebar */}
-      <Sidebar
-        isExpanded={isSidebarExpanded}
-        onToggle={handleToggleSidebar}
-        onNewChat={handleClearChat}
-        onLogout={handleLogout}
-      />
-
-      {/* Main Content */}
-      <div className={`flex flex-col h-screen bg-gray-100 dark:bg-gray-900 transition-all duration-300 ease-in-out ${
-        isSidebarExpanded ? 'ml-64' : 'ml-16'
-      }`}>
+    <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 relative">
       {/* Header */}
       <div className="bg-gray-100 dark:bg-gray-900 px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-center relative">
@@ -93,6 +76,7 @@ export function ChatInterface() {
           
           <div className="absolute right-0 flex items-center gap-2">
             {!isEmpty && (
+              <>
                 <button
                   onClick={() => setViewMode(viewMode === 'chat' ? 'graph' : 'chat')}
                   className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
@@ -104,7 +88,23 @@ export function ChatInterface() {
                 >
                   <Network className="w-4 h-4" />
                 </button>
+              <button
+                onClick={handleClearChat}
+                className="w-10 h-10 flex items-center justify-center text-gray-400 hover:bg-gray-700 dark:hover:bg-gray-600 hover:text-gray-200 rounded-lg transition-colors"
+                title="Clear Chat"
+              >
+                <SquarePen className="w-4 h-4" />
+              </button>
+              </>
             )}
+            <button
+              onClick={handleLogout}
+              className="w-10 h-10 flex items-center justify-center text-gray-400 hover:bg-gray-700 dark:hover:bg-gray-600 hover:text-gray-200 rounded-lg transition-colors"
+              title="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+            <ThemeSelector />
           </div>
         </div>
       </div>
@@ -185,7 +185,6 @@ export function ChatInterface() {
           />
         </div>
       </div>
-    </div>
     </div>
   );
 }
