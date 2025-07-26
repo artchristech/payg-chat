@@ -440,7 +440,6 @@ export function useChat(userId: string, onScrollToBottom?: () => void) {
         currentLeafId: null,
         currentConversationId: newConversation.id,
         conversations: {
-          ...prev.conversations,
           [newConversation.id]: newConversation,
         },
       }));
