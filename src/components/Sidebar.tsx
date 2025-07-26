@@ -20,6 +20,7 @@ export function Sidebar({ isExpanded, onToggle, onNewChat, onLogout }: SidebarPr
           {isExpanded ? (
             <>
               <div className="flex items-center gap-3 min-w-0">
+                <Bot className="w-6 h-6 text-blue-400 flex-shrink-0" />
                 <div className={`whitespace-nowrap transition-opacity duration-200 ${
                   isExpanded ? 'opacity-100 delay-150' : 'opacity-0'
                 }`}>
