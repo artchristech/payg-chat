@@ -440,6 +440,7 @@ export function useChat(userId: string, onScrollToBottom?: () => void) {
         currentLeafId: null,
         currentConversationId: newConversation.id,
         conversations: {
+          ...prev.conversations,
           [newConversation.id]: newConversation,
         },
       }));
@@ -493,32 +494,44 @@ export function useChat(userId: string, onScrollToBottom?: () => void) {
   const deleteConversation = useCallback(async (conversationId: string) => {
     if (!userId) return;
 
-    try {
-      // Capture if the deleted conversation is the current one *before* state update
-      const isDeletingCurrentConversation = chatState.currentConversationId === conversationId;
+    // Capture if the deleted conversation is the current one *before* state update
+    const isDeletingCurrentConversation = chatState.currentConversationId === conversationId;
 
+    try {
       await dbDeleteConversation(conversationId);
 
-      setChatState(prev => {
-        const newConversations = { ...prev.conversations };
-        delete newConversations[conversationId];
+      let newConversationForState: Conversation | null = null;
+      if (isDeletingCurrentConversation) {
+        // Create new conversation in DB if current one was deleted
+        newConversationForState = await createConversation(
+          userId, 
+          'New Chat', 
+          chatState.selectedModel, 
+          chatState.maxTokens
+        );
+      }
 
-        return {
-          ...prev,
-          conversations: newConversations,
-          ...(isDeletingCurrentConversation && {
+      setChatState(prev => {
+        const updatedConversations = { ...prev.conversations };
+        delete updatedConversations[conversationId];
+
+        if (newConversationForState) {
+          updatedConversations[newConversationForState.id] = newConversationForState;
+          return {
+            ...prev,
+            conversations: updatedConversations,
             messages: {},
             currentLeafId: null,
-            currentConversationId: null,
+            currentConversationId: newConversationForState.id,
             conversationCost: 0,
-          }),
-        };
+          };
+        } else {
+          return {
+            ...prev,
+            conversations: updatedConversations,
+          };
+        }
       });
-
-      // If we deleted the current conversation, create a new one
-      if (isDeletingCurrentConversation) {
-        await clearChat();
-      }
     } catch (error) {
       console.error('Error deleting conversation:', error);
       setChatState(prev => ({
@@ -526,7 +539,7 @@ export function useChat(userId: string, onScrollToBottom?: () => void) {
         error: error instanceof Error ? error.message : 'Failed to delete conversation',
       }));
     }
-  }, [userId, chatState.currentConversationId, clearChat]);
+  }, [userId, chatState.currentConversationId, chatState.selectedModel, chatState.maxTokens]);
 
   const setSelectedModel = useCallback((model: string) => {
     setChatState(prev => ({ ...prev, selectedModel: model }));
