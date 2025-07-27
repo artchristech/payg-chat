@@ -189,6 +189,7 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
             ) : viewMode === 'chat' ? (
               <div className="space-y-6">
                 {Object.values(messages)
+                  .filter(message => message && message.timestamp instanceof Date)
                   .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
                   .map((message) => (
                   <MessageBubble key={message.id} message={message} onReveal={revealMessageContent} />
