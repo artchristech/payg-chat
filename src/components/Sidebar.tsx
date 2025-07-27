@@ -85,7 +85,12 @@ export function Sidebar({
         {/* Primary Actions */}
         <div className="p-4 space-y-2">
           <button
-            onClick={onNewChat}
+            onClick={() => {
+              if (!isExpanded) {
+                onToggle();
+              }
+              onNewChat();
+            }}
             className={`w-full flex rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0 ${
               isExpanded ? 'items-center justify-start p-4 gap-3' : 'items-center justify-center p-4'
             }`}
@@ -100,7 +105,13 @@ export function Sidebar({
           </button>
 
           <button
-            onClick={() => setShowHistory(!showHistory)}
+            onClick={() => {
+              if (!isExpanded) {
+                onToggle();
+              } else {
+                setShowHistory(!showHistory);
+              }
+            }}
             className={`w-full flex rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0 ${
               isExpanded ? 'items-center justify-start p-4 gap-3' : 'items-center justify-center p-4'
             } ${showHistory ? 'bg-gray-700' : ''}`}
@@ -115,6 +126,11 @@ export function Sidebar({
           </button>
 
           <button
+            onClick={() => {
+              if (!isExpanded) {
+                onToggle();
+              }
+            }}
             className={`w-full flex rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0 ${
               isExpanded ? 'items-center justify-start p-4 gap-3' : 'items-center justify-center p-4'
             }`}
