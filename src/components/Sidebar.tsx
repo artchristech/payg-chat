@@ -27,6 +27,13 @@ export function Sidebar({
 }: SidebarProps) {
   const [showHistory, setShowHistory] = React.useState(false);
   
+  // Reset showHistory when sidebar collapses
+  React.useEffect(() => {
+    if (!isExpanded) {
+      setShowHistory(false);
+    }
+  }, [isExpanded]);
+  
   const conversationList = Object.values(conversations).sort(
     (a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
   );
