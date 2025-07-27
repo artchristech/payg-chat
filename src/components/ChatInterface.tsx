@@ -81,9 +81,14 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
     setShowDeleteConfirmModal(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (conversationToDeleteId) {
-      deleteConversation(conversationToDeleteId);
+      try {
+        await deleteConversation(conversationToDeleteId);
+      } catch (error) {
+        // Error handling is managed by the useChat hook
+        console.error('Error deleting conversation:', error);
+      }
     }
     setShowDeleteConfirmModal(false);
     setConversationToDeleteId(null);
