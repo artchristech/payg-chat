@@ -86,9 +86,6 @@ export function Sidebar({
         <div className="p-4 space-y-2">
           <button
             onClick={() => {
-              if (!isExpanded) {
-                onToggle();
-              }
               onNewChat();
             }}
             className={`w-full flex rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0 ${
