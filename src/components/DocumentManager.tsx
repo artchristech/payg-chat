@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, FileText, Trash2, Download, Search, Filter, Calendar, HardDrive, AlertCircle, CheckCircle, Loader2, Zap } from 'lucide-react';
+import { Upload, FileText, Trash2, Download, Search, Filter, Calendar, HardDrive, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { Document, UploadProgress } from '../types/documents';
 import { getUserDocuments, createDocument, deleteDocument, uploadFile, getUserDocumentStats } from '../utils/documents';
-import { processDocument } from '../utils/vectorStore';
 
 interface DocumentManagerProps {
   userId: string;
@@ -88,52 +87,11 @@ export function DocumentManager({ userId }: DocumentManagerProps) {
         fileUrl
       );
 
-      // Process document with LangChain if it has content
-      if (content.trim()) {
-        setUploadProgress({
-          stage: 'processing',
-          progress: 60,
-          message: 'Processing document with AI...',
-        });
-
-        try {
-          await processDocument(
-            newDocument.id,
-            userId,
-            file.name,
-            content,
-            file.type || 'application/octet-stream',
-            (stage, progress) => {
-              const stageMessages = {
-                processing: 'Splitting document into chunks...',
-                embedding: 'Generating embeddings...',
-                storing: 'Storing in vector database...',
-                complete: 'Document processed successfully!',
-              };
-              
-              setUploadProgress({
-                stage: stage as any,
-                progress: 60 + (progress * 0.4), // Scale to 60-100%
-                message: stageMessages[stage as keyof typeof stageMessages] || 'Processing...',
-              });
-            }
-          );
-        } catch (embeddingError) {
-          console.error('Error processing document embeddings:', embeddingError);
-          // Don't fail the entire upload if embedding fails
-          setUploadProgress({
-            stage: 'complete',
-            progress: 100,
-            message: 'Document uploaded (embedding processing failed)',
-          });
-        }
-      } else {
-        setUploadProgress({
-          stage: 'complete',
-          progress: 100,
-          message: 'Document uploaded successfully!',
-        });
-      }
+      setUploadProgress({
+        stage: 'complete',
+        progress: 100,
+        message: 'Document uploaded successfully!',
+      });
 
       // Add to documents list
       setDocuments(prev => [newDocument, ...prev]);
@@ -394,14 +352,6 @@ export function DocumentManager({ userId }: DocumentManagerProps) {
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(document.createdAt).toLocaleDateString()}
                     </p>
-                    {document.chunkCount > 0 && (
-                      <div className="flex items-center gap-1 mt-1">
-                        <Zap className="w-3 h-3 text-purple-500" />
-                        <span className="text-xs text-purple-600 dark:text-purple-400">
-                          {document.chunkCount} chunks
-                        </span>
-                      </div>
-                    )}
                     {document.content && (
                       <p className="text-xs text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">
                         {document.content.substring(0, 100)}...
