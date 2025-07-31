@@ -6,7 +6,7 @@ import { ResponseLengthSlider } from './ResponseLengthSlider';
 import { AutocompleteMenu, autocompleteCommands, type AutocompleteOption } from './AutocompleteMenu';
 
 interface InputAreaProps {
-  onSendMessage: (content: string, type?: 'text' | 'image' | 'audio' | 'image_generation_request', imageUrl?: string, audioUrl?: string, maxTokens?: number, fileName?: string, fileType?: string, fileUrl?: string) => void;
+  onSendMessage: (content: string, type?: 'text' | 'image' | 'audio' | 'image_generation_request', imageUrl?: string, audioUrl?: string, maxTokens?: number, fileName?: string, fileType?: string) => void;
   isLoading: boolean;
   placeholder?: string;
   selectedModel: string;
@@ -25,7 +25,6 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
-  const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isImageGenerationMode, setIsImageGenerationMode] = useState(false);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
@@ -162,8 +161,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
         undefined,
         maxTokens,
         selectedFile?.name,
-        selectedFile?.type,
-        selectedFileUrl || undefined
+        selectedFile?.type
       );
       
       setMessage('');
@@ -171,13 +169,12 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
       setSelectedImageFile(null);
       setSelectedFile(null);
       setIsImageGenerationMode(false);
-      setSelectedFileUrl(null);
       setDetectedCommand(null);
       setShowAutocomplete(false);
       setAutocompleteOptions([]);
       setAutocompleteQuery('');
     }
-  }, [message, selectedImage, selectedFile, isImageGenerationMode, detectedCommand, onSendMessage, maxTokens, selectedFileUrl]);
+  }, [message, selectedImage, selectedFile, isImageGenerationMode, detectedCommand, onSendMessage, maxTokens]);
 
   const handleImageSelect = useCallback((file: File, preview: string) => {
     setSelectedImage(preview);
@@ -189,9 +186,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
     setSelectedImageFile(null);
   }, []);
 
-  const handleFileSelect = useCallback(async (file: File) => {
-    // Import uploadFile from documents.ts
-    const { uploadFile } = await import('../utils/documents');
+  const handleFileSelect = useCallback((file: File) => {
     if (file.type.startsWith('image/')) {
       // Handle image files
       const reader = new FileReader();
@@ -201,14 +196,9 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
         setSelectedImageFile(file);
       };
       reader.readAsDataURL(file);
-      // For images, we still want to upload them to storage
-      const url = await uploadFile(file, 'user_id_placeholder'); // Replace 'user_id_placeholder' with actual user ID
-      setSelectedFileUrl(url);
     } else {
       // Handle non-image files
       setSelectedFile(file);
-      const url = await uploadFile(file, 'user_id_placeholder'); // Replace 'user_id_placeholder' with actual user ID
-      setSelectedFileUrl(url);
     }
   }, []);
 
