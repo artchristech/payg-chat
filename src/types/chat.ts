@@ -6,6 +6,7 @@ export interface Message {
   type: 'text' | 'image' | 'audio' | 'image_generation_request' | 'generated_image';
   imageUrl?: string;
   audioUrl?: string;
+  fileUrl?: string;
   fileName?: string;
   fileType?: string;
   isLoading?: boolean;
