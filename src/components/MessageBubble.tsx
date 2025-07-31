@@ -1,6 +1,6 @@
 import React from 'react';
 import { Message } from '../types/chat';
-import { Volume2, EyeOff, FileText, Download, ExternalLink } from 'lucide-react';
+import { Volume2, EyeOff, FileText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -65,25 +65,17 @@ export function MessageBubble({ message, onReveal }: MessageBubbleProps) {
           <div className="mb-2 flex items-center gap-2 bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg">
             <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             <div className="flex flex-col">
-              <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                {message.fileName || 'Unknown file'}
-              </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {message.fileType || 'unknown type'}
-              </span>
+              {message.fileUrl ? (
+                <a href={message.fileUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline truncate max-w-[150px]">
+                  {message.fileName || 'View File'}
+                </a>
+              ) : (
+                <span className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate max-w-[150px]">
+                  {message.fileName || 'Unknown file'}
+                </span>
+              )}
+              <span className="text-xs text-gray-500 dark:text-gray-400">{message.fileType || 'unknown type'}</span>
             </div>
-            {message.fileUrl && (
-              <a
-                href={message.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-auto flex items-center gap-1 px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition-colors"
-                title="Download file"
-              >
-                <Download className="w-3 h-3" />
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            )}
           </div>
         )}
         

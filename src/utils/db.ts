@@ -10,9 +10,9 @@ export interface DatabaseMessage {
   type: 'text' | 'image' | 'audio' | 'image_generation_request' | 'generated_image';
   image_url?: string;
   audio_url?: string;
+  file_url?: string;
   file_name?: string;
   file_type?: string;
-  file_url?: string;
   parent_id?: string;
   created_at: string;
   model_id?: string;
@@ -43,6 +43,7 @@ function dbMessageToMessage(dbMessage: DatabaseMessage): Message {
     type: dbMessage.type,
     imageUrl: dbMessage.image_url,
     audioUrl: dbMessage.audio_url,
+    fileUrl: dbMessage.file_url,
     fileName: dbMessage.file_name,
     fileType: dbMessage.file_type,
     parentId: dbMessage.parent_id || null,
@@ -142,9 +143,9 @@ export async function saveMessage(
       type: message.type,
       image_url: message.imageUrl,
       audio_url: message.audioUrl,
+      file_url: message.fileUrl,
       file_name: message.fileName,
       file_type: message.fileType,
-      file_url: message.fileUrl,
       parent_id: message.parentId,
       model_id: message.modelId,
       prompt_tokens: message.promptTokens || 0,
