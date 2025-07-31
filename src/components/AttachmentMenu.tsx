@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Paperclip, Image, Mic, Square, X, FileText } from 'lucide-react';
+import { parseFile } from '../utils/fileParser';
 
 interface AttachmentMenuProps {
   onAudioRecordingComplete: (audioBlob: Blob, audioUrl: string) => void;
-  onFileSelect: (file: File, preview?: string) => void;
+  onFileSelect: (file: File, preview?: string, fileContent?: string, fileTitle?: string) => void;
 }
 
 export function AttachmentMenu({ onAudioRecordingComplete, onFileSelect }: AttachmentMenuProps) {
@@ -37,14 +38,19 @@ export function AttachmentMenu({ onAudioRecordingComplete, onFileSelect }: Attac
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.type.startsWith('image/')) {
-        // Handle image files with preview
+      if (file.type.startsWith('image/')) { // Handle image files with preview
         const reader = new FileReader();
         reader.onload = (e) => {
           const preview = e.target?.result as string;
-          onFileSelect(file, preview);
+          onFileSelect(file, preview); // No fileContent for images
         };
         reader.readAsDataURL(file);
+      } else if (file.type.startsWith('text/') || file.type === 'application/json' || file.name.endsWith('.md') || file.name.endsWith('.txt')) {
+        // Handle text-based files that can be parsed for content
+        parseFile(file).then(({ content, title }) => {
+          onFileSelect(file, undefined, content, title);
+        }).catch(console.error);
+
       } else {
         // Handle non-image files
         onFileSelect(file);

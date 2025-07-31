@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Upload, FileText, Trash2, Download, Search, Filter, Calendar, HardDrive, AlertCircle, CheckCircle, Loader2, Zap } from 'lucide-react';
 import { Document, UploadProgress } from '../types/documents';
 import { getUserDocuments, createDocument, deleteDocument, uploadFile, getUserDocumentStats } from '../utils/documents';
+import { parseFile } from '../utils/fileParser';
 import { addDocumentsToVectorStore } from '../utils/vectorStore';
 import { createDocumentChunks } from '../utils/documents';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
@@ -75,11 +76,14 @@ export function DocumentManager({ userId }: DocumentManagerProps) {
       });
 
       // Read file content for text files
-      let content = '';
-      if (file.type.startsWith('text/') || file.name.endsWith('.md') || file.name.endsWith('.txt')) {
-        content = await file.text();
-      }
+      let parsedContent = '';
+      let parsedTitle = file.name;
 
+      // Use the new file parser for content extraction
+      const { content, title } = await parseFile(file);
+      parsedContent = content;
+      parsedTitle = title;
+      
       // Create document record
       const newDocument = await createDocument(
         userId,
@@ -91,7 +95,7 @@ export function DocumentManager({ userId }: DocumentManagerProps) {
       );
 
       // Process document with LangChain if it has content
-      if (content.trim()) {
+      if (parsedContent.trim()) {
         setUploadProgress({
           stage: 'processing',
           progress: 60,
@@ -104,8 +108,8 @@ export function DocumentManager({ userId }: DocumentManagerProps) {
             chunkSize: 1000,
             chunkOverlap: 200,
           });
-
-          const docs = await textSplitter.createDocuments([content]);
+          
+          const docs = await textSplitter.createDocuments([parsedContent]);
           
           setUploadProgress({
             stage: 'embedding',

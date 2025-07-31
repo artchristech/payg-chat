@@ -70,7 +70,9 @@ export function useChat(userId: string, onScrollToBottom?: () => void) {
     audioUrl?: string,
     maxTokensOverride?: number,
     fileName?: string,
-    fileType?: string
+    fileType?: string,
+    fileContent?: string, // Added for file content
+    fileTitle?: string // Added for file title
   ) => {
     if (!content.trim() || !currentConversationId) return;
 
@@ -84,6 +86,8 @@ export function useChat(userId: string, onScrollToBottom?: () => void) {
         audioUrl,
         fileName,
         fileType,
+        fileContent, // Pass file content
+        fileTitle, // Pass file title
         parentId: currentLeafId,
       });
 
@@ -133,7 +137,7 @@ export function useChat(userId: string, onScrollToBottom?: () => void) {
         setCurrentLeafId(tempMessage.id);
 
         await sendTextMessage(
-          messagesForAPI,
+          messagesForAPI, // Pass all messages for context
           maxTokensOverride || maxTokens,
           // onUpdate
           (content: string) => {

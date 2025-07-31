@@ -4,7 +4,8 @@ import {
   sendMessageToOpenRouter, 
   convertMessagesToOpenRouterFormat, 
   generateImageWithTogetherAI, 
-  togetherImageModels,
+  togetherImageModels, 
+  OpenRouterMessage,
   calculateOpenRouterCost,
   calculateTogetherImageCost 
 } from '../utils/api';
@@ -43,11 +44,28 @@ export function useChatAPI() {
     abortControllerRef.current = controller;
 
     try {
+      // Determine the content for RAG search: user's text message or uploaded file content
+      const lastUserMessage = messagesForAPI[messagesForAPI.length - 1];
+      const ragSearchQuery = lastUserMessage.fileContent || lastUserMessage.content;
+
+      let ragContext = '';
+      if (ragSearchQuery) {
+        try {
+          const relevantChunks = await searchVectorStore(ragSearchQuery, 'user_id_placeholder', 5, 0.7); // TODO: Replace 'user_id_placeholder' with actual userId
+          if (relevantChunks.length > 0) {
+            ragContext = relevantChunks.map(chunk => chunk.content).join('\n\n');
+          }
+        } catch (ragError) {
+          console.warn('Failed to retrieve RAG context:', ragError);
+        }
+      }
+
       const openRouterMessages = convertMessagesToOpenRouterFormat(
         messagesForAPI, 
         selectedModel, 
-        contextBlocks, 
+        contextBlocks, // Wired context blocks
         maxTokens
+        ragContext // Automatic RAG context
       );
 
       let assistantContent = '';

@@ -1,6 +1,6 @@
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { supabase } from './supabaseClient';
-import { createDocumentChunks, updateDocumentChunkCount } from './documents';
+import { updateDocumentChunkCount } from './documents';
 import { DocumentChunk } from '../types/documents';
 
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
@@ -9,30 +9,20 @@ if (!OPENAI_API_KEY) {
   console.warn('OpenAI API key not found. Vector operations will not work.');
 }
 
-// Generate embeddings using OpenAI API
-async function generateEmbedding(text: string): Promise<number[]> {
-  if (!OPENAI_API_KEY) {
-    throw new Error('OpenAI API key not configured');
+import { HuggingFaceInferenceEmbeddings } from '@langchain/community/embeddings/hf';
+
+const HUGGINGFACE_API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY;
+
+let embeddings: HuggingFaceInferenceEmbeddings | null = null;
+
+function getEmbeddingsInstance(): HuggingFaceInferenceEmbeddings {
+  if (!embeddings) {
+    if (!HUGGINGFACE_API_KEY) {
+      throw new Error('Hugging Face API key not configured. Please add VITE_HUGGINGFACE_API_KEY to your .env file.');
+    }
+    embeddings = new HuggingFaceInferenceEmbeddings({ apiKey: HUGGINGFACE_API_KEY });
   }
-
-  const response = await fetch('https://api.openai.com/v1/embeddings', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${OPENAI_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'text-embedding-3-small',
-      input: text,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
-  }
-
-  const data = await response.json();
-  return data.data[0].embedding;
+  return embeddings;
 }
 
 /**
@@ -40,19 +30,18 @@ async function generateEmbedding(text: string): Promise<number[]> {
  */
 export async function addDocumentsToVectorStore(chunks: DocumentChunk[]): Promise<void> {
   if (!OPENAI_API_KEY) {
-    throw new Error('OpenAI API key not configured');
+    // This check is now for the old OpenAI key, should be removed or updated if needed elsewhere
+    // For embeddings, we now rely on HUGGINGFACE_API_KEY
   }
 
   // Generate embeddings for each chunk
-  const chunksWithEmbeddings = await Promise.all(
-    chunks.map(async (chunk) => {
-      const embedding = await generateEmbedding(chunk.content);
-      return {
-        ...chunk,
-        embedding,
-      };
-    })
-  );
+  const embeddingInstance = getEmbeddingsInstance();
+  const embeddingsArray = await embeddingInstance.embedDocuments(chunks.map(chunk => chunk.content));
+
+  const chunksWithEmbeddings = chunks.map((chunk, index) => ({
+    ...chunk,
+    embedding: embeddingsArray[index],
+  }));
 
   // Upsert chunks with embeddings to Supabase
   const { error } = await supabase
@@ -78,18 +67,21 @@ export async function addDocumentsToVectorStore(chunks: DocumentChunk[]): Promis
  * Search documents using vector similarity
  */
 export async function searchVectorStore(
-  query: string,
+  query: string | number[], // Allow passing pre-computed embedding
   userId: string,
   k: number = 5,
   matchThreshold: number = 0.8
 ): Promise<DocumentChunk[]> {
-  if (!OPENAI_API_KEY) {
-    throw new Error('OpenAI API key not configured');
-  }
+  let queryEmbedding: number[];
 
   try {
     // Generate embedding for the query
-    const queryEmbedding = await generateEmbedding(query);
+    if (typeof query === 'string') {
+      const embeddingInstance = getEmbeddingsInstance();
+      queryEmbedding = await embeddingInstance.embedQuery(query);
+    } else {
+      queryEmbedding = query; // Use pre-computed embedding
+    }
     
     // Perform similarity search using Supabase RPC
     const { data, error } = await supabase.rpc('search_documents', {

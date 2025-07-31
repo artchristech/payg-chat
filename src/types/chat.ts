@@ -8,6 +8,8 @@ export interface Message {
   audioUrl?: string;
   fileUrl?: string;
   fileName?: string;
+  fileContent?: string; // Added for parsed file content
+  fileTitle?: string; // Added for parsed file title
   fileType?: string;
   isLoading?: boolean;
   isHidden?: boolean;

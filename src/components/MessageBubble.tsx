@@ -1,5 +1,5 @@
 import React from 'react';
-import { Message } from '../types/chat';
+import { Message, ContextBlock } from '../types/chat';
 import { Volume2, EyeOff, FileText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -61,17 +61,26 @@ export function MessageBubble({ message, onReveal }: MessageBubbleProps) {
           </div>
         )}
         
-        {(message.fileName || message.fileType) && (
+        {(message.fileName || message.fileType || message.fileContent) && (
           <div className="mb-2 flex items-center gap-2 bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg">
             <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             <div className="flex flex-col">
               <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                {message.fileName || 'Unknown file'}
+                {message.fileTitle || message.fileName || 'Attached File'}
               </span>
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 {message.fileType || 'unknown type'}
               </span>
             </div>
+            {message.fileContent && (
+              <details className="text-xs text-gray-500 dark:text-gray-400 ml-auto">
+                <summary className="cursor-pointer hover:underline">View Content</summary>
+                <div className="mt-2 p-2 bg-gray-200 dark:bg-gray-600 rounded-md max-h-40 overflow-y-auto whitespace-pre-wrap">
+                  {message.fileContent.substring(0, 500)}
+                  {message.fileContent.length > 500 ? '...' : ''}
+                </div>
+              </details>
+            )}
           </div>
         )}
         

@@ -11,6 +11,8 @@ export interface DatabaseMessage {
   image_url?: string;
   audio_url?: string;
   file_name?: string;
+  file_content?: string; // Added for parsed file content
+  file_title?: string; // Added for parsed file title
   file_type?: string;
   parent_id?: string;
   created_at: string;
@@ -43,6 +45,8 @@ function dbMessageToMessage(dbMessage: DatabaseMessage): Message {
     imageUrl: dbMessage.image_url,
     audioUrl: dbMessage.audio_url,
     fileName: dbMessage.file_name,
+    fileContent: dbMessage.file_content, // Added
+    fileTitle: dbMessage.file_title, // Added
     fileType: dbMessage.file_type,
     parentId: dbMessage.parent_id,
     promptTokens: dbMessage.prompt_tokens,
@@ -142,6 +146,8 @@ export async function saveMessage(
       image_url: message.imageUrl,
       audio_url: message.audioUrl,
       file_name: message.fileName,
+      file_content: message.fileContent, // Added
+      file_title: message.fileTitle, // Added
       file_type: message.fileType,
       parent_id: message.parentId,
       model_id: message.modelId,
