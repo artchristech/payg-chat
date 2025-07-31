@@ -20,10 +20,9 @@ interface InputAreaProps {
   setIsCompletionOnlyMode: (value: boolean) => void;
   onCancelRequest: () => void;
   onDocumentUpload?: () => void;
-  onDocumentSearch?: () => void;
 }
 
-export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost, isCompletionOnlyMode, setIsCompletionOnlyMode, onCancelRequest, onDocumentUpload, onDocumentSearch }: InputAreaProps) {
+export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost, isCompletionOnlyMode, setIsCompletionOnlyMode, onCancelRequest, onDocumentUpload }: InputAreaProps) {
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
@@ -387,7 +386,6 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                   onAudioRecordingComplete={handleAudioRecording}
                   onFileSelect={handleFileSelect}
                   onDocumentUpload={onDocumentUpload}
-                 onDocumentSearch={onDocumentSearch}
                 />
                 <button
                   type="button"

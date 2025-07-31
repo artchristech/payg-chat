@@ -2,7 +2,6 @@ import React, { useState, useRef, useCallback } from 'react';
 import { Upload, File, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { uploadFile, createDocument } from '../utils/documents';
 import { UploadProgress } from '../types/documents';
-import { documentProcessor, ProcessingProgress } from '../utils/documentProcessor';
 
 interface DocumentUploadProps {
   userId: string;
@@ -14,7 +13,6 @@ export function DocumentUpload({ userId, onUploadComplete, onClose }: DocumentUp
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [processingProgress, setProcessingProgress] = useState<ProcessingProgress | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const supportedTypes = [
@@ -127,30 +125,8 @@ export function DocumentUpload({ userId, onUploadComplete, onClose }: DocumentUp
       setUploadProgress({
         stage: 'complete',
         progress: 100,
-        message: 'File uploaded! Processing document...'
+        message: 'Upload complete!'
       });
-
-      // Start document processing with LangChain
-      try {
-        await documentProcessor.processDocument(
-          document.id,
-          userId,
-          fileUrl,
-          file.name,
-          file.type,
-          (progress) => {
-            setProcessingProgress(progress);
-          }
-        );
-      } catch (processingError) {
-        console.error('Document processing failed:', processingError);
-        setProcessingProgress({
-          stage: 'error',
-          progress: 0,
-          message: 'Document processing failed',
-          error: processingError instanceof Error ? processingError.message : 'Unknown processing error'
-        });
-      }
 
       // Call completion callback
       onUploadComplete?.(document.id);
@@ -159,7 +135,6 @@ export function DocumentUpload({ userId, onUploadComplete, onClose }: DocumentUp
       setTimeout(() => {
         setSelectedFile(null);
         setUploadProgress(null);
-        setProcessingProgress(null);
       }, 2000);
 
     } catch (error) {
@@ -182,7 +157,6 @@ export function DocumentUpload({ userId, onUploadComplete, onClose }: DocumentUp
   const handleCancel = useCallback(() => {
     setSelectedFile(null);
     setUploadProgress(null);
-    setProcessingProgress(null);
     onClose?.();
   }, [onClose]);
 
@@ -305,40 +279,5 @@ export function DocumentUpload({ userId, onUploadComplete, onClose }: DocumentUp
         </div>
       )}
     </div>
-      {/* Document Processing Progress */}
-      {processingProgress && (
-        <div className="space-y-4 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-3">
-            {processingProgress.stage === 'complete' ? (
-              <CheckCircle className="w-6 h-6 text-green-500" />
-            ) : processingProgress.stage === 'error' ? (
-              <AlertCircle className="w-6 h-6 text-red-500" />
-            ) : (
-              <Loader2 className="w-6 h-6 text-purple-500 animate-spin" />
-            )}
-            <div className="flex-1">
-              <p className="font-medium text-gray-900 dark:text-white">
-                {processingProgress.message}
-              </p>
-              {processingProgress.error && (
-                <p className="text-sm text-red-600 dark:text-red-400">
-                  {processingProgress.error}
-                </p>
-              )}
-            </div>
-          </div>
-          
-          {processingProgress.stage !== 'error' && (
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  processingProgress.stage === 'complete' ? 'bg-green-500' : 'bg-purple-500'
-                }`}
-                style={{ width: `${processingProgress.progress}%` }}
-              />
-            </div>
-          )}
-        </div>
-      )}
   );
 }

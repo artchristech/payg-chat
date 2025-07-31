@@ -8,7 +8,6 @@ import { ConversationGraph } from './ConversationGraph';
 import { ContextCanvas } from './ContextCanvas';
 import { ConfirmationModal } from './ConfirmationModal';
 import { DocumentManager } from './DocumentManager';
-import { DocumentSearch } from './DocumentSearch';
 import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen, Network, LogOut } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
@@ -21,7 +20,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'chat' | 'graph'>('chat');
   const [showDocumentManager, setShowDocumentManager] = useState(false);
-  const [showDocumentSearch, setShowDocumentSearch] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [conversationToDeleteId, setConversationToDeleteId] = useState<string | null>(null);
@@ -106,17 +104,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
   const handleDocumentUpload = () => {
     setShowDocumentManager(true);
   };
-
-  const handleDocumentSearch = () => {
-    setShowDocumentSearch(true);
-  };
-
-  const handleSearchResultSelect = (content: string, metadata: any) => {
-    // Add the search result as context or send as a message
-    const contextMessage = `Found relevant content from "${metadata.documentTitle}":\n\n${content}`;
-    sendMessage(contextMessage);
-    setShowDocumentSearch(false);
-  };
   const isEmpty = Object.keys(messages).length === 0;
 
   // Debug logging for graph view
@@ -144,27 +131,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
     );
   }
 
-  // Show document search if requested
-  if (showDocumentSearch) {
-    return (
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-4">
-        <div className="w-full max-w-4xl">
-          <div className="mb-4">
-            <button
-              onClick={() => setShowDocumentSearch(false)}
-              className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-            >
-              ← Back to Chat
-            </button>
-          </div>
-          <DocumentSearch 
-            userId={userId} 
-            onResultSelect={handleSearchResultSelect}
-          />
-        </div>
-      </div>
-    );
-  }
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar
@@ -294,7 +260,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
               setIsCompletionOnlyMode={setIsCompletionOnlyMode}
               onCancelRequest={cancelRequest}
               onDocumentUpload={handleDocumentUpload}
-              onDocumentSearch={handleDocumentSearch}
             />
           </div>
         </div>
