@@ -3,6 +3,7 @@ import { MessageBubble } from './MessageBubble';
 import { InputArea } from './InputArea';
 import { Sidebar } from './Sidebar';
 import { DocumentManager } from './DocumentManager';
+import { DocumentSearch } from './DocumentSearch';
 import { ThemeSelector } from './ThemeSelector';
 import { PresetButtons } from './PresetButtons';
 import { ConversationGraph } from './ConversationGraph';
@@ -191,7 +192,10 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
 
         {/* Messages */}
         {currentView === 'documents' ? (
-          <DocumentManager userId={userId} />
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <DocumentSearch userId={userId} />
+            <DocumentManager userId={userId} />
+          </div>
         ) : (
           <div className="flex-1 overflow-y-auto hide-scrollbar">
           <div className="max-w-4xl mx-auto px-4 py-6 h-full">
