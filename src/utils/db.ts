@@ -39,7 +39,7 @@ export interface DatabaseConversation {
 }
 
 // Convert database message to app message format
-function dbMessageToMessage(dbMessage: DatabaseMessage): Message {
+export function dbMessageToMessage(dbMessage: DatabaseMessage): Message {
   return {
     id: dbMessage.id,
     role: dbMessage.role,
@@ -59,7 +59,7 @@ function dbMessageToMessage(dbMessage: DatabaseMessage): Message {
 }
 
 // Convert database conversation to app conversation format
-function dbConversationToConversation(dbConversation: DatabaseConversation): Conversation {
+export function dbConversationToConversation(dbConversation: DatabaseConversation): Conversation {
   return {
     id: dbConversation.id,
     userId: dbConversation.user_id,
