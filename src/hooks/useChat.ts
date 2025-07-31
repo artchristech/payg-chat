@@ -128,7 +128,8 @@ export function useChat(userId: string, onScrollToBottom?: () => void) {
     audioUrl?: string,
     maxTokens?: number,
     fileName?: string,
-    fileType?: string
+    fileType?: string,
+    fileUrl?: string
   ) => {
     if (!content.trim()) return;
     if (!chatState.currentConversationId) {
@@ -149,6 +150,7 @@ export function useChat(userId: string, onScrollToBottom?: () => void) {
       audioUrl,
       fileName,
       fileType,
+      fileUrl,
       timestamp: new Date(),
       parentId: chatState.currentLeafId,
     };
@@ -165,6 +167,7 @@ export function useChat(userId: string, onScrollToBottom?: () => void) {
         audioUrl: userMessage.audioUrl,
         fileName: userMessage.fileName,
         fileType: userMessage.fileType,
+        fileUrl: userMessage.fileUrl,
         parentId: userMessage.parentId,
       });
 

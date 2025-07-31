@@ -235,6 +235,7 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
               isCompletionOnlyMode={isCompletionOnlyMode}
               setIsCompletionOnlyMode={setIsCompletionOnlyMode}
               onCancelRequest={cancelRequest}
+              userId={userId}
             />
           </div>
         </div>

@@ -12,6 +12,7 @@ export interface DatabaseMessage {
   audio_url?: string;
   file_name?: string;
   file_type?: string;
+  file_url?: string;
   parent_id?: string;
   created_at: string;
   model_id?: string;
@@ -143,6 +144,7 @@ export async function saveMessage(
       audio_url: message.audioUrl,
       file_name: message.fileName,
       file_type: message.fileType,
+      file_url: message.fileUrl,
       parent_id: message.parentId,
       model_id: message.modelId,
       prompt_tokens: message.promptTokens || 0,

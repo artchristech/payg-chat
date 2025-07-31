@@ -1,6 +1,6 @@
 import React from 'react';
 import { Message } from '../types/chat';
-import { Volume2, EyeOff, FileText } from 'lucide-react';
+import { Volume2, EyeOff, FileText, Download, ExternalLink } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -72,6 +72,18 @@ export function MessageBubble({ message, onReveal }: MessageBubbleProps) {
                 {message.fileType || 'unknown type'}
               </span>
             </div>
+            {message.fileUrl && (
+              <a
+                href={message.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-auto flex items-center gap-1 px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition-colors"
+                title="Download file"
+              >
+                <Download className="w-3 h-3" />
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
           </div>
         )}
         

@@ -7,6 +7,7 @@ export interface Message {
   imageUrl?: string;
   audioUrl?: string;
   fileUrl?: string;
+  fileUrl?: string;
   fileName?: string;
   fileType?: string;
   isLoading?: boolean;

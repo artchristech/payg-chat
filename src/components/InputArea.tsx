@@ -4,9 +4,10 @@ import { AttachmentMenu } from './AttachmentMenu';
 import { ModelSelector } from './ModelSelector';
 import { ResponseLengthSlider } from './ResponseLengthSlider';
 import { AutocompleteMenu, autocompleteCommands, type AutocompleteOption } from './AutocompleteMenu';
+import { uploadFile } from '../utils/documents';
 
 interface InputAreaProps {
-  onSendMessage: (content: string, type?: 'text' | 'image' | 'audio' | 'image_generation_request', imageUrl?: string, audioUrl?: string, maxTokens?: number, fileName?: string, fileType?: string) => void;
+  onSendMessage: (content: string, type?: 'text' | 'image' | 'audio' | 'image_generation_request', imageUrl?: string, audioUrl?: string, maxTokens?: number, fileName?: string, fileType?: string, fileUrl?: string) => void;
   isLoading: boolean;
   placeholder?: string;
   selectedModel: string;
@@ -19,13 +20,16 @@ interface InputAreaProps {
   isCompletionOnlyMode: boolean;
   setIsCompletionOnlyMode: (value: boolean) => void;
   onCancelRequest: () => void;
+  userId: string;
 }
 
-export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost, isCompletionOnlyMode, setIsCompletionOnlyMode, onCancelRequest }: InputAreaProps) {
+export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anything...", selectedModel, onModelChange, centered = false, maxTokens, onMaxTokensChange, resetHistoryNavigation, conversationCost, isCompletionOnlyMode, setIsCompletionOnlyMode, onCancelRequest, userId }: InputAreaProps) {
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [isImageGenerationMode, setIsImageGenerationMode] = useState(false);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [autocompleteOptions, setAutocompleteOptions] = useState<AutocompleteOption[]>([]);
@@ -161,13 +165,15 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
         undefined,
         maxTokens,
         selectedFile?.name,
-        selectedFile?.type
+        selectedFile?.type,
+        uploadedFileUrl || undefined
       );
       
       setMessage('');
       setSelectedImage(null);
       setSelectedImageFile(null);
       setSelectedFile(null);
+      setUploadedFileUrl(null);
       setIsImageGenerationMode(false);
       setDetectedCommand(null);
       setShowAutocomplete(false);
@@ -186,7 +192,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
     setSelectedImageFile(null);
   }, []);
 
-  const handleFileSelect = useCallback((file: File) => {
+  const handleFileSelect = useCallback(async (file: File) => {
     if (file.type.startsWith('image/')) {
       // Handle image files
       const reader = new FileReader();
@@ -199,11 +205,24 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
     } else {
       // Handle non-image files
       setSelectedFile(file);
+      
+      // Upload file to Supabase Storage
+      try {
+        setIsUploading(true);
+        const fileUrl = await uploadFile(file, userId);
+        setUploadedFileUrl(fileUrl);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        // You might want to show an error message to the user here
+      } finally {
+        setIsUploading(false);
+      }
     }
-  }, []);
+  }, [userId]);
 
   const handleFileRemove = useCallback(() => {
     setSelectedFile(null);
+    setUploadedFileUrl(null);
   }, []);
 
   const handleGenerateImageClick = useCallback(() => {
@@ -340,6 +359,9 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                 <span className="text-xs text-gray-500 dark:text-gray-400">
                   ({selectedFile.type || 'unknown'})
                 </span>
+                {isUploading && (
+                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                )}
                 <button
                   onClick={handleFileRemove}
                   className="w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 hover:scale-110 transition-all duration-200 shadow-sm ml-2"
