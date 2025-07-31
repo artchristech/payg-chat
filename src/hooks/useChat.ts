@@ -10,7 +10,10 @@ import {
   updateMessage, 
   updateConversation, 
   deleteConversation as dbDeleteConversation,
-  generateConversationTitle 
+  generateConversationTitle,
+  getInitialChatData,
+  dbConversationToConversation,
+  dbMessageToMessage
 } from '../utils/db';
 
 export function useChat(userId: string, onScrollToBottom?: () => void) {
@@ -35,16 +38,25 @@ export function useChat(userId: string, onScrollToBottom?: () => void) {
     if (!userId || isInitialized) return;
 
     try {
-      // Load all conversations
-      const conversations = await getConversations(userId);
+      // Call the new RPC function to get all data in one request
+      const initialData = await getInitialChatData(userId);
+      if (!initialData) {
+        // Handle case where no data is returned, maybe create a new conversation
+        // For now, we assume it returns the structure with empty arrays if nothing is found
+      }
+
+      const conversations = (initialData.conversations || []).map(dbConversationToConversation);
+      const messages = (initialData.messages || []).map(dbMessageToMessage);
+
       const conversationsMap = conversations.reduce((acc, conv) => {
         acc[conv.id] = conv;
         return acc;
       }, {} as Record<string, Conversation>);
 
-      // Create a new conversation if none exist
       let currentConversationId: string | null = null;
+
       if (conversations.length === 0) {
+        // If no conversations exist, create a new one
         const newConversation = await createConversation(
           userId,
           'New Chat',
@@ -53,12 +65,20 @@ export function useChat(userId: string, onScrollToBottom?: () => void) {
         );
         conversationsMap[newConversation.id] = newConversation;
         currentConversationId = newConversation.id;
+
+        setChatState(prev => ({
+          ...prev,
+          messages: {},
+          currentLeafId: null,
+          conversationCost: 0,
+          conversations: conversationsMap,
+          currentConversationId,
+        }));
+
       } else {
-        // Use the most recent conversation
+        // Use the most recent conversation (it's the first in the sorted list)
         currentConversationId = conversations[0].id;
-        
-        // Load messages for the current conversation
-        const messages = await getMessagesForConversation(currentConversationId);
+
         const messagesMap = messages.reduce((acc, msg) => {
           acc[msg.id] = msg;
           return acc;
@@ -66,20 +86,16 @@ export function useChat(userId: string, onScrollToBottom?: () => void) {
 
         // Find the current leaf (last message in the conversation)
         const leafMessage = messages.length > 0 ? messages[messages.length - 1] : null;
-        
+
         setChatState(prev => ({
           ...prev,
           messages: messagesMap,
           currentLeafId: leafMessage?.id || null,
           conversationCost: conversations[0].cost,
+          conversations: conversationsMap,
+          currentConversationId,
         }));
       }
-
-      setChatState(prev => ({
-        ...prev,
-        conversations: conversationsMap,
-        currentConversationId,
-      }));
 
       setIsInitialized(true);
     } catch (error) {

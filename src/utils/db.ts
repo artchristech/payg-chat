@@ -1,6 +1,12 @@
 import { supabase } from './supabaseClient';
 import { Message, Conversation } from '../types/chat';
 
+// Add this new interface to match the JSON structure from the RPC
+export interface InitialChatData {
+  conversations: DatabaseConversation[];
+  messages: DatabaseMessage[];
+}
+
 export interface DatabaseMessage {
   id: string;
   conversation_id: string;
@@ -230,4 +236,19 @@ export function generateConversationTitle(firstMessage: string): string {
   
   // Fallback to "New Chat" if the title is empty or too short
   return title.length > 5 ? title : 'New Chat';
+}
+
+export async function getInitialChatData(userId: string): Promise<InitialChatData | null> {
+  const { data, error } = await supabase.rpc('get_initial_chat_data', {
+    p_user_id: userId,
+  });
+
+  if (error) {
+    console.error('Error fetching initial chat data:', error);
+    throw new Error(`Failed to fetch initial chat data: ${error.message}`);
+  }
+
+  // The RPC function is designed to always return a valid JSON object,
+  // but we handle the case where it might be null.
+  return data ? (data as InitialChatData) : { conversations: [], messages: [] };
 }
