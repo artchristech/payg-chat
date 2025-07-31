@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bot, ChevronsLeft, ChevronsRight, Plus, MessageSquare, Users, User, Trash2, Clock } from 'lucide-react';
+import { Bot, ChevronsLeft, ChevronsRight, Plus, MessageSquare, BotIcon, User, Trash2, Clock } from 'lucide-react';
 import { Conversation } from '../types/chat';
 
 interface SidebarProps {
@@ -135,12 +135,12 @@ export function Sidebar({
             className={`w-full flex rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0 ${
               isExpanded ? 'items-center justify-start p-4 gap-3' : 'items-center justify-center p-4'
             }`}
-            title={!isExpanded ? 'Agents' : undefined}
+            title={!isExpanded ? 'Agent' : undefined}
           >
-            <Users className="w-5 h-5 flex-shrink-0" />
+            <BotIcon className="w-5 h-5 flex-shrink-0" />
             {isExpanded && (
               <div className="flex-1 text-left whitespace-nowrap transition-opacity duration-200 opacity-100 delay-150">
-                <span>Agents</span>
+                <span>Agent</span>
               </div>
             )}
           </button>
