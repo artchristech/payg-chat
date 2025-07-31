@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { MessageBubble } from './MessageBubble';
 import { InputArea } from './InputArea';
 import { Sidebar } from './Sidebar';
-import { DocumentManager } from './DocumentManager';
 import { ThemeSelector } from './ThemeSelector';
 import { PresetButtons } from './PresetButtons';
 import { ConversationGraph } from './ConversationGraph';
@@ -19,7 +18,6 @@ interface ChatInterfaceProps {
 export function ChatInterface({ userId }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'chat' | 'graph'>('chat');
-  const [currentView, setCurrentView] = useState<'chat' | 'documents'>('chat');
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [conversationToDeleteId, setConversationToDeleteId] = useState<string | null>(null);
@@ -64,7 +62,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
   const handleClearChat = () => {
     clearChat();
     setViewMode('chat'); // Reset to chat view when clearing
-    setCurrentView('chat'); // Reset to chat view when clearing
   };
 
   const handleLogout = async () => {
@@ -102,13 +99,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
     setConversationToDeleteId(null);
   };
 
-  const handleViewChange = (view: 'chat' | 'documents') => {
-    setCurrentView(view);
-    if (view === 'chat') {
-      setViewMode('chat'); // Reset to chat mode when switching back to chat view
-    }
-  };
-
   const isEmpty = Object.keys(messages).length === 0;
 
   // Debug logging for graph view
@@ -129,8 +119,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
         onLoadConversation={loadConversation}
         onDeleteConversation={deleteConversation}
         onShowDeleteConfirm={handleShowDeleteConfirm}
-        currentView={currentView}
-        onViewChange={handleViewChange}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
@@ -139,7 +127,7 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
             <div className="w-32 h-1 bg-gradient-to-r from-blue-500/30 via-purple-500/40 to-blue-500/30 rounded-full"></div>
             
             <div className="absolute right-0 flex items-center gap-2">
-              {!isEmpty && currentView === 'chat' && (
+              {!isEmpty && (
                 <>
                   <button
                     onClick={() => setViewMode(viewMode === 'chat' ? 'graph' : 'chat')}
@@ -190,10 +178,7 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
         )}
 
         {/* Messages */}
-        {currentView === 'documents' ? (
-          <DocumentManager userId={userId} />
-        ) : (
-          <div className="flex-1 overflow-y-auto hide-scrollbar">
+        <div className="flex-1 overflow-y-auto hide-scrollbar">
           <div className="max-w-4xl mx-auto px-4 py-6 h-full">
             {isEmpty ? (
               <div className="flex flex-col justify-center items-center h-full min-h-[50vh]">
@@ -231,12 +216,10 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
               </div>
             )}
           </div>
-          </div>
-        )}
+        </div>
 
         {/* Bottom Section - Always present */}
-        {currentView === 'chat' && (
-          <div className="bg-gray-100 dark:bg-gray-900 p-4 flex-shrink-0">
+        <div className="bg-gray-100 dark:bg-gray-900 p-4 flex-shrink-0">
           <div className="mx-auto max-w-4xl">
             <InputArea
               onSendMessage={sendMessage}
@@ -254,8 +237,7 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
               onCancelRequest={cancelRequest}
             />
           </div>
-          </div>
-        )}
+        </div>
       </div>
 
       {/* Delete Confirmation Modal */}
