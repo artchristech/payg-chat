@@ -105,6 +105,7 @@ export function Sidebar({
             onClick={() => {
               if (!isExpanded) {
                 onToggle();
+                setShowHistory(true);
               } else {
                 setShowHistory(!showHistory);
               }
