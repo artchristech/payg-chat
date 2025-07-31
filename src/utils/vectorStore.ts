@@ -1,21 +1,39 @@
-import { HuggingFaceInferenceEmbeddings } from '@langchain/community/embeddings/hf';
-import { FaissStore } from '@langchain/community/vectorstores/faiss';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { Document as LangChainDocument } from 'langchain/document';
+import { supabase } from './supabaseClient';
 import { createDocumentChunks, updateDocumentChunkCount } from './documents';
 import { DocumentChunk } from '../types/documents';
 
-const HUGGINGFACE_API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY;
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
-if (!HUGGINGFACE_API_KEY) {
-  console.warn('Hugging Face API key not found. Vector operations will not work.');
+if (!OPENAI_API_KEY) {
+  console.warn('OpenAI API key not found. Vector operations will not work.');
 }
 
-// Initialize Hugging Face embeddings
-const embeddings = new HuggingFaceInferenceEmbeddings({
-  apiKey: HUGGINGFACE_API_KEY,
-  model: 'sentence-transformers/all-MiniLM-L6-v2', // Fast and efficient embedding model
-});
+// Generate embeddings using OpenAI API
+async function generateEmbedding(text: string): Promise<number[]> {
+  if (!OPENAI_API_KEY) {
+    throw new Error('OpenAI API key not configured');
+  }
+
+  const response = await fetch('https://api.openai.com/v1/embeddings', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${OPENAI_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'text-embedding-3-small',
+      input: text,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return data.data[0].embedding;
+}
 
 // Text splitter configuration
 const textSplitter = new RecursiveCharacterTextSplitter({
@@ -24,30 +42,47 @@ const textSplitter = new RecursiveCharacterTextSplitter({
   separators: ['\n\n', '\n', ' ', ''],
 });
 
-// In-memory FAISS stores per user (in production, you'd want persistent storage)
-const userVectorStores = new Map<string, FaissStore>();
-
 /**
- * Get or create a FAISS vector store for a user
+ * Add document chunks to the vector store
  */
-async function getUserVectorStore(userId: string): Promise<FaissStore> {
-  if (userVectorStores.has(userId)) {
-    return userVectorStores.get(userId)!;
+export async function addDocumentsToVectorStore(chunks: DocumentChunk[]): Promise<void> {
+  if (!OPENAI_API_KEY) {
+    throw new Error('OpenAI API key not configured');
   }
 
-  // Create new empty vector store
-  const vectorStore = await FaissStore.fromTexts(
-    [''], // Empty initial document
-    [{ userId }], // Metadata
-    embeddings
+  // Generate embeddings for each chunk
+  const chunksWithEmbeddings = await Promise.all(
+    chunks.map(async (chunk) => {
+      const embedding = await generateEmbedding(chunk.content);
+      return {
+        ...chunk,
+        embedding,
+      };
+    })
   );
 
-  userVectorStores.set(userId, vectorStore);
-  return vectorStore;
+  // Upsert chunks with embeddings to Supabase
+  const { error } = await supabase
+    .from('document_chunks')
+    .upsert(
+      chunksWithEmbeddings.map(chunk => ({
+        id: chunk.id,
+        document_id: chunk.documentId,
+        user_id: chunk.userId,
+        content: chunk.content,
+        chunk_index: chunk.chunkIndex,
+        embedding: chunk.embedding,
+        metadata: chunk.metadata,
+      }))
+    );
+
+  if (error) {
+    throw new Error(`Failed to store document chunks: ${error.message}`);
+  }
 }
 
 /**
- * Process a document: split into chunks, generate embeddings, and store
+ * Process a document: split into chunks, generate embeddings, and store in Supabase
  */
 export async function processDocument(
   documentId: string,
@@ -57,8 +92,8 @@ export async function processDocument(
   fileType: string,
   onProgress?: (stage: string, progress: number) => void
 ): Promise<void> {
-  if (!HUGGINGFACE_API_KEY) {
-    throw new Error('Hugging Face API key not configured');
+  if (!OPENAI_API_KEY) {
+    throw new Error('OpenAI API key not configured');
   }
 
   try {
@@ -80,31 +115,16 @@ export async function processDocument(
       throw new Error('No content to process');
     }
 
-    // Get user's vector store
-    const vectorStore = await getUserVectorStore(userId);
-
-    onProgress?.('embedding', 50);
-
-    // Add documents to vector store
-    await vectorStore.addDocuments(docs);
-
-    onProgress?.('storing', 70);
-
     // Prepare chunks for database storage
     const chunks: Omit<DocumentChunk, 'id' | 'createdAt'>[] = [];
     
     for (let i = 0; i < docs.length; i++) {
       const doc = docs[i];
-      
-      // Generate embedding for this chunk
-      const embedding = await embeddings.embedQuery(doc.pageContent);
-      
       chunks.push({
         documentId,
         userId,
         content: doc.pageContent,
         chunkIndex: i,
-        embedding,
         metadata: {
           ...doc.metadata,
           chunkSize: doc.pageContent.length,
@@ -112,8 +132,15 @@ export async function processDocument(
       });
     }
 
+    onProgress?.('embedding', 50);
+
     // Store chunks in database
-    await createDocumentChunks(chunks);
+    const savedChunks = await createDocumentChunks(chunks);
+    
+    onProgress?.('storing', 70);
+
+    // Add chunks to vector store with embeddings
+    await addDocumentsToVectorStore(savedChunks);
     
     // Update document chunk count
     await updateDocumentChunkCount(documentId, chunks.length);
@@ -127,8 +154,57 @@ export async function processDocument(
 }
 
 /**
- * Search for similar documents using vector similarity
+ * Search documents using vector similarity
  */
+export async function searchVectorStore(
+  query: string,
+  userId: string,
+  k: number = 5,
+  matchThreshold: number = 0.8
+): Promise<DocumentChunk[]> {
+  if (!OPENAI_API_KEY) {
+    throw new Error('OpenAI API key not configured');
+  }
+
+  try {
+    // Generate embedding for the query
+    const queryEmbedding = await generateEmbedding(query);
+    
+    // Perform similarity search using Supabase RPC
+    const { data, error } = await supabase.rpc('search_documents', {
+      query_embedding: queryEmbedding,
+      match_threshold: matchThreshold,
+      match_count: k,
+      filter_user_id: userId,
+    });
+
+    if (error) {
+      throw new Error(`Search failed: ${error.message}`);
+    }
+    
+    // Convert results to DocumentChunk format
+    return data.map((result: any) => ({
+      id: result.id,
+      documentId: result.document_id,
+      userId: userId,
+      content: result.content,
+      chunkIndex: result.chunk_index,
+      metadata: {
+        ...result.metadata,
+        similarity: result.similarity,
+        documentTitle: result.document_title,
+        documentFileType: result.document_file_type,
+      },
+      createdAt: new Date(),
+    }));
+
+  } catch (error) {
+    console.error('Error searching vector store:', error);
+    throw error;
+  }
+}
+
+// Legacy function for backward compatibility
 export async function searchDocuments(
   userId: string,
   query: string,
@@ -139,99 +215,10 @@ export async function searchDocuments(
   score: number;
   metadata: Record<string, any>;
 }>> {
-  if (!HUGGINGFACE_API_KEY) {
-    throw new Error('Hugging Face API key not configured');
-  }
-
-  try {
-    const vectorStore = await getUserVectorStore(userId);
-    
-    // Perform similarity search
-    const results = await vectorStore.similaritySearchWithScore(query, k);
-    
-    // Filter by score threshold and format results
-    return results
-      .filter(([, score]) => score >= scoreThreshold)
-      .map(([doc, score]) => ({
-        content: doc.pageContent,
-        score,
-        metadata: doc.metadata,
-      }));
-
-  } catch (error) {
-    console.error('Error searching documents:', error);
-    throw error;
-  }
-}
-
-/**
- * Get document chunks for a specific document
- */
-export async function getDocumentChunksFromVectorStore(
-  userId: string,
-  documentId: string
-): Promise<Array<{
-  content: string;
-  metadata: Record<string, any>;
-}>> {
-  try {
-    const vectorStore = await getUserVectorStore(userId);
-    
-    // This is a workaround since FAISS doesn't have direct metadata filtering
-    // In production, you might want to use a different approach
-    const allDocs = await vectorStore.similaritySearch('', 1000); // Get many docs
-    
-    return allDocs
-      .filter(doc => doc.metadata.documentId === documentId)
-      .map(doc => ({
-        content: doc.pageContent,
-        metadata: doc.metadata,
-      }));
-
-  } catch (error) {
-    console.error('Error getting document chunks:', error);
-    throw error;
-  }
-}
-
-/**
- * Remove a document from the vector store
- * Note: FAISS doesn't support direct deletion, so this is a limitation
- * In production, you might want to rebuild the index or use a different vector store
- */
-export async function removeDocumentFromVectorStore(
-  userId: string,
-  documentId: string
-): Promise<void> {
-  console.warn('FAISS does not support direct document deletion. Consider rebuilding the index.');
-  // For now, we'll just remove it from the database
-  // The vector store will still contain the embeddings until rebuilt
-}
-
-/**
- * Save vector store to disk (for persistence)
- */
-export async function saveVectorStore(userId: string, path: string): Promise<void> {
-  try {
-    const vectorStore = userVectorStores.get(userId);
-    if (vectorStore) {
-      await vectorStore.save(path);
-    }
-  } catch (error) {
-    console.error('Error saving vector store:', error);
-    throw error;
-  }
-}
-
-/**
- * Load vector store from disk
- */
-export async function loadVectorStore(userId: string, path: string): Promise<void> {
-  try {
-    const vectorStore = await FaissStore.load(path, embeddings);
-    userVectorStores.set(userId, vectorStore);
-  } catch (error) {
-    console.error('Error loading vector store:', error);
-    throw error;
-  }
+  const results = await searchVectorStore(query, userId, k, scoreThreshold);
+  return results.map(chunk => ({
+    content: chunk.content,
+    score: chunk.metadata.similarity || 0,
+    metadata: chunk.metadata,
+  }));
 }
