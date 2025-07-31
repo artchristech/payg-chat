@@ -7,7 +7,6 @@ import { PresetButtons } from './PresetButtons';
 import { ConversationGraph } from './ConversationGraph';
 import { ContextCanvas } from './ContextCanvas';
 import { ConfirmationModal } from './ConfirmationModal';
-import { DocumentManager } from './DocumentManager';
 import { useChat } from '../hooks/useChat';
 import { AlertCircle, SquarePen, Network, LogOut } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
@@ -19,7 +18,6 @@ interface ChatInterfaceProps {
 export function ChatInterface({ userId }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [viewMode, setViewMode] = useState<'chat' | 'graph'>('chat');
-  const [showDocumentManager, setShowDocumentManager] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [conversationToDeleteId, setConversationToDeleteId] = useState<string | null>(null);
@@ -101,9 +99,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
     setConversationToDeleteId(null);
   };
 
-  const handleDocumentUpload = () => {
-    setShowDocumentManager(true);
-  };
   const isEmpty = Object.keys(messages).length === 0;
 
   // Debug logging for graph view
@@ -111,25 +106,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
   console.log('ChatInterface - messages:', messages);
   console.log('ChatInterface - isEmpty:', isEmpty);
   console.log('ChatInterface - currentLeafId:', currentLeafId);
-
-  // Show document manager if requested
-  if (showDocumentManager) {
-    return (
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-4">
-        <div className="w-full max-w-4xl">
-          <div className="mb-4">
-            <button
-              onClick={() => setShowDocumentManager(false)}
-              className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-            >
-              ← Back to Chat
-            </button>
-          </div>
-          <DocumentManager userId={userId} />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
@@ -259,7 +235,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
               isCompletionOnlyMode={isCompletionOnlyMode}
               setIsCompletionOnlyMode={setIsCompletionOnlyMode}
               onCancelRequest={cancelRequest}
-              onDocumentUpload={handleDocumentUpload}
             />
           </div>
         </div>

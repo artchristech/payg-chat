@@ -1,13 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Paperclip, Image, Mic, Square, X, FileText, Upload } from 'lucide-react';
+import { Paperclip, Image, Mic, Square, X, FileText } from 'lucide-react';
 
 interface AttachmentMenuProps {
   onAudioRecordingComplete: (audioBlob: Blob, audioUrl: string) => void;
   onFileSelect: (file: File, preview?: string) => void;
-  onDocumentUpload?: () => void;
 }
 
-export function AttachmentMenu({ onAudioRecordingComplete, onFileSelect, onDocumentUpload }: AttachmentMenuProps) {
+export function AttachmentMenu({ onAudioRecordingComplete, onFileSelect }: AttachmentMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -155,18 +154,6 @@ export function AttachmentMenu({ onAudioRecordingComplete, onFileSelect, onDocum
               <FileText className="w-4 h-4" />
               File
             </button>
-            {onDocumentUpload && (
-              <button
-                onClick={() => {
-                  onDocumentUpload();
-                  setIsMenuOpen(false);
-                }}
-                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors"
-              >
-                <Upload className="w-4 h-4" />
-                Document
-              </button>
-            )}
             <button
               onClick={handleAudioClick}
               className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition-colors"
