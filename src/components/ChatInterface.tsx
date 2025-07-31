@@ -187,7 +187,7 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
                 </div>
               </div>
             ) : viewMode === 'chat' ? (
-              <div className="space-y-6">
+              <div>
                 {Object.values(messages)
                   .filter(message => message && message.timestamp instanceof Date)
                   .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())

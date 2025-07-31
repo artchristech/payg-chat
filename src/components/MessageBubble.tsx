@@ -15,7 +15,7 @@ export function MessageBubble({ message, onReveal }: MessageBubbleProps) {
   // If this is a hidden assistant message, show placeholder
   if (message.role === 'assistant' && message.isHidden) {
     return (
-      <div className="flex justify-start">
+      <div className="flex justify-start mb-6">
         <div className="max-w-[70%] bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-2xl px-4 py-3">
           <div className="flex items-center gap-3">
             <EyeOff className="w-4 h-4 text-gray-500" />
@@ -33,7 +33,7 @@ export function MessageBubble({ message, onReveal }: MessageBubbleProps) {
   }
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+    <div className={`flex mb-6 ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div className={`
         max-w-[70%] relative
         ${isUser 
