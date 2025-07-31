@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bot, ChevronsLeft, ChevronsRight, Plus, MessageSquare, Users, User, Trash2, Clock } from 'lucide-react';
+import { Bot, ChevronsLeft, ChevronsRight, Plus, MessageSquare, Users, User, Trash2, Clock, FileText } from 'lucide-react';
 import { Conversation } from '../types/chat';
 
 interface SidebarProps {
@@ -12,6 +12,8 @@ interface SidebarProps {
   onLoadConversation: (conversationId: string) => void;
   onDeleteConversation: (conversationId: string) => void;
   onShowDeleteConfirm: (conversationId: string) => void;
+  currentView: 'chat' | 'documents';
+  onViewChange: (view: 'chat' | 'documents') => void;
 }
 
 export function Sidebar({ 
@@ -23,7 +25,9 @@ export function Sidebar({
   conversations, 
   onLoadConversation, 
   onDeleteConversation,
-  onShowDeleteConfirm
+  onShowDeleteConfirm,
+  currentView,
+  onViewChange
 }: SidebarProps) {
   const [showHistory, setShowHistory] = React.useState(false);
   
@@ -111,13 +115,35 @@ export function Sidebar({
             }}
             className={`w-full flex rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0 ${
               isExpanded ? 'items-center justify-start p-4 gap-3' : 'items-center justify-center p-4'
-            } ${showHistory ? 'bg-gray-700' : ''}`}
+            } ${showHistory && currentView === 'chat' ? 'bg-gray-700' : ''}`}
             title={!isExpanded ? 'Chat History' : undefined}
           >
             <MessageSquare className="w-5 h-5 flex-shrink-0" />
             {isExpanded && (
               <div className="flex-1 text-left whitespace-nowrap transition-opacity duration-200 opacity-100 delay-150">
                 <span>Chat History</span>
+              </div>
+            )}
+          </button>
+
+          <button
+            onClick={() => {
+              if (!isExpanded) {
+                onToggle();
+              } else {
+                onViewChange('documents');
+                setShowHistory(false);
+              }
+            }}
+            className={`w-full flex rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors min-w-0 ${
+              isExpanded ? 'items-center justify-start p-4 gap-3' : 'items-center justify-center p-4'
+            } ${currentView === 'documents' ? 'bg-gray-700' : ''}`}
+            title={!isExpanded ? 'Documents' : undefined}
+          >
+            <FileText className="w-5 h-5 flex-shrink-0" />
+            {isExpanded && (
+              <div className="flex-1 text-left whitespace-nowrap transition-opacity duration-200 opacity-100 delay-150">
+                <span>Documents</span>
               </div>
             )}
           </button>
@@ -143,7 +169,7 @@ export function Sidebar({
         </div>
 
         {/* Chat History */}
-        {isExpanded && showHistory && (
+        {isExpanded && showHistory && currentView === 'chat' && (
           <div className="px-4 pb-4">
             <div className="border-t border-gray-700 pt-4">
               <div className="max-h-96 overflow-y-auto hide-scrollbar space-y-1">
