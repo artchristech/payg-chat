@@ -30,7 +30,7 @@ export function DocumentSearch({ userId }: DocumentSearchProps) {
       setResults(searchResults);
     } catch (err) {
       console.error('Search error:', err);
-      setError(err instanceof Error ? err.message : 'Search failed');
+      setError(err instanceof Error ? err.message : 'Search failed. Please check your Hugging Face API key.');
     } finally {
       setIsSearching(false);
     }

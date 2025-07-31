@@ -1,20 +1,20 @@
-import { OpenAIEmbeddings } from '@langchain/openai';
+import { HuggingFaceInferenceEmbeddings } from '@langchain/community/embeddings/hf';
 import { FaissStore } from '@langchain/community/vectorstores/faiss';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { Document as LangChainDocument } from 'langchain/document';
 import { createDocumentChunks, updateDocumentChunkCount } from './documents';
 import { DocumentChunk } from '../types/documents';
 
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+const HUGGINGFACE_API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY;
 
-if (!OPENAI_API_KEY) {
-  console.warn('OpenAI API key not found. Vector operations will not work.');
+if (!HUGGINGFACE_API_KEY) {
+  console.warn('Hugging Face API key not found. Vector operations will not work.');
 }
 
-// Initialize OpenAI embeddings
-const embeddings = new OpenAIEmbeddings({
-  openAIApiKey: OPENAI_API_KEY,
-  modelName: 'text-embedding-3-small', // More cost-effective than text-embedding-ada-002
+// Initialize Hugging Face embeddings
+const embeddings = new HuggingFaceInferenceEmbeddings({
+  apiKey: HUGGINGFACE_API_KEY,
+  model: 'sentence-transformers/all-MiniLM-L6-v2', // Fast and efficient embedding model
 });
 
 // Text splitter configuration
@@ -57,8 +57,8 @@ export async function processDocument(
   fileType: string,
   onProgress?: (stage: string, progress: number) => void
 ): Promise<void> {
-  if (!OPENAI_API_KEY) {
-    throw new Error('OpenAI API key not configured');
+  if (!HUGGINGFACE_API_KEY) {
+    throw new Error('Hugging Face API key not configured');
   }
 
   try {
@@ -139,8 +139,8 @@ export async function searchDocuments(
   score: number;
   metadata: Record<string, any>;
 }>> {
-  if (!OPENAI_API_KEY) {
-    throw new Error('OpenAI API key not configured');
+  if (!HUGGINGFACE_API_KEY) {
+    throw new Error('Hugging Face API key not configured');
   }
 
   try {

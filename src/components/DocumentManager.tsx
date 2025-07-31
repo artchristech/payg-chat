@@ -124,7 +124,7 @@ export function DocumentManager({ userId }: DocumentManagerProps) {
           setUploadProgress({
             stage: 'complete',
             progress: 100,
-            message: 'Document uploaded (embedding processing failed)',
+            message: 'Document uploaded (AI processing failed)',
           });
         }
       } else {
