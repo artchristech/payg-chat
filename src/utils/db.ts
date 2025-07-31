@@ -44,7 +44,7 @@ function dbMessageToMessage(dbMessage: DatabaseMessage): Message {
     audioUrl: dbMessage.audio_url,
     fileName: dbMessage.file_name,
     fileType: dbMessage.file_type,
-    parentId: dbMessage.parent_id || null,
+    parentId: dbMessage.parent_id,
     promptTokens: dbMessage.prompt_tokens,
     completionTokens: dbMessage.completion_tokens,
     cost: dbMessage.cost,

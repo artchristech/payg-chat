@@ -10,6 +10,7 @@ import { ConversationGraph } from './ConversationGraph';
 import { ContextCanvas } from './ContextCanvas';
 import { ConfirmationModal } from './ConfirmationModal';
 import { useChat } from '../hooks/useChat';
+import { useChatStore } from '../store/chatStore';
 import { AlertCircle, SquarePen, Network, LogOut } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 
@@ -25,21 +26,23 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [conversationToDeleteId, setConversationToDeleteId] = useState<string | null>(null);
 
+  // Get error state from store
+  const error = useChatStore(state => state.error);
+  const clearError = useChatStore(state => state.clearError);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const { 
     messages, 
-    isLoading, 
-    error, 
+    isLoading,
     selectedModel, 
     sendMessage, 
     clearChat, 
     loadConversation,
     deleteConversation,
     setSelectedModel, 
-    clearError, 
     maxTokens, 
     setMaxTokens, 
     conversationCost,

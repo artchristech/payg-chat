@@ -35,13 +35,6 @@ async function generateEmbedding(text: string): Promise<number[]> {
   return data.data[0].embedding;
 }
 
-// Text splitter configuration
-const textSplitter = new RecursiveCharacterTextSplitter({
-  chunkSize: 1000,
-  chunkOverlap: 200,
-  separators: ['\n\n', '\n', ' ', ''],
-});
-
 /**
  * Add document chunks to the vector store
  */
@@ -78,78 +71,6 @@ export async function addDocumentsToVectorStore(chunks: DocumentChunk[]): Promis
 
   if (error) {
     throw new Error(`Failed to store document chunks: ${error.message}`);
-  }
-}
-
-/**
- * Process a document: split into chunks, generate embeddings, and store in Supabase
- */
-export async function processDocument(
-  documentId: string,
-  userId: string,
-  title: string,
-  content: string,
-  fileType: string,
-  onProgress?: (stage: string, progress: number) => void
-): Promise<void> {
-  if (!OPENAI_API_KEY) {
-    throw new Error('OpenAI API key not configured');
-  }
-
-  try {
-    onProgress?.('processing', 10);
-
-    // Split document into chunks
-    const docs = await textSplitter.createDocuments([content], [
-      {
-        documentId,
-        userId,
-        title,
-        fileType,
-      },
-    ]);
-
-    onProgress?.('processing', 30);
-
-    if (docs.length === 0) {
-      throw new Error('No content to process');
-    }
-
-    // Prepare chunks for database storage
-    const chunks: Omit<DocumentChunk, 'id' | 'createdAt'>[] = [];
-    
-    for (let i = 0; i < docs.length; i++) {
-      const doc = docs[i];
-      chunks.push({
-        documentId,
-        userId,
-        content: doc.pageContent,
-        chunkIndex: i,
-        metadata: {
-          ...doc.metadata,
-          chunkSize: doc.pageContent.length,
-        },
-      });
-    }
-
-    onProgress?.('embedding', 50);
-
-    // Store chunks in database
-    const savedChunks = await createDocumentChunks(chunks);
-    
-    onProgress?.('storing', 70);
-
-    // Add chunks to vector store with embeddings
-    await addDocumentsToVectorStore(savedChunks);
-    
-    // Update document chunk count
-    await updateDocumentChunkCount(documentId, chunks.length);
-
-    onProgress?.('complete', 100);
-
-  } catch (error) {
-    console.error('Error processing document:', error);
-    throw error;
   }
 }
 
@@ -202,23 +123,4 @@ export async function searchVectorStore(
     console.error('Error searching vector store:', error);
     throw error;
   }
-}
-
-// Legacy function for backward compatibility
-export async function searchDocuments(
-  userId: string,
-  query: string,
-  k: number = 5,
-  scoreThreshold: number = 0.7
-): Promise<Array<{
-  content: string;
-  score: number;
-  metadata: Record<string, any>;
-}>> {
-  const results = await searchVectorStore(query, userId, k, scoreThreshold);
-  return results.map(chunk => ({
-    content: chunk.content,
-    score: chunk.metadata.similarity || 0,
-    metadata: chunk.metadata,
-  }));
 }

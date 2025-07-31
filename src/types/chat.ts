@@ -11,7 +11,7 @@ export interface Message {
   fileType?: string;
   isLoading?: boolean;
   isHidden?: boolean;
-  parentId: string | null;
+  parentId?: string | null;
   wiredContextIds?: string[];
   promptTokens?: number;
   completionTokens?: number;

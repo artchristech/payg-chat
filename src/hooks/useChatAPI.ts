@@ -75,7 +75,7 @@ export function useChatAPI() {
             ...usage, 
             cost: messageCost,
             content: assistantContent 
-          } as any);
+          });
         },
         controller.signal
       );
