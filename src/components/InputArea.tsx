@@ -15,7 +15,7 @@ interface InputAreaProps {
   maxTokens: number;
   onMaxTokensChange: (value: number) => void;
   resetHistoryNavigation?: () => void;
-  conversationCost: number; // This is now managed by Zustand, but kept for prop drilling if needed
+  conversationCost: number;
   isCompletionOnlyMode: boolean;
   setIsCompletionOnlyMode: (value: boolean) => void;
   onCancelRequest: () => void;
@@ -25,8 +25,6 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
-  const [selectedFileContent, setSelectedFileContent] = useState<string | null>(null);
-  const [selectedFileTitle, setSelectedFileTitle] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isImageGenerationMode, setIsImageGenerationMode] = useState(false);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
@@ -162,9 +160,8 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
         selectedImage || undefined,
         undefined,
         maxTokens,
-        selectedFile?.name || selectedFileTitle || undefined, // Use selectedFileTitle if available
+        selectedFile?.name,
         selectedFile?.type
-        selectedFileContent || undefined, // Pass file content
       );
       
       setMessage('');
@@ -172,8 +169,6 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
       setSelectedImageFile(null);
       setSelectedFile(null);
       setIsImageGenerationMode(false);
-      setSelectedFileContent(null);
-      setSelectedFileTitle(null);
       setDetectedCommand(null);
       setShowAutocomplete(false);
       setAutocompleteOptions([]);
@@ -181,11 +176,9 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
     }
   }, [message, selectedImage, selectedFile, isImageGenerationMode, detectedCommand, onSendMessage, maxTokens]);
 
-  const handleImageSelect = useCallback((file: File, preview: string, fileContent?: string, fileTitle?: string) => {
+  const handleImageSelect = useCallback((file: File, preview: string) => {
     setSelectedImage(preview);
     setSelectedImageFile(file);
-    setSelectedFileContent(fileContent || null);
-    setSelectedFileTitle(fileTitle || null);
   }, []);
 
   const handleImageRemove = useCallback(() => {
@@ -193,7 +186,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
     setSelectedImageFile(null);
   }, []);
 
-  const handleFileSelect = useCallback((file: File, preview?: string, fileContent?: string, fileTitle?: string) => {
+  const handleFileSelect = useCallback((file: File) => {
     if (file.type.startsWith('image/')) {
       // Handle image files
       const reader = new FileReader();
@@ -204,12 +197,9 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
       };
       reader.readAsDataURL(file);
     } else {
-      // Handle non-image files (text, json, etc.)
+      // Handle non-image files
       setSelectedFile(file);
-      setSelectedFileContent(fileContent || null);
-      setSelectedFileTitle(fileTitle || null);
     }
-    // No need for preview for non-image files here, as we're displaying file name
   }, []);
 
   const handleFileRemove = useCallback(() => {
@@ -346,7 +336,7 @@ export function InputArea({ onSendMessage, isLoading, placeholder = "Ask me anyt
                 <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 <span className="text-sm text-gray-800 dark:text-gray-200 max-w-48 truncate">
                   {selectedFile.name}
-                </span> 
+                </span>
                 <span className="text-xs text-gray-500 dark:text-gray-400">
                   ({selectedFile.type || 'unknown'})
                 </span>

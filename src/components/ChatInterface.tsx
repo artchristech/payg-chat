@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MessageBubble } from './MessageBubble';
-import { InputArea } from './InputArea'; // Keep InputArea
+import { InputArea } from './InputArea';
 import { Sidebar } from './Sidebar';
 import { DocumentManager } from './DocumentManager';
 import { DocumentSearch } from './DocumentSearch';
@@ -10,8 +10,6 @@ import { ConversationGraph } from './ConversationGraph';
 import { ContextCanvas } from './ContextCanvas';
 import { ConfirmationModal } from './ConfirmationModal';
 import { useChat } from '../hooks/useChat';
-import { ModelSelectionModal } from './ModelSelectionModal'; // Import ModelSelectionModal
-import { useChatStore } from '../store/chatStore';
 import { AlertCircle, SquarePen, Network, LogOut } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 
@@ -25,12 +23,7 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
   const [currentView, setCurrentView] = useState<'chat' | 'documents'>('chat');
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-  const [showDocumentModal, setShowDocumentModal] = useState(false); // State for document modal
   const [conversationToDeleteId, setConversationToDeleteId] = useState<string | null>(null);
-
-  // Get error state from store
-  const error = useChatStore(state => state.error);
-  const clearError = useChatStore(state => state.clearError);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -38,13 +31,15 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
 
   const { 
     messages, 
-    isLoading,
+    isLoading, 
+    error, 
     selectedModel, 
     sendMessage, 
     clearChat, 
     loadConversation,
     deleteConversation,
     setSelectedModel, 
+    clearError, 
     maxTokens, 
     setMaxTokens, 
     conversationCost,
@@ -112,7 +107,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
     setCurrentView(view);
     if (view === 'chat') {
       setViewMode('chat'); // Reset to chat mode when switching back to chat view
-      setShowDocumentModal(false); // Close document modal if open
     }
   };
 
@@ -146,16 +140,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
             <div className="w-32 h-1 bg-gradient-to-r from-blue-500/30 via-purple-500/40 to-blue-500/30 rounded-full"></div>
             
             <div className="absolute right-0 flex items-center gap-2">
-              {/* Document Management Button */}
-              <button
-                onClick={() => setShowDocumentModal(true)}
-                className="w-10 h-10 flex items-center justify-center text-gray-400 hover:bg-gray-700 dark:hover:bg-gray-600 hover:text-gray-200 rounded-lg transition-colors"
-                title="Manage Documents"
-              >
-                <FileText className="w-4 h-4" />
-              </button>
-
-              {/* Chat View Specific Buttons */}
               {!isEmpty && currentView === 'chat' && (
                 <>
                   <button
@@ -206,10 +190,8 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
           </div>
         )}
 
-        {/* Document Manager Modal */}
-        {showDocumentModal ? (
-          // Render DocumentManager and DocumentSearch inside a modal-like div
-          // This could be a dedicated modal component for better UX
+        {/* Messages */}
+        {currentView === 'documents' ? (
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             <DocumentSearch userId={userId} />
             <DocumentManager userId={userId} />
@@ -290,14 +272,6 @@ export function ChatInterface({ userId }: ChatInterfaceProps) {
         confirmText="Delete"
         cancelText="Cancel"
         variant="danger"
-      />
-
-      {/* Generic Modal for Document Manager (can be reused) */}
-      <ModelSelectionModal // Reusing ModelSelectionModal as a generic modal for now
-        isOpen={showDocumentModal}
-        onClose={() => setShowDocumentModal(false)}
-        onModelSelect={() => {}} // No model selection needed here
-        currentSelectedModel="" // No model selection needed here
       />
     </div>
   );

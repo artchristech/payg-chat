@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Loader2, FileText, Zap } from 'lucide-react';
-import { searchVectorStore } from '../utils/vectorStore';
+import { searchDocuments } from '../utils/vectorStore';
 
 interface DocumentSearchProps {
   userId: string;
@@ -26,11 +26,11 @@ export function DocumentSearch({ userId }: DocumentSearchProps) {
     setError(null);
 
     try {
-      const searchResults = await searchVectorStore(query, userId, 10, 0.5);
+      const searchResults = await searchDocuments(userId, query, 10, 0.5);
       setResults(searchResults);
     } catch (err) {
       console.error('Search error:', err);
-      setError(err instanceof Error ? err.message : 'Search failed. Please check your OpenAI API key.');
+      setError(err instanceof Error ? err.message : 'Search failed');
     } finally {
       setIsSearching(false);
     }
@@ -109,12 +109,12 @@ export function DocumentSearch({ userId }: DocumentSearchProps) {
                 <div className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-blue-500" />
                   <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {result.metadata.documentTitle || 'Unknown Document'}
+                    {result.metadata.title || 'Unknown Document'}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {Math.round((result.metadata.similarity || 0) * 100)}% match
+                    {Math.round(result.score * 100)}% match
                   </span>
                 </div>
               </div>
@@ -123,10 +123,10 @@ export function DocumentSearch({ userId }: DocumentSearchProps) {
                 {highlightText(result.content, query)}
               </p>
               
-              {result.metadata.documentFileType && (
+              {result.metadata.fileType && (
                 <div className="mt-2 flex items-center gap-2">
                   <span className="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">
-                    {result.metadata.documentFileType}
+                    {result.metadata.fileType}
                   </span>
                 </div>
               )}

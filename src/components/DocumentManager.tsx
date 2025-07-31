@@ -2,10 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Upload, FileText, Trash2, Download, Search, Filter, Calendar, HardDrive, AlertCircle, CheckCircle, Loader2, Zap } from 'lucide-react';
 import { Document, UploadProgress } from '../types/documents';
 import { getUserDocuments, createDocument, deleteDocument, uploadFile, getUserDocumentStats } from '../utils/documents';
-import { parseFile } from '../utils/fileParser';
-import { addDocumentsToVectorStore } from '../utils/vectorStore';
-import { createDocumentChunks } from '../utils/documents';
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { processDocument } from '../utils/vectorStore';
 
 interface DocumentManagerProps {
   userId: string;
@@ -76,14 +73,11 @@ export function DocumentManager({ userId }: DocumentManagerProps) {
       });
 
       // Read file content for text files
-      let parsedContent = '';
-      let parsedTitle = file.name;
+      let content = '';
+      if (file.type.startsWith('text/') || file.name.endsWith('.md') || file.name.endsWith('.txt')) {
+        content = await file.text();
+      }
 
-      // Use the new file parser for content extraction
-      const { content, title } = await parseFile(file);
-      parsedContent = content;
-      parsedTitle = title;
-      
       // Create document record
       const newDocument = await createDocument(
         userId,
@@ -95,7 +89,7 @@ export function DocumentManager({ userId }: DocumentManagerProps) {
       );
 
       // Process document with LangChain if it has content
-      if (parsedContent.trim()) {
+      if (content.trim()) {
         setUploadProgress({
           stage: 'processing',
           progress: 60,
@@ -103,54 +97,34 @@ export function DocumentManager({ userId }: DocumentManagerProps) {
         });
 
         try {
-          // Split document into chunks
-          const textSplitter = new RecursiveCharacterTextSplitter({
-            chunkSize: 1000,
-            chunkOverlap: 200,
-          });
-          
-          const docs = await textSplitter.createDocuments([parsedContent]);
-          
-          setUploadProgress({
-            stage: 'embedding',
-            progress: 70,
-            message: 'Generating embeddings...',
-          });
-
-          // Create chunks for database
-          const chunks = docs.map((doc, index) => ({
-            documentId: newDocument.id,
+          await processDocument(
+            newDocument.id,
             userId,
-            content: doc.pageContent,
-            chunkIndex: index,
-            metadata: {
-              title: file.name,
-              fileType: file.type || 'application/octet-stream',
-              chunkSize: doc.pageContent.length,
-            },
-          }));
-
-          // Save chunks to database
-          const savedChunks = await createDocumentChunks(chunks);
-          
-          setUploadProgress({
-            stage: 'storing',
-            progress: 90,
-            message: 'Storing in vector database...',
-          });
-
-          // Add to vector store
-          await addDocumentsToVectorStore(savedChunks);
-          
-          // Update document chunk count
-          await updateDocumentChunkCount(newDocument.id, chunks.length);
+            file.name,
+            content,
+            file.type || 'application/octet-stream',
+            (stage, progress) => {
+              const stageMessages = {
+                processing: 'Splitting document into chunks...',
+                embedding: 'Generating embeddings...',
+                storing: 'Storing in vector database...',
+                complete: 'Document processed successfully!',
+              };
+              
+              setUploadProgress({
+                stage: stage as any,
+                progress: 60 + (progress * 0.4), // Scale to 60-100%
+                message: stageMessages[stage as keyof typeof stageMessages] || 'Processing...',
+              });
+            }
+          );
         } catch (embeddingError) {
           console.error('Error processing document embeddings:', embeddingError);
           // Don't fail the entire upload if embedding fails
           setUploadProgress({
             stage: 'complete',
             progress: 100,
-            message: 'Document uploaded (AI processing failed)',
+            message: 'Document uploaded (embedding processing failed)',
           });
         }
       } else {

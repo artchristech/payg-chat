@@ -320,7 +320,7 @@ export async function sendMessageToOpenRouter(
   }
 }
 
-export function convertMessagesToOpenRouterFormat(messages: Message[], selectedModelId: string, contextBlocks: Record<string, any> = {}, desiredResponseTokens?: number, ragContext?: string): OpenRouterMessage[] {
+export function convertMessagesToOpenRouterFormat(messages: Message[], selectedModelId: string, contextBlocks: Record<string, any> = {}, desiredResponseTokens?: number): OpenRouterMessage[] {
   // Find the selected model to check if it supports multimodal input
   const selectedModel = openRouterModels.find(model => model.id === selectedModelId);
   const isMultiModal = selectedModel?.multiModal || false;
@@ -376,15 +376,6 @@ export function convertMessagesToOpenRouterFormat(messages: Message[], selectedM
       content: `You have access to the following context information. Use it to provide more informed and relevant responses:\n\n${contextContent}`
     };
     convertedMessages.unshift(contextSystemMessage);
-  }
-
-  // Add RAG context as system message if provided (prioritize over wired context)
-  if (ragContext) {
-    const ragSystemMessage: OpenRouterMessage = {
-      role: 'system',
-      content: `Here is some highly relevant information from your documents that might help answer the user's query:\n\n${ragContext}`
-    };
-    convertedMessages.unshift(ragSystemMessage);
   }
 
   // Add system message for response length if specified
